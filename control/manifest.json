@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "files": {
+    "CHATGPT_WORK_CONTROL.md": "3b56e09a4a87bcd2857dd2a8739a55cf3dc029889ec0cba01466a9f8b4ff6a7a",
+    "control/index.json": "d62f7c205fbbc5e40339773f8632c77b85adb054d42ff1b9479ce1bf7c2f2f1f",
+    "control/sections/01-judgment.md": "a59c9c57d2fb9d688bb9a6aa72250d41d1c9389d286f724167b0ff41864c6521",
+    "control/sections/02-development.md": "63f8c966645f01488ce97e8f672eb7536b6a05a4c105eb6b6874cb4db1afe893",
+    "control/sections/03-responsibility.md": "a9e8475828aeaaf448c64c480dd502a311a35382ac3a0112678f2d87fc7ef616",
+    "control/sections/04-validation.md": "acad4d8f54d8d36a3c25934d50cc61d3a403db4ae74eb9987b1a9a505eff1e67",
+    "control/sections/05-readme-github.md": "c9c07f24d439073ce9bd0d52f0d98c96af5bcaa4e795348d3744369c1d10101a",
+    "control/sections/06-reusable-assets.md": "d2726341141f90470119dceb59971897754218b382da24606ea1afcab0a3d4fc",
+    "control/sections/07-prohibitions.md": "3a594d2e9443cb5f862a3805ec3b3aa29fc46ce34d21fad6a7b583e14633a52c"
+  }
+}

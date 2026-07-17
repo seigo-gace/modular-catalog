@@ -9,7 +9,7 @@
   "layers": ["Part", "Feature"],
   "languages": ["JavaScript"],
   "runtimes": ["Node.js >=22"],
-  "tags": ["http", "retry", "backoff", "webhook"],
+  "tags": ["http", "retry", "backoff"],
   "dependencies": [],
   "constraints": ["Caller must provide idempotency protection for non-idempotent requests."],
   "source": {

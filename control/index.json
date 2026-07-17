@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "entry": "CHATGPT_WORK_CONTROL.md",
+  "manifest": "control/manifest.json",
+  "always": [
+    "control/sections/01-judgment.md",
+    "control/sections/07-prohibitions.md"
+  ],
+  "tasks": {
+    "design": [
+      "control/sections/02-development.md"
+    ],
+    "implementation": [
+      "control/sections/02-development.md",
+      "control/sections/04-validation.md",
+      "control/sections/06-reusable-assets.md"
+    ],
+    "review": [
+      "control/sections/02-development.md",
+      "control/sections/04-validation.md"
+    ],
+    "test": [
+      "control/sections/04-validation.md"
+    ],
+    "github": [
+      "control/sections/05-readme-github.md"
+    ],
+    "handoff": [
+      "control/sections/03-responsibility.md"
+    ],
+    "reuse": [
+      "control/sections/06-reusable-assets.md"
+    ]
+  }
+}

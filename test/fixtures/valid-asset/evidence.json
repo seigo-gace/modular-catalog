@@ -6,7 +6,7 @@
   },
   "user": {
     "passed": true,
-    "commands": ["node --test tests/user/webhook-delivery.test.js"],
-    "expectedResults": ["A transient webhook failure is retried and eventually delivered once"]
+    "commands": ["node --test tests/user/http-retry-flow.test.js"],
+    "expectedResults": ["A transient HTTP failure is retried and succeeds without duplicate completion"]
   }
 }

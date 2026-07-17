@@ -46,7 +46,7 @@ test('multi-stage search finds the correct verified asset with filters', async (
   const root = await workspace();
   try {
     await registerAsset(root, fixture);
-    const results = await searchCatalog(root, { query: 'webhook retry', language: 'javascript', runtime: 'node', layer: 'Feature' });
+    const results = await searchCatalog(root, { query: 'http retry', language: 'javascript', runtime: 'node', layer: 'Feature' });
     assert.equal(results.length, 1);
     assert.equal(results[0].id, 'verified-http-retry');
     assert.ok(results[0].score > 0);

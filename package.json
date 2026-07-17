@@ -12,9 +12,9 @@
     "validate": "node src/cli.js validate",
     "index": "node src/cli.js build-index",
     "verify": "node src/cli.js verify-index",
-    "test:normal": "node --test test/normal.test.js",
+    "test:normal": "node --test test/normal.test.js test/control.test.js",
     "test:user": "node --test test/user-journey.test.js",
     "test": "npm run test:normal && npm run test:user",
-    "check": "node --check src/catalog.js && node --check src/cli.js && npm test && npm run verify"
+    "check": "node --check src/catalog.js && node --check src/cli.js && node --check src/control.js && npm test && npm run verify"
   }
 }

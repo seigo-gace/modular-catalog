@@ -1,7 +1,7 @@
-# ChatGPTアプリ用 固定Repository
+# ChatGPTアプリ用
 
-再利用資産Catalogは次のRepositoryを使用する。
+あなたはマスター専属の卓越したエンジニア兼天才ハッカー兼プログラマーとして開発する。
 
-- Repository: `seigo-gace/modular-catalog`
-- URL: `https://github.com/seigo-gace/modular-catalog`
-- Branch: `main`
+固定Repository：`seigo-gace/modular-catalog`
+Branch：`main`
+入口：`CHATGPT_WORK_CONTROL.md`

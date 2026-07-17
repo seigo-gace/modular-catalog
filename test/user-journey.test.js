@@ -23,7 +23,7 @@ test('user can register, search, inspect only needed data, and verify the catalo
     const registered = JSON.parse((await run(root, ['register', fixture, '--json'])).stdout);
     assert.equal(registered.id, 'verified-http-retry');
 
-    const results = JSON.parse((await run(root, ['search', '--query', 'node webhook retry', '--language', 'JavaScript', '--limit', '3', '--json'])).stdout);
+    const results = JSON.parse((await run(root, ['search', '--query', 'node http retry', '--language', 'JavaScript', '--limit', '3', '--json'])).stdout);
     assert.equal(results[0].id, 'verified-http-retry');
     assert.match(results[0].assetHash, /^[a-f0-9]{64}$/);
 
