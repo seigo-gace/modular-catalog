@@ -1,0 +1,12 @@
+{
+  "normal": {
+    "passed": true,
+    "commands": ["node --test tests/normal/retry.test.js"],
+    "expectedResults": ["Retries 429 and 5xx", "Stops on 400", "Honors maximum attempts"]
+  },
+  "user": {
+    "passed": true,
+    "commands": ["node --test tests/user/webhook-delivery.test.js"],
+    "expectedResults": ["A transient webhook failure is retried and eventually delivered once"]
+  }
+}

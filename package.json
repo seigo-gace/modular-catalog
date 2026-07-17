@@ -1,0 +1,20 @@
+{
+  "name": "modular-catalog",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Verified reusable development asset catalog with compact multi-stage search.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "search": "node src/cli.js search",
+    "validate": "node src/cli.js validate",
+    "index": "node src/cli.js build-index",
+    "verify": "node src/cli.js verify-index",
+    "test:normal": "node --test test/normal.test.js",
+    "test:user": "node --test test/user-journey.test.js",
+    "test": "npm run test:normal && npm run test:user",
+    "check": "node --check src/catalog.js && node --check src/cli.js && npm test && npm run verify"
+  }
+}

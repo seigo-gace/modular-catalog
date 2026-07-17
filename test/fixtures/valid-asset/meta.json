@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "verified-http-retry",
+  "name": "Verified HTTP Retry",
+  "version": "1.0.0",
+  "summary": "Deterministic retry policy for transient HTTP failures.",
+  "purpose": "Retry transient HTTP requests without duplicating permanent failures.",
+  "responsibility": "Classify retryable responses and calculate bounded retry delay.",
+  "layers": ["Part", "Feature"],
+  "languages": ["JavaScript"],
+  "runtimes": ["Node.js >=22"],
+  "tags": ["http", "retry", "backoff", "webhook"],
+  "dependencies": [],
+  "constraints": ["Caller must provide idempotency protection for non-idempotent requests."],
+  "source": {
+    "repository": "seigo-gace/example",
+    "commit": "0123456789abcdef0123456789abcdef01234567"
+  },
+  "verifiedAt": "2026-07-17T00:00:00.000Z"
+}
