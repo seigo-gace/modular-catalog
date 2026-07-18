@@ -1,0 +1,29 @@
+name: Catalog Workspace Export
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Export workspace
+        run: |
+          set -euo pipefail
+          mkdir -p workspace
+          rsync -a --exclude='.git' ./ workspace/
+          find workspace -type f -print0 | sort -z | xargs -0 sha256sum > workspace/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: modular-catalog-workspace
+          path: workspace
+          if-no-files-found: error
+          retention-days: 7
