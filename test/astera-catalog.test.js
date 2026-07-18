@@ -3,7 +3,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { loadAssetSection, searchCatalog, verifyIndex } from '../src/catalog.js';
 
-const root = path.resolve('.');
+const root = path.dirname(path.dirname(new URL(import.meta.url).pathname));
 
 test('AsteraをPartからApplication Systemまで27責務として登録する', async () => {
   const verified = await verifyIndex(root);
