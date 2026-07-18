@@ -297,12 +297,12 @@
     "rubric_version": "quality-completion-rubric.v1",
     "blocking_rule_version": "blocking-rules.v1",
     "taxonomy_version": "1.0.0",
-    "content_hash": "sha256:268099648d2468882d82aeacb54bed6e5b9cf0d7e10ba6648372a831e07be9a3",
-    "evaluated_at": "2026-07-18T02:18:31.332Z"
+    "content_hash": "sha256:839b0dce5c4f40ef5aebe23d86fe81d1395bc3a4063a115cc78b549346777746",
+    "evaluated_at": "2026-07-18T02:23:23.240Z"
   },
   "kb_record": {
     "schema_version": "astera.kb-record.v1",
-    "idempotency_key": "sha256:d559c7f06f9f85691e2a39a564f21708f8f686639d35a6e09b28e52319d0efe1",
+    "idempotency_key": "sha256:f9b1a79ba0cf5ad03c057b767c8cd099f75aed4853441efed173e7ca3a3191b7",
     "project_id": "modular-catalog",
     "candidate_id": "astera-tenant-api-key-management",
     "candidate_version": 1,
@@ -315,7 +315,7 @@
       "path_key": "G01/G01-L03/G01-L03-M01/G01-L03-M01-S03",
       "taxonomy_version": "1.0.0"
     },
-    "body": "# 目的\nTenant Keyの発行、Hash照合、Plan・状態解決を行う。\n# 範囲\nAstera v8内で実稼働・検証済みの当該責務だけを再利用単位として抽出する。\n# 責任分担\nFeatureがこの責務を所有し、上位層は公開契約だけを利用する。\n# 構成\n元コード `src/auth/tenant.js` を責務境界として使用する。\n# 入力\n各Sourceが公開する関数、Class、設定、またはHTTP契約。\n# 出力\nTenant Keyの発行、Hash照合、Plan・状態解決を行う。\n# データ構造\nAstera v8の現行ContractとVersionを維持する。\n# 処理フロー\n入力検証、責務処理、結果返却、必要時の障害通知の順で実行する。\n# 判定条件\n通常テストとユーザー利用テスト合格後、Astera品質・完成度95点以上かつBlocking 0件だけ掲載する。\n# 異常処理\n入力不正と依存障害を成功扱いせず、所有する境界から明示的に返す。\n# テスト条件\nAstera全通常テスト81件と責務に対応する実利用経路を検証する。\n# 完成条件\nSource一致、二系統テスト合格、Astera判定合格、Manifest整合。\n# 実装順序\nPartから上位へ依存方向に沿って再構築する。\n# 失敗時処理\n未掲載のまま問題責務へ差し戻す。\n# 再試行\n修正後に二系統テストとAstera判定を再実行する。\n# Rollback\n元Repositoryの検証済みCommitを正本として維持する。\n# Archive\n旧Versionは削除せずGit履歴で保持する。\n# Version\n1.1.1\n# 変更履歴\nAstera v8検証済みCodeから5段責務単位へ再構築した。\n# 既知の制限\n再利用先Projectへ取り込み、同Project内で依存と動作を再検証する。\n# 再評価方法\nSourceまたはContract変更時にCandidate Versionを上げて再判定する。\n",
+    "body": "# 目的\nTenant Keyの発行、Hash照合、Plan・状態解決を行う。\n# 範囲\nAstera v8内で実稼働・検証済みの当該責務だけを再利用単位として抽出する。\n# 責任分担\nFeatureがこの責務を所有し、上位層は公開契約だけを利用する。\n# 構成\n元コード `src/auth/tenant.js` を責務境界として使用する。\n# 入力\n各Sourceが公開する関数、Class、設定、またはHTTP契約。\n# 出力\nTenant Keyの発行、Hash照合、Plan・状態解決を行う。\n# データ構造\nAstera v8の現行ContractとVersionを維持する。\n# 処理フロー\n入力検証、責務処理、結果返却、必要時の障害通知の順で実行する。\n# 判定条件\n通常テストとユーザー利用テスト合格後、Astera品質・完成度95点以上かつBlocking 0件だけ掲載する。\n# 異常処理\n入力不正と依存障害を成功扱いせず、所有する境界から明示的に返す。\n# テスト条件\nAstera全通常テスト85件と責務に対応する実利用経路を検証する。\n# 完成条件\nSource一致、二系統テスト合格、Astera判定合格、Manifest整合。\n# 実装順序\nPartから上位へ依存方向に沿って再構築する。\n# 失敗時処理\n未掲載のまま問題責務へ差し戻す。\n# 再試行\n修正後に二系統テストとAstera判定を再実行する。\n# Rollback\n元Repositoryの検証済みCommitを正本として維持する。\n# Archive\n旧Versionは削除せずGit履歴で保持する。\n# Version\n1.1.1\n# 変更履歴\nAstera v8検証済みCodeから5段責務単位へ再構築した。\n# 既知の制限\n再利用先Projectへ取り込み、同Project内で依存と動作を再検証する。\n# 再評価方法\nSourceまたはContract変更時にCandidate Versionを上げて再判定する。\n",
     "tags": [
       "ASTERA",
       "quality",
@@ -330,7 +330,7 @@
       "run_id": "run_20260718_01",
       "task_id": "astera-v8-five-tier-decomposition",
       "trace_id": "trace_astera_tenant_api_key_management",
-      "content_hash": "sha256:268099648d2468882d82aeacb54bed6e5b9cf0d7e10ba6648372a831e07be9a3"
+      "content_hash": "sha256:839b0dce5c4f40ef5aebe23d86fe81d1395bc3a4063a115cc78b549346777746"
     },
     "versions": {
       "module": "1.0.0",

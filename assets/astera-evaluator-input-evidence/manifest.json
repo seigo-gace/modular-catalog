@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "algorithm": "sha256",
-  "assetHash": "877ae4a03bb38e3050e3e5ffd8d2f1f62ebfbd52eb41b94d9ed541fb078555eb",
+  "assetHash": "e6959c3b46c18a6556aec7909303cb625c835223a96acab9622a1ecf1386f8ee",
   "files": [
     {
       "path": "architecture.md",
@@ -11,17 +11,17 @@
     {
       "path": "astera-evaluation.json",
       "size": 11810,
-      "sha256": "58c6449e7c52c9b2c86f6be30038248cda6ce565975799898dfdc006c45381bb"
+      "sha256": "db3f37ca14ced913553e2bea0df5c23902d670b85a02383044955c59886ae193"
     },
     {
       "path": "design.md",
       "size": 2083,
-      "sha256": "2c275b4bc4618a1b29fcff3c6cc31bc3f8e09f5877b0bd128f6b59ce980b010a"
+      "sha256": "d9507ba4d15d77ec1c764d0e6942d4e3840f0e569ba3f82148e41a0a0775a239"
     },
     {
       "path": "evidence.json",
       "size": 1388,
-      "sha256": "11d8fdde2301155cbe617a095bc42b6ca02892f2be1909233c57dff4894ae63d"
+      "sha256": "505f7c05a54cc12d6360e78e415a6822d48e20dea984ce574fbe268e1d411a70"
     },
     {
       "path": "logic.md",

@@ -297,12 +297,12 @@
     "rubric_version": "quality-completion-rubric.v1",
     "blocking_rule_version": "blocking-rules.v1",
     "taxonomy_version": "1.0.0",
-    "content_hash": "sha256:4f30a34c262767222c076be3dc24acc44387e745841ee973abc4471d178ccf38",
-    "evaluated_at": "2026-07-18T02:18:31.301Z"
+    "content_hash": "sha256:31a2d3270f1d45f5f21c92d282451fc743c71bab0dc0786f933f794be63d21b5",
+    "evaluated_at": "2026-07-18T02:23:23.206Z"
   },
   "kb_record": {
     "schema_version": "astera.kb-record.v1",
-    "idempotency_key": "sha256:a5f547dedf6d71945cbe0ff3fca33c1e88b21da19794ebc6433e910312167dfc",
+    "idempotency_key": "sha256:7e7df2ce61b0c857ca29b4cf20443e3a592c2ba39cbd749dc48800e13ce793d4",
     "project_id": "modular-catalog",
     "candidate_id": "astera-safe-json-processing",
     "candidate_version": 1,
@@ -315,7 +315,7 @@
       "path_key": "G01/G01-L03/G01-L03-M01/G01-L03-M01-S03",
       "taxonomy_version": "1.0.0"
     },
-    "body": "# 目的\nJSON入力検証、Secret除去、循環参照の安全化を行う。\n# 範囲\nAstera v8内で実稼働・検証済みの当該責務だけを再利用単位として抽出する。\n# 責任分担\nPartがこの責務を所有し、上位層は公開契約だけを利用する。\n# 構成\n元コード `src/safe-json.js` を責務境界として使用する。\n# 入力\n各Sourceが公開する関数、Class、設定、またはHTTP契約。\n# 出力\nJSON入力検証、Secret除去、循環参照の安全化を行う。\n# データ構造\nAstera v8の現行ContractとVersionを維持する。\n# 処理フロー\n入力検証、責務処理、結果返却、必要時の障害通知の順で実行する。\n# 判定条件\n通常テストとユーザー利用テスト合格後、Astera品質・完成度95点以上かつBlocking 0件だけ掲載する。\n# 異常処理\n入力不正と依存障害を成功扱いせず、所有する境界から明示的に返す。\n# テスト条件\nAstera全通常テスト81件と責務に対応する実利用経路を検証する。\n# 完成条件\nSource一致、二系統テスト合格、Astera判定合格、Manifest整合。\n# 実装順序\nPartから上位へ依存方向に沿って再構築する。\n# 失敗時処理\n未掲載のまま問題責務へ差し戻す。\n# 再試行\n修正後に二系統テストとAstera判定を再実行する。\n# Rollback\n元Repositoryの検証済みCommitを正本として維持する。\n# Archive\n旧Versionは削除せずGit履歴で保持する。\n# Version\n1.1.1\n# 変更履歴\nAstera v8検証済みCodeから5段責務単位へ再構築した。\n# 既知の制限\n再利用先Projectへ取り込み、同Project内で依存と動作を再検証する。\n# 再評価方法\nSourceまたはContract変更時にCandidate Versionを上げて再判定する。\n",
+    "body": "# 目的\nJSON入力検証、Secret除去、循環参照の安全化を行う。\n# 範囲\nAstera v8内で実稼働・検証済みの当該責務だけを再利用単位として抽出する。\n# 責任分担\nPartがこの責務を所有し、上位層は公開契約だけを利用する。\n# 構成\n元コード `src/safe-json.js` を責務境界として使用する。\n# 入力\n各Sourceが公開する関数、Class、設定、またはHTTP契約。\n# 出力\nJSON入力検証、Secret除去、循環参照の安全化を行う。\n# データ構造\nAstera v8の現行ContractとVersionを維持する。\n# 処理フロー\n入力検証、責務処理、結果返却、必要時の障害通知の順で実行する。\n# 判定条件\n通常テストとユーザー利用テスト合格後、Astera品質・完成度95点以上かつBlocking 0件だけ掲載する。\n# 異常処理\n入力不正と依存障害を成功扱いせず、所有する境界から明示的に返す。\n# テスト条件\nAstera全通常テスト85件と責務に対応する実利用経路を検証する。\n# 完成条件\nSource一致、二系統テスト合格、Astera判定合格、Manifest整合。\n# 実装順序\nPartから上位へ依存方向に沿って再構築する。\n# 失敗時処理\n未掲載のまま問題責務へ差し戻す。\n# 再試行\n修正後に二系統テストとAstera判定を再実行する。\n# Rollback\n元Repositoryの検証済みCommitを正本として維持する。\n# Archive\n旧Versionは削除せずGit履歴で保持する。\n# Version\n1.1.1\n# 変更履歴\nAstera v8検証済みCodeから5段責務単位へ再構築した。\n# 既知の制限\n再利用先Projectへ取り込み、同Project内で依存と動作を再検証する。\n# 再評価方法\nSourceまたはContract変更時にCandidate Versionを上げて再判定する。\n",
     "tags": [
       "ASTERA",
       "quality",
@@ -330,7 +330,7 @@
       "run_id": "run_20260718_01",
       "task_id": "astera-v8-five-tier-decomposition",
       "trace_id": "trace_astera_safe_json_processing",
-      "content_hash": "sha256:4f30a34c262767222c076be3dc24acc44387e745841ee973abc4471d178ccf38"
+      "content_hash": "sha256:31a2d3270f1d45f5f21c92d282451fc743c71bab0dc0786f933f794be63d21b5"
     },
     "versions": {
       "module": "1.0.0",
