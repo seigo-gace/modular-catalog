@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "astera-skill-api-key-authentication",
+  "name": "Astera Skill API Key Authentication",
+  "version": "1.0.0",
+  "summary": "Astera一般API KeyとアプリGPT Skill専用PRIVATE API Keyを分離して認証する。",
+  "purpose": "専用Skill APIを公開Tenant認証から分離する。",
+  "responsibility": "Skill専用Keyの設定検証、一定時間比較、専用Identity返却。",
+  "layers": ["Part", "Feature"],
+  "languages": ["JavaScript"],
+  "runtimes": ["Node.js 22+"],
+  "tags": ["astera", "skill-api", "api-key", "authentication", "constant-time"],
+  "dependencies": ["node:crypto"],
+  "constraints": ["ASTERA_SKILL_API_KEYは32〜256文字", "公開API Keyと共有しない", "Rate Limitと課金は呼出側が所有する"],
+  "source": {"repository": "seigo-gace/astera_v8", "commit": "f76a533edace36f82c4685b8eb044e6596732a74"},
+  "verifiedAt": "2026-07-18T00:00:00.000Z"
+}

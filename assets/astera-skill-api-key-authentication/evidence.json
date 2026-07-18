@@ -1,0 +1,33 @@
+{
+  "normal": {
+    "passed": true,
+    "commands": ["node --test tests/normal/*.test.js"],
+    "expectedResults": ["2 tests passed", "専用Keyのみ認証", "短Key・長Key・公開Key共有を拒否"]
+  },
+  "user": {
+    "passed": true,
+    "commands": ["node --test tests/user/*.test.js"],
+    "expectedResults": ["1 test passed", "Skill専用Keyで100回連続認証", "一般Tenant Keyを拒否"]
+  },
+  "sourceVerification": {
+    "repository": "seigo-gace/astera_v8",
+    "commit": "f76a533edace36f82c4685b8eb044e6596732a74",
+    "path": "src/auth/skill-api-key.js",
+    "sameCode": true
+  },
+  "asteraAdmission": {
+    "evaluationId": "eval_astera_skill_api_key_auth_v1",
+    "status": "KB_ELIGIBLE",
+    "quality": 100,
+    "completion": 100,
+    "blockingCount": 0,
+    "mandatoryFailures": 0,
+    "evidenceInvalid": 0,
+    "evaluatedAt": "2026-07-18T01:38:46.350Z",
+    "publicationPerformed": false
+  },
+  "improvementHistory": [
+    "代用の汎用Code案を破棄し、Astera v8で稼働した同一Codeへ修正した。",
+    "通常Testとユーザー利用TestをAsset内で再実行した。"
+  ]
+}

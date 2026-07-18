@@ -1,6 +1,164 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "1970-01-01T00:00:00.000Z",
-  "assetCount": 0,
-  "entries": []
+  "generatedAt": "2026-07-18T01:46:00.000Z",
+  "assetCount": 2,
+  "entries": [
+    {
+      "id": "astera-dual-access-evaluator-api",
+      "name": "Astera Dual Access Evaluator API",
+      "version": "1.0.0",
+      "summary": "Astera判定Moduleを一般TenantとアプリGPT Skillへ別Process APIで提供する。",
+      "responsibility": "判定APIのHTTP境界、認証、制限、計測、非自動掲載。",
+      "layers": [
+        "System",
+        "Application System"
+      ],
+      "languages": [
+        "JavaScript"
+      ],
+      "runtimes": [
+        "Node.js 22+",
+        "Docker"
+      ],
+      "tags": [
+        "astera",
+        "evaluator",
+        "api",
+        "tenant",
+        "skill-api",
+        "standalone-service"
+      ],
+      "dependencies": [
+        "Astera QualityCompletionEvaluator",
+        "Astera TenantManager",
+        "Astera RateLimiter",
+        "Astera UsageMeter",
+        "Astera Logger",
+        "Astera SQLiteStore"
+      ],
+      "constraints": [
+        "互換Astera Projectへ取り込んで使用する",
+        "本体とASTERA_DBとASTERA_KEY_PEPPERを共有する",
+        "判定APIから掲載処理を呼ばない"
+      ],
+      "source": {
+        "repository": "seigo-gace/astera_v8",
+        "commit": "f76a533edace36f82c4685b8eb044e6596732a74"
+      },
+      "verifiedAt": "2026-07-18T00:00:00.000Z",
+      "metaHash": "9d81b48fca59c354dddd55de23a823ce81175012be5dd0c50cce3c80f1e9a2ce",
+      "assetHash": "d1b954677db1fda6b2871540fbdf127f9f96caaab48a5b512290701fcc63bfdd",
+      "tokens": [
+        "astera-dual-access-evaluator-api",
+        "astera",
+        "dual",
+        "access",
+        "evaluator",
+        "api",
+        "astera判定moduleを一般tenantとアプリgpt",
+        "skillへ別process",
+        "apiで提供する",
+        "判定moduleをastera本体から分離し二系統の利用者へ提供する",
+        "判定apiのhttp境界",
+        "認証",
+        "制限",
+        "計測",
+        "非自動掲載",
+        "system",
+        "application",
+        "javascript",
+        "node.js",
+        "22+",
+        "docker",
+        "tenant",
+        "skill-api",
+        "standalone-service",
+        "qualitycompletionevaluator",
+        "tenantmanager",
+        "ratelimiter",
+        "usagemeter",
+        "logger",
+        "sqlitestore",
+        "互換astera",
+        "projectへ取り込んで使用する",
+        "本体とastera",
+        "dbとastera",
+        "key",
+        "pepperを共有する",
+        "判定apiから掲載処理を呼ばない"
+      ]
+    },
+    {
+      "id": "astera-skill-api-key-authentication",
+      "name": "Astera Skill API Key Authentication",
+      "version": "1.0.0",
+      "summary": "Astera一般API KeyとアプリGPT Skill専用PRIVATE API Keyを分離して認証する。",
+      "responsibility": "Skill専用Keyの設定検証、一定時間比較、専用Identity返却。",
+      "layers": [
+        "Part",
+        "Feature"
+      ],
+      "languages": [
+        "JavaScript"
+      ],
+      "runtimes": [
+        "Node.js 22+"
+      ],
+      "tags": [
+        "astera",
+        "skill-api",
+        "api-key",
+        "authentication",
+        "constant-time"
+      ],
+      "dependencies": [
+        "node:crypto"
+      ],
+      "constraints": [
+        "ASTERA_SKILL_API_KEYは32〜256文字",
+        "公開API Keyと共有しない",
+        "Rate Limitと課金は呼出側が所有する"
+      ],
+      "source": {
+        "repository": "seigo-gace/astera_v8",
+        "commit": "f76a533edace36f82c4685b8eb044e6596732a74"
+      },
+      "verifiedAt": "2026-07-18T00:00:00.000Z",
+      "metaHash": "15b05f0435d5b8dc51d7b79f7f27740d5fdcb2d318cf54e87936e33a3e64f52b",
+      "assetHash": "07d86eba340414f44739c09b975af948945a666d17fb3a995af7e15a66d6c6ec",
+      "tokens": [
+        "astera-skill-api-key-authentication",
+        "astera",
+        "skill",
+        "api",
+        "key",
+        "authentication",
+        "astera一般api",
+        "keyとアプリgpt",
+        "skill専用private",
+        "keyを分離して認証する",
+        "専用skill",
+        "apiを公開tenant認証から分離する",
+        "skill専用keyの設定検証",
+        "一定時間比較",
+        "専用identity返却",
+        "part",
+        "feature",
+        "javascript",
+        "node.js",
+        "22+",
+        "skill-api",
+        "api-key",
+        "constant-time",
+        "node",
+        "crypto",
+        "keyは32",
+        "256文字",
+        "公開api",
+        "keyと共有しない",
+        "rate",
+        "limitと課金は呼出側が所有する"
+      ]
+    }
+  ]
 }

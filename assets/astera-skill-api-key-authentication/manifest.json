@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "07d86eba340414f44739c09b975af948945a666d17fb3a995af7e15a66d6c6ec",
+  "files": [
+    {"path":"architecture.md","size":233,"sha256":"82447b7d221fba70586eb083ec6098f6a2db44bf82d9ba41a47fb4774d038fcd"},
+    {"path":"code/skill-api-key.js","size":1185,"sha256":"6de28e325737d4992a6104ea8344e159b4fbe11e3620545f959482786438153c"},
+    {"path":"design.md","size":1349,"sha256":"87440b5a1e10b4293634a5ac38fc627e457d2a3c78d0f39ba1c53177f50ffe68"},
+    {"path":"evidence.json","size":1122,"sha256":"f7a850ed84bc9ce6a7233ac66f8e3c80dd551d82a6fa4371fdfdf72ca5dab12a"},
+    {"path":"logic.md","size":293,"sha256":"7a86fd9df133d9f35f646cb8efc294e28bbffe9dfe9d426126359e13cbd4a11e"},
+    {"path":"meta.json","size":931,"sha256":"989f7a2bba8b1aabfbfdf2174e9896d5006009581f6d750a2ec8db7c39ba817e"},
+    {"path":"README.md","size":1254,"sha256":"ebbac4ed5538f441cf1d7de94113cbc1f2ce82d210108fb9a0e72ef6f78483cc"},
+    {"path":"tests/normal/authentication.test.js","size":1805,"sha256":"c6dcb61fdca9872c7ceaeddfa8662d9d1a4d88d2671245644604581fd44f818c"},
+    {"path":"tests/user/app-gpt-skill-journey.test.js","size":1014,"sha256":"5c86c185c2d1ab36e3393fc9ff13543ff649b50d141c132ae3983c1b4d49390b"}
+  ]
+}

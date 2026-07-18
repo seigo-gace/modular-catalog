@@ -1,0 +1,20 @@
+{
+  "schemaVersion":1,
+  "algorithm":"sha256",
+  "assetHash":"d1b954677db1fda6b2871540fbdf127f9f96caaab48a5b512290701fcc63bfdd",
+  "files":[
+    {"path":"architecture.md","size":297,"sha256":"b0e60a31edec39350d7e7daba2a7a46fd3c0b571fdabe946f369a7daa26a9e43"},
+    {"path":"code/api/server.js","size":8635,"sha256":"3957b1e2ccdc26d0f2149128cd885f427cc81fa16f3e360ed69a0ad3b04668d1"},
+    {"path":"code/api/server.test.js","size":4654,"sha256":"040682ee3c2c1c20360489cd616626f8b6b4d2dbc5dec5cb8e97d8b54e899254"},
+    {"path":"code/api/start.js","size":436,"sha256":"4618a2924ad8accda53cc713bed6d2c3738e7d8ea4880c62df4d9848152816eb"},
+    {"path":"code/docker-compose.example.yml","size":680,"sha256":"8b19ee871a0ac8f81a8a67ad6acdc1613f8a44e4234138792231d9ee7bcf1a1c"},
+    {"path":"code/Dockerfile","size":166,"sha256":"11e9f38e23207f3182b5b28291dd2c42c3ecae8225208c40c8aeb1b51d1fc613"},
+    {"path":"design.md","size":1577,"sha256":"6c5b8424105d99b62feec118cdcc78839e66adc82140f23e8a9969342df06b5f"},
+    {"path":"evidence.json","size":1220,"sha256":"27c1783d653a35c192c74922b12c16052c2892645f86c43f4ed487a1614f3a52"},
+    {"path":"logic.md","size":293,"sha256":"da8c058fef45553d7c39c3ceed46622521e0fbe52e9f29796df24fc6ce0aeb1b"},
+    {"path":"meta.json","size":1097,"sha256":"154994140b2cf472340a30ad73bcd168f648d5ed19c83e97648c6f12fda0455a"},
+    {"path":"README.md","size":1219,"sha256":"a92decc2d0bfa5a55ddbdd73842d119bd4eb8234d84b0c3f781cf2120b0c9c22"},
+    {"path":"tests/normal/integration.test.js","size":880,"sha256":"ce90afe1598fe3cc23bee4e9e5eb4cc0c69fd32e251cb558be058f6c26f78de9"},
+    {"path":"tests/user/evaluator-api-journey.test.js","size":994,"sha256":"b745ecf2ba8ce01d18df5708e8db039469d755367f36212f0f3111cb9894eaa4"}
+  ]
+}

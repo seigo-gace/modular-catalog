@@ -1,0 +1,17 @@
+{
+  "schemaVersion":1,
+  "id":"astera-dual-access-evaluator-api",
+  "name":"Astera Dual Access Evaluator API",
+  "version":"1.0.0",
+  "summary":"Astera判定Moduleを一般TenantとアプリGPT Skillへ別Process APIで提供する。",
+  "purpose":"判定ModuleをAstera本体から分離し二系統の利用者へ提供する。",
+  "responsibility":"判定APIのHTTP境界、認証、制限、計測、非自動掲載。",
+  "layers":["System","Application System"],
+  "languages":["JavaScript"],
+  "runtimes":["Node.js 22+","Docker"],
+  "tags":["astera","evaluator","api","tenant","skill-api","standalone-service"],
+  "dependencies":["Astera QualityCompletionEvaluator","Astera TenantManager","Astera RateLimiter","Astera UsageMeter","Astera Logger","Astera SQLiteStore"],
+  "constraints":["互換Astera Projectへ取り込んで使用する","本体とASTERA_DBとASTERA_KEY_PEPPERを共有する","判定APIから掲載処理を呼ばない"],
+  "source":{"repository":"seigo-gace/astera_v8","commit":"f76a533edace36f82c4685b8eb044e6596732a74"},
+  "verifiedAt":"2026-07-18T00:00:00.000Z"
+}
