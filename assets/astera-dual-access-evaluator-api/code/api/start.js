@@ -15,4 +15,3 @@ async function shutdown() {
 
 process.once('SIGINT', shutdown);
 process.once('SIGTERM', shutdown);
-

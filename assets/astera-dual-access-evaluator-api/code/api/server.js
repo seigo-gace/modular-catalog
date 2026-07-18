@@ -176,4 +176,3 @@ class EvaluatorApiServer {
 }
 
 module.exports = EvaluatorApiServer;
-

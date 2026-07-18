@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-18T01:46:00.000Z",
+  "generatedAt": "2026-07-18T01:52:11.980Z",
   "assetCount": 2,
   "entries": [
     {
@@ -47,7 +47,7 @@
       },
       "verifiedAt": "2026-07-18T00:00:00.000Z",
       "metaHash": "9d81b48fca59c354dddd55de23a823ce81175012be5dd0c50cce3c80f1e9a2ce",
-      "assetHash": "d1b954677db1fda6b2871540fbdf127f9f96caaab48a5b512290701fcc63bfdd",
+      "assetHash": "cb54546dcd83ff4f6c7a6600998384747fad915701acebd7339933f33d57eae4",
       "tokens": [
         "astera-dual-access-evaluator-api",
         "astera",

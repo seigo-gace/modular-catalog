@@ -5,4 +5,3 @@ COPY src ./src
 USER node
 EXPOSE 7374
 CMD ["node", "src/quality-completion-evaluator/api/start.js"]
-
