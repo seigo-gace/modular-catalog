@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "58ba8222d3428f8c7726c28039aee44db385583ee30edcdc780f64c07905047a",
+  "files": [
+    {
+      "path": "architecture.md",
+      "size": 448,
+      "sha256": "7b45adb06a1da62a21541a02f0ec3728eb1fdce31862d5b110ea5efb0b7bcade"
+    },
+    {
+      "path": "astera-evaluation.json",
+      "size": 11821,
+      "sha256": "513b0688fb132f670a5c67a511162c5804d7d7326db88b8f9046f47e3ee98b39"
+    },
+    {
+      "path": "design.md",
+      "size": 2116,
+      "sha256": "16bbb608e432e344e3c52658d5d3f968b473985bccb19714cd1b34a4d1d5806f"
+    },
+    {
+      "path": "evidence.json",
+      "size": 1426,
+      "sha256": "bb4506ed5418662e288b0cda9f945d8fa5a74b365203c0b57d2e285015f3318b"
+    },
+    {
+      "path": "logic.md",
+      "size": 570,
+      "sha256": "4f1dd9f09d96f68091664c65654c9f95d9b2038874d42760f3dde9c6040fbc5e"
+    },
+    {
+      "path": "meta.json",
+      "size": 1086,
+      "sha256": "61bb2abc3445e3ae401c868b880e71a2db2e3185f563ce4bde2b6e365fdab0a9"
+    },
+    {
+      "path": "README.md",
+      "size": 868,
+      "sha256": "15799e1c2ab22e951eae97088e61b0f569f7e7b5326e8476054ebc17e57e3bf1"
+    },
+    {
+      "path": "source/src/llm/adapter-base.js",
+      "size": 221,
+      "sha256": "4a12d118d15631f5534248cb6f9cee92cfcb763ffd197c2284e517f91ce7ea3e"
+    },
+    {
+      "path": "source/src/llm/adapters.js",
+      "size": 1051,
+      "sha256": "8d60cbda5352c9136d51564513a84a441cffc7ac8f70cdde532cc0977d5df1cf"
+    },
+    {
+      "path": "source/src/llm/http-client.js",
+      "size": 1509,
+      "sha256": "ef114a7a4b4caff925e8f9af3ae6d2fb803f9dac024d93fe3e32a15eaa1f1f43"
+    },
+    {
+      "path": "source/src/llm/providers/anthropic.js",
+      "size": 1175,
+      "sha256": "1b76d8a7d1b469afef56b7c849dd282dffcf8709056fcd88716ef53130b03fe8"
+    },
+    {
+      "path": "source/src/llm/providers/null.js",
+      "size": 507,
+      "sha256": "7abd9a2b63b53ae61f504405124a9bc6c9b7870588743a73c6dcc53494c11314"
+    },
+    {
+      "path": "source/src/llm/providers/ollama.js",
+      "size": 796,
+      "sha256": "9ee1dc2963703b8d13ed2bf4481bf6fc1c69b557a2f5abadcd6e666d4195f68f"
+    },
+    {
+      "path": "source/src/llm/providers/openai-compatible.js",
+      "size": 1215,
+      "sha256": "c322719e9ae518e4e0e6ac5e192c187e36150a354e6917241a478e79e165f307"
+    },
+    {
+      "path": "source/src/llm/providers/openai.js",
+      "size": 912,
+      "sha256": "386c31d9aa6ca377c1c4a3693bcafcbcbea753c9cca6ad2ba6d330e3cf73d837"
+    },
+    {
+      "path": "tests/normal/source-integrity.test.js",
+      "size": 826,
+      "sha256": "300b7f269112b4822d25d1d818584c3cca765c2baf0c676d2a7fd633adf9f822"
+    },
+    {
+      "path": "tests/user/astera-user-journey.test.js",
+      "size": 588,
+      "sha256": "4d0b56ad2ca3549e3566da1efe5d1f48cc44acb8a58af62b2f8d7bdb0b3e7474"
+    }
+  ]
+}

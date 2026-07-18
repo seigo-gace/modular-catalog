@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "c2e264439f6cf076931541b4b3461778f837344282194da84286f49ceedd9982",
+  "files": [
+    {
+      "path": "architecture.md",
+      "size": 461,
+      "sha256": "3459b9413087b0d63b186acb4c836182fe8a0736c97369fbe03dd983751947bb"
+    },
+    {
+      "path": "astera-evaluation.json",
+      "size": 11645,
+      "sha256": "d1ba5cf592f4cfd249c93cdf8c2a59a8b3df8e1a4a1b35f35ea1629d0421ec0b"
+    },
+    {
+      "path": "design.md",
+      "size": 1958,
+      "sha256": "2d9858f6d26a47bde010b9de3a725a7a93c3a0bf7fc0b8c5a0ad23695242b653"
+    },
+    {
+      "path": "evidence.json",
+      "size": 1238,
+      "sha256": "be6c3171180dcc0b5d157d5be8aed26cef8e66ee851ac78da38deba927307b0a"
+    },
+    {
+      "path": "logic.md",
+      "size": 399,
+      "sha256": "3f6e94b6dd6967b88a44562020536bfa5123fc80952098632effbefc54249016"
+    },
+    {
+      "path": "meta.json",
+      "size": 1143,
+      "sha256": "a152ac5ff63415994d8359caeef070ecf14866c3016ae78e193d160bd2154c37"
+    },
+    {
+      "path": "README.md",
+      "size": 887,
+      "sha256": "91da63121b84ac590d204f06feb6631afc31d4c42b085e159f81e93e85e3c1a0"
+    },
+    {
+      "path": "source/.env.example",
+      "size": 1841,
+      "sha256": "2c9b11bd57c3c6732ca2aab4c44276668d5d526b55b8a4f723bab557958f6110"
+    },
+    {
+      "path": "source/package.json",
+      "size": 1167,
+      "sha256": "1f01e13a21af6c181300dd75f5505267982c95d4695cb539fe5179a4ad4451c2"
+    },
+    {
+      "path": "source/README.md",
+      "size": 6384,
+      "sha256": "89708c9e1fbdf64668c817250f2c129dba4693e4ab1a0a2fcb25c5950ae95c41"
+    },
+    {
+      "path": "source/start.js",
+      "size": 2382,
+      "sha256": "60b3532ae6edbd97bde68a454fcc4ea308af2aab7d215b6c8aeacd92a1c2d43f"
+    },
+    {
+      "path": "source/STRUCTURE.md",
+      "size": 11142,
+      "sha256": "a1b1e1003824538d4d7b9b2ff064c017f1ef9fb2e39b8b8f15c6509af105e8e9"
+    },
+    {
+      "path": "tests/normal/source-integrity.test.js",
+      "size": 659,
+      "sha256": "a0b4ff5ffeb3866532978f90c347fbe9326e31128e0a62d9260ae36606988e69"
+    },
+    {
+      "path": "tests/user/astera-user-journey.test.js",
+      "size": 588,
+      "sha256": "4d0b56ad2ca3549e3566da1efe5d1f48cc44acb8a58af62b2f8d7bdb0b3e7474"
+    }
+  ]
+}

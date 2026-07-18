@@ -1,3 +1,3 @@
 # Architecture
 
-SystemはHTTP、認証、制限、計測、監査、障害境界を所有する。Application SystemはStoreを配線して別Processを起動・停止する。依存方向は`Application System → System → Astera既存Feature/Part`であり、本体ServerをImportしない。
+論理階層は **System**。依存方向は `Application System → System → Component → Feature → Part` に限定する。物理ファイルと論理階層を1対1にせず、このAssetは「一般TenantとアプリGPT専用経路を持つ独立判定APIを提供する。」の独立変更・独立検証境界を所有する。上位は公開契約を通して利用し、ModuleCatalogへ実行時依存しない。

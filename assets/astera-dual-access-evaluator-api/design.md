@@ -1,34 +1,42 @@
 # 目的
-Astera判定Moduleを本体と別APIとして一般ユーザーとアプリGPT Skillへ提供する。
-# 実装
-Astera v8で稼働したAPI Server、起動Entry、Docker定義を同一内容で収録する。
+一般TenantとアプリGPT専用経路を持つ独立判定APIを提供する。
+# 範囲
+Astera v8内で実稼働・検証済みの当該責務だけを再利用単位として抽出する。
+# 責任分担
+Systemがこの責務を所有し、上位層は公開契約だけを利用する。
+# 構成
+元コード `src/quality-completion-evaluator/api/server.js`、`src/quality-completion-evaluator/api/start.js`、`src/quality-completion-evaluator/Dockerfile`、`src/quality-completion-evaluator/docker-compose.example.yml` を責務境界として使用する。
 # 入力
-Evaluation Request JSON、Tenant KeyまたはSkill専用Key。
+各Sourceが公開する関数、Class、設定、またはHTTP契約。
 # 出力
-Evaluation Result JSON。保存・掲載の副作用は持たない。
+一般TenantとアプリGPT専用経路を持つ独立判定APIを提供する。
+# データ構造
+Astera v8の現行ContractとVersionを維持する。
+# 処理フロー
+入力検証、責務処理、結果返却、必要時の障害通知の順で実行する。
+# 判定条件
+通常テストとユーザー利用テスト合格後、Astera品質・完成度95点以上かつBlocking 0件だけ掲載する。
 # 異常処理
-未認証401、設定不正503、Rate超過429、CORS拒否403、Payload超過413、内部障害500。
-# 設定
-`ASTERA_DB`、`ASTERA_KEY_PEPPER`、`ASTERA_SKILL_API_KEY`、Evaluator Host・Port・CORS。
-# 起動方法
-`node api/start.js`またはDocker Composeで本体と別Process起動する。
-# 停止方法
-SIGINT・SIGTERMでHTTP Server、Store、Loggerを順に停止する。
-# 既存機能との接続
-本体発行Tenant Keyと同じDB・Pepperを使い、既存Evaluatorの`evaluate`だけを呼ぶ。
+入力不正と依存障害を成功扱いせず、所有する境界から明示的に返す。
+# テスト条件
+Astera全通常テスト81件と責務に対応する実利用経路を検証する。
+# 完成条件
+Source一致、二系統テスト合格、Astera判定合格、Manifest整合。
+# 実装順序
+Partから上位へ依存方向に沿って再構築する。
 # 失敗時処理
-判定失敗を監査Logへ残し、掲載せずエラーResponseを返す。
+未掲載のまま問題責務へ差し戻す。
 # 再試行
-入力・設定・依存障害を修正し、同一候補を再評価する。
+修正後に二系統テストとAstera判定を再実行する。
 # Rollback
-別API Processを停止し、旧CLI判定経路を維持する。
-# 復旧方法
-共有DB、Secret、Port、Logを確認し判定APIだけを再起動する。
+元Repositoryの検証済みCommitを正本として維持する。
+# Archive
+旧Versionは削除せずGit履歴で保持する。
 # Version
-1.0.0
+1.1.1
 # 変更履歴
-Astera v8実装Commitから別API Systemを抽出した初版。
+Astera v8検証済みCodeから5段責務単位へ再構築した。
 # 既知の制限
-一般Tenant Key発行はAstera本体が担当する。自動掲載を提供しない。
+再利用先Projectへ取り込み、同Project内で依存と動作を再検証する。
 # 再評価方法
-互換Astera Projectへ取り込み通常Test・ユーザー利用Test後にAstera判定する。
+SourceまたはContract変更時にCandidate Versionを上げて再判定する。

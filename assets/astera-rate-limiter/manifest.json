@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "a22f9a50049680ee00a833181ec9ddf8249e4606e88418d5fe4c5374e7632c0c",
+  "files": [
+    {
+      "path": "architecture.md",
+      "size": 438,
+      "sha256": "0bfbeb371f291dfd284dbbd044a134c833f4034db13b5b52524a75c1fb8fe1e0"
+    },
+    {
+      "path": "astera-evaluation.json",
+      "size": 11529,
+      "sha256": "6339df70b592e592c170d1b40722e1d8eb8436d9859b88c29f3f7f52cf54211c"
+    },
+    {
+      "path": "design.md",
+      "size": 1878,
+      "sha256": "44165ca170665afc84be1acd24eb6bbf27d04a578e817fdea70fda043c877996"
+    },
+    {
+      "path": "evidence.json",
+      "size": 1161,
+      "sha256": "8e9db0839ce3a7bbe12f6947f6c508c14c7db77f1ccc0a67b1c57ba2539c064f"
+    },
+    {
+      "path": "logic.md",
+      "size": 342,
+      "sha256": "3fc4da677e38dc7a93b928979e33548910c09ae890c1d0a7cdb636f1db1a61cb"
+    },
+    {
+      "path": "meta.json",
+      "size": 1006,
+      "sha256": "98aec60c01151c7a28d0f3c383a3362c2b277147a300774556f5ad13c88c375b"
+    },
+    {
+      "path": "README.md",
+      "size": 825,
+      "sha256": "1b2462fd8a726bbf2e84f2c599ed14f66c7a7d3640d6b6aa10e5cc0a593d65ee"
+    },
+    {
+      "path": "source/src/guard/rate-limiter.js",
+      "size": 1170,
+      "sha256": "29c880ca1f800776d847ac84ffe1ab84a9431cdf2e13f8f27f2120e1b0092058"
+    },
+    {
+      "path": "tests/normal/source-integrity.test.js",
+      "size": 619,
+      "sha256": "d98283e58594e3270b3dadd9777706e3e11d7e97c4085bb1e4d5a21a9a2f38da"
+    },
+    {
+      "path": "tests/user/astera-user-journey.test.js",
+      "size": 588,
+      "sha256": "4d0b56ad2ca3549e3566da1efe5d1f48cc44acb8a58af62b2f8d7bdb0b3e7474"
+    }
+  ]
+}

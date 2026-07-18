@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "astera-evaluator-contracts-and-rules",
+  "name": "Astera Evaluator Contracts and Rules",
+  "version": "1.1.1",
+  "summary": "判定Request・Result・KB Record、Profile、Rubric、Blocking RuleのVersion固定定義を所有する。",
+  "purpose": "Astera v8のPart責務を次回開発で再利用可能にする。",
+  "responsibility": "判定Request・Result・KB Record、Profile、Rubric、Blocking RuleのVersion固定定義を所有する。",
+  "layers": [
+    "Part"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "astera",
+    "five-tier",
+    "verified",
+    "schema",
+    "rubric",
+    "profile",
+    "blocking"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "ModuleCatalogへの実行時依存を作らない",
+    "再利用先Project内で二系統テストを再実行する",
+    "元SourceのLicenseと利用条件を維持する"
+  ],
+  "source": {
+    "repository": "seigo-gace/astera_v8",
+    "commit": "f76a533edace36f82c4685b8eb044e6596732a74"
+  },
+  "verifiedAt": "2026-07-18T02:30:00.000Z"
+}

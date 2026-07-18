@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "24500d906484b9decd9e61cbcd630f036fe0b49a7f8220a9badcfc8359135a7c",
+  "files": [
+    {
+      "path": "architecture.md",
+      "size": 424,
+      "sha256": "5572021eaefedea3c25db19c2039928fcf9d9d4b252a59fda219f3ab7d0011b7"
+    },
+    {
+      "path": "astera-evaluation.json",
+      "size": 11515,
+      "sha256": "ba8c470eadbe8ae86d9294074c53531f20d8180a64123c12034841f705a08de2"
+    },
+    {
+      "path": "design.md",
+      "size": 1847,
+      "sha256": "2d92dd490144ba22a991e61d4741a8d8a8613be47f57fe2b4b670da3348ce4af"
+    },
+    {
+      "path": "evidence.json",
+      "size": 1166,
+      "sha256": "ad558114ba78ed8a561f37453b57a6a83c6384ce566f49f613ff27743c79f846"
+    },
+    {
+      "path": "logic.md",
+      "size": 325,
+      "sha256": "278e0ac3bada0a6e9aa1cbb315b0c3cc789328f773fbb489c18e94332f5b963b"
+    },
+    {
+      "path": "meta.json",
+      "size": 1043,
+      "sha256": "7cc7534fa5270f2ad79f61f3433ac2853aedb6e52b96e81a3117644e3d9ace20"
+    },
+    {
+      "path": "README.md",
+      "size": 845,
+      "sha256": "7cb1bf7608e89ee6add4ad0e7d71997cbce0ff3914e77991404cf7e29da2bf3f"
+    },
+    {
+      "path": "source/src/logging/tgs-client.js",
+      "size": 2179,
+      "sha256": "8d5a522590b957796c8ad07ea34baba69ecede1f5c1fc45a3e2495b594df8d41"
+    },
+    {
+      "path": "tests/normal/source-integrity.test.js",
+      "size": 619,
+      "sha256": "408616ad3857af9c7da76122664ace67a5441bd2436a4a4ad0039db88d464b08"
+    },
+    {
+      "path": "tests/user/astera-user-journey.test.js",
+      "size": 588,
+      "sha256": "4d0b56ad2ca3549e3566da1efe5d1f48cc44acb8a58af62b2f8d7bdb0b3e7474"
+    }
+  ]
+}

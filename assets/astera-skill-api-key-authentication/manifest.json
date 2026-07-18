@@ -1,16 +1,57 @@
 {
   "schemaVersion": 1,
   "algorithm": "sha256",
-  "assetHash": "07d86eba340414f44739c09b975af948945a666d17fb3a995af7e15a66d6c6ec",
+  "assetHash": "30d05f3b840cb98caf8c5f38c35c3fac07a7a338253b487ed30c085e87cb8a2c",
   "files": [
-    {"path":"architecture.md","size":233,"sha256":"82447b7d221fba70586eb083ec6098f6a2db44bf82d9ba41a47fb4774d038fcd"},
-    {"path":"code/skill-api-key.js","size":1185,"sha256":"6de28e325737d4992a6104ea8344e159b4fbe11e3620545f959482786438153c"},
-    {"path":"design.md","size":1349,"sha256":"87440b5a1e10b4293634a5ac38fc627e457d2a3c78d0f39ba1c53177f50ffe68"},
-    {"path":"evidence.json","size":1122,"sha256":"f7a850ed84bc9ce6a7233ac66f8e3c80dd551d82a6fa4371fdfdf72ca5dab12a"},
-    {"path":"logic.md","size":293,"sha256":"7a86fd9df133d9f35f646cb8efc294e28bbffe9dfe9d426126359e13cbd4a11e"},
-    {"path":"meta.json","size":931,"sha256":"989f7a2bba8b1aabfbfdf2174e9896d5006009581f6d750a2ec8db7c39ba817e"},
-    {"path":"README.md","size":1254,"sha256":"ebbac4ed5538f441cf1d7de94113cbc1f2ce82d210108fb9a0e72ef6f78483cc"},
-    {"path":"tests/normal/authentication.test.js","size":1805,"sha256":"c6dcb61fdca9872c7ceaeddfa8662d9d1a4d88d2671245644604581fd44f818c"},
-    {"path":"tests/user/app-gpt-skill-journey.test.js","size":1014,"sha256":"5c86c185c2d1ab36e3393fc9ff13543ff649b50d141c132ae3983c1b4d49390b"}
+    {
+      "path": "architecture.md",
+      "size": 454,
+      "sha256": "b421a858737da6cbb249635a51f70a4cd5cfed30d9e4cc5caec4edca0b9f8abb"
+    },
+    {
+      "path": "astera-evaluation.json",
+      "size": 11639,
+      "sha256": "015bba6888c721f0ed68e1e6491f545b7a897503ef43548a923ce0ec24a5ac12"
+    },
+    {
+      "path": "design.md",
+      "size": 1910,
+      "sha256": "c252bc0370ea047c56a53930e6abec88316b728ba6ef8aae79535cc4363b5884"
+    },
+    {
+      "path": "evidence.json",
+      "size": 1177,
+      "sha256": "4d3767d52688d200b87310f5baa19c7b63b1f8a57c78223852bd15b091ff9a1a"
+    },
+    {
+      "path": "logic.md",
+      "size": 358,
+      "sha256": "fbdbd0c4247b9b5cea8b47628ffaae50b9c843e8e4535c2a75128eafdfa5de7c"
+    },
+    {
+      "path": "meta.json",
+      "size": 1075,
+      "sha256": "80c93f1d01bf56fb7b4f8de48b47eff3e32c1eaa9897578d1d667d086b2335cf"
+    },
+    {
+      "path": "README.md",
+      "size": 857,
+      "sha256": "9bc4ce964ddf13156d333cc2c33aae0e312f9c7f7e8971306fcdc7e1b0d746c1"
+    },
+    {
+      "path": "source/src/auth/skill-api-key.js",
+      "size": 1185,
+      "sha256": "6de28e325737d4992a6104ea8344e159b4fbe11e3620545f959482786438153c"
+    },
+    {
+      "path": "tests/normal/source-integrity.test.js",
+      "size": 619,
+      "sha256": "795b779053a4d4fb4b3d6c504dc42b6cf6546b2f06d200a02f3ad3cb3337f240"
+    },
+    {
+      "path": "tests/user/astera-user-journey.test.js",
+      "size": 588,
+      "sha256": "4d0b56ad2ca3549e3566da1efe5d1f48cc44acb8a58af62b2f8d7bdb0b3e7474"
+    }
   ]
 }

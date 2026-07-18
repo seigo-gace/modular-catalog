@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "astera-logging-outbox",
+  "name": "Astera Logging Outbox",
+  "version": "1.1.1",
+  "summary": "未送信Eventを一時保存し、再送・期限削除・成功削除を行う。",
+  "purpose": "Astera v8のFeature責務を次回開発で再利用可能にする。",
+  "responsibility": "未送信Eventを一時保存し、再送・期限削除・成功削除を行う。",
+  "layers": [
+    "Feature"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "astera",
+    "five-tier",
+    "verified",
+    "outbox",
+    "replay",
+    "recovery"
+  ],
+  "dependencies": [
+    "Part assets required by the selected source"
+  ],
+  "constraints": [
+    "ModuleCatalogへの実行時依存を作らない",
+    "再利用先Project内で二系統テストを再実行する",
+    "元SourceのLicenseと利用条件を維持する"
+  ],
+  "source": {
+    "repository": "seigo-gace/astera_v8",
+    "commit": "f76a533edace36f82c4685b8eb044e6596732a74"
+  },
+  "verifiedAt": "2026-07-18T02:30:00.000Z"
+}

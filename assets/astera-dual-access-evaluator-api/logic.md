@@ -1,3 +1,5 @@
 # Logic
 
-`/v1/evaluate`は本体と同じTenant Keyを解決しPlan別Rate Limitと利用計測を適用する。`/v1/skill/evaluate`は専用Keyだけを認証しRate Limit・課金計測を適用しない。両経路は同じEvaluatorの`evaluate`を呼び、保存Adapterを呼ばない。
+一般TenantとアプリGPT専用経路を持つ独立判定APIを提供する。
+
+入力を所有境界で検証し、決定論的な規則または明示された外部契約だけで処理する。下位から上位の具象実装を参照せず、失敗を成功値へ変換しない。対象Sourceは`src/quality-completion-evaluator/api/server.js`、`src/quality-completion-evaluator/api/start.js`、`src/quality-completion-evaluator/Dockerfile`、`src/quality-completion-evaluator/docker-compose.example.yml`。

@@ -2,16 +2,36 @@
   "schemaVersion": 1,
   "id": "astera-skill-api-key-authentication",
   "name": "Astera Skill API Key Authentication",
-  "version": "1.0.0",
-  "summary": "Astera一般API KeyとアプリGPT Skill専用PRIVATE API Keyを分離して認証する。",
-  "purpose": "専用Skill APIを公開Tenant認証から分離する。",
-  "responsibility": "Skill専用Keyの設定検証、一定時間比較、専用Identity返却。",
-  "layers": ["Part", "Feature"],
-  "languages": ["JavaScript"],
-  "runtimes": ["Node.js 22+"],
-  "tags": ["astera", "skill-api", "api-key", "authentication", "constant-time"],
-  "dependencies": ["node:crypto"],
-  "constraints": ["ASTERA_SKILL_API_KEYは32〜256文字", "公開API Keyと共有しない", "Rate Limitと課金は呼出側が所有する"],
-  "source": {"repository": "seigo-gace/astera_v8", "commit": "f76a533edace36f82c4685b8eb044e6596732a74"},
-  "verifiedAt": "2026-07-18T00:00:00.000Z"
+  "version": "1.1.1",
+  "summary": "アプリGPT専用Keyを公開Tenant Keyから分離して一定時間比較で認証する。",
+  "purpose": "Astera v8のPart責務を次回開発で再利用可能にする。",
+  "responsibility": "アプリGPT専用Keyを公開Tenant Keyから分離して一定時間比較で認証する。",
+  "layers": [
+    "Part"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "astera",
+    "five-tier",
+    "verified",
+    "skill api",
+    "private key",
+    "authentication"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "ModuleCatalogへの実行時依存を作らない",
+    "再利用先Project内で二系統テストを再実行する",
+    "元SourceのLicenseと利用条件を維持する"
+  ],
+  "source": {
+    "repository": "seigo-gace/astera_v8",
+    "commit": "f76a533edace36f82c4685b8eb044e6596732a74"
+  },
+  "verifiedAt": "2026-07-18T02:30:00.000Z"
 }

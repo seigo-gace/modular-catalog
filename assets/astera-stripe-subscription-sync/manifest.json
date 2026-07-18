@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "f7c17d58f0578376941fd0d913ed3ba8f719c16c2582c1efaffb229027fa5b82",
+  "files": [
+    {
+      "path": "architecture.md",
+      "size": 455,
+      "sha256": "671c2704bc541981ca0e0b762829ed969869b15a70327d9d4082cdd907d56361"
+    },
+    {
+      "path": "astera-evaluation.json",
+      "size": 11701,
+      "sha256": "72206b8d7a51ac1cd12d00c27863c5d8c75c8e08bbdd494b9b6c81b0fea4ea3f"
+    },
+    {
+      "path": "design.md",
+      "size": 1978,
+      "sha256": "c4ec45c3f25504f3f030af5b1b2fb26c9c9620cdbde0abc6651ed91bd83beeb7"
+    },
+    {
+      "path": "evidence.json",
+      "size": 1252,
+      "sha256": "78bf3df7f8829fd279ab275d73be0ed498374732961b5f88c119716533d2d1e8"
+    },
+    {
+      "path": "logic.md",
+      "size": 425,
+      "sha256": "b1537e5deac09353b69769e73b77b257e3100061291a22ca15592fc682010c58"
+    },
+    {
+      "path": "meta.json",
+      "size": 1117,
+      "sha256": "75a60058572fd3ca562c709a804ddc108c36c98a3ab7dd550bea1fcf69684dd4"
+    },
+    {
+      "path": "README.md",
+      "size": 878,
+      "sha256": "151da149d2d18bfb4442401214bbcb2bfca61cf088ddd26aa7ea8250b46da8cd"
+    },
+    {
+      "path": "source/src/billing/key-vault.js",
+      "size": 1241,
+      "sha256": "3302e1ac2b084bd3d74ea15356c0119a16f105e89bc763df2363492e8000640d"
+    },
+    {
+      "path": "source/src/billing/stripe-client.js",
+      "size": 4626,
+      "sha256": "4dfb52e0081a563e0aab10ba2cc83a40948920417c501a0e9e3fcbdf0f0dec5b"
+    },
+    {
+      "path": "source/src/billing/subscription-sync.js",
+      "size": 3986,
+      "sha256": "c0a22a9bf5fd2c483dd2da7b0a6bd35971bbf3d8204ddcd3c8f1f25d1ddf13dd"
+    },
+    {
+      "path": "tests/normal/source-integrity.test.js",
+      "size": 684,
+      "sha256": "291bb351c03059a9a6ee947b50b62c4f5e5e269a77572df21f3cc9a213998d93"
+    },
+    {
+      "path": "tests/user/astera-user-journey.test.js",
+      "size": 588,
+      "sha256": "4d0b56ad2ca3549e3566da1efe5d1f48cc44acb8a58af62b2f8d7bdb0b3e7474"
+    }
+  ]
+}

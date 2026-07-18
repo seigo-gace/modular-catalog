@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "astera-llm-provider-adapters",
+  "name": "Astera LLM Provider Adapters",
+  "version": "1.1.1",
+  "summary": "任意LLM Providerの生成、HTTP境界、Request・Response変換を統一する。",
+  "purpose": "Astera v8のFeature責務を次回開発で再利用可能にする。",
+  "responsibility": "任意LLM Providerの生成、HTTP境界、Request・Response変換を統一する。",
+  "layers": [
+    "Feature"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "astera",
+    "five-tier",
+    "verified",
+    "llm",
+    "provider",
+    "adapter"
+  ],
+  "dependencies": [
+    "Part assets required by the selected source"
+  ],
+  "constraints": [
+    "ModuleCatalogへの実行時依存を作らない",
+    "再利用先Project内で二系統テストを再実行する",
+    "元SourceのLicenseと利用条件を維持する"
+  ],
+  "source": {
+    "repository": "seigo-gace/astera_v8",
+    "commit": "f76a533edace36f82c4685b8eb044e6596732a74"
+  },
+  "verifiedAt": "2026-07-18T02:30:00.000Z"
+}

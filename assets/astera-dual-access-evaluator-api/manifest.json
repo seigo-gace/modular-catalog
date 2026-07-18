@@ -1,72 +1,72 @@
 {
   "schemaVersion": 1,
   "algorithm": "sha256",
-  "assetHash": "cb54546dcd83ff4f6c7a6600998384747fad915701acebd7339933f33d57eae4",
+  "assetHash": "cad40b0e4029efa81ff05e67cd42da87fa3b3d3d67ac019ca8116a1a6c00db04",
   "files": [
     {
       "path": "architecture.md",
-      "size": 297,
-      "sha256": "b0e60a31edec39350d7e7daba2a7a46fd3c0b571fdabe946f369a7daa26a9e43"
+      "size": 443,
+      "sha256": "eebe513000ef41a9124ccd95dc85875b70d967a68a87d57bdb63386c56fc72b1"
     },
     {
-      "path": "code/api/server.js",
+      "path": "astera-evaluation.json",
+      "size": 11780,
+      "sha256": "f89ade6ac9b0f66b2de83224d36afbc448efc27a30bc113e71c31d935a8d0298"
+    },
+    {
+      "path": "design.md",
+      "size": 2069,
+      "sha256": "e827c3b9096819f29d3cf408a12a489eb8a13ec1cefab896c830bb11520da03f"
+    },
+    {
+      "path": "evidence.json",
+      "size": 1372,
+      "sha256": "91f3b166c4b23c89bc7d85e1c150d37b33c5d041d64d98b84a9ecfc8470c965c"
+    },
+    {
+      "path": "logic.md",
+      "size": 528,
+      "sha256": "87c08b466739b09662f2bb5af0e9ea3cd8d2ee343291531543243791947749d6"
+    },
+    {
+      "path": "meta.json",
+      "size": 1113,
+      "sha256": "7917db19e7745b709037d746670c304408692502fa7bf81df13cc246d60a1c28"
+    },
+    {
+      "path": "README.md",
+      "size": 886,
+      "sha256": "e7ebc14c0c0bae3f9bc38ff9c630f8ebbded714ca2d743fe7fb3b25b21f548e5"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/api/server.js",
       "size": 8634,
       "sha256": "aa7a49dae6a519da5a8f82bfa46074f4fb8c8f4e28bad920f8e163ec86826e5f"
     },
     {
-      "path": "code/api/server.test.js",
-      "size": 4653,
-      "sha256": "f2249bd04a747396c0fa0b84dee88e73c33e377c86fbe9ed4df511218ad0d537"
-    },
-    {
-      "path": "code/api/start.js",
+      "path": "source/src/quality-completion-evaluator/api/start.js",
       "size": 435,
       "sha256": "fef5767a19c58e9e1610f075e92fe1fcb50268e98d6cf1062ec58c459cb6b3db"
     },
     {
-      "path": "code/docker-compose.example.yml",
+      "path": "source/src/quality-completion-evaluator/docker-compose.example.yml",
       "size": 679,
       "sha256": "64eb0a56be46073c578d9ef15108b1ec5de137f98ea81ebc8b14b8c29b7e361c"
     },
     {
-      "path": "code/Dockerfile",
+      "path": "source/src/quality-completion-evaluator/Dockerfile",
       "size": 165,
       "sha256": "2af31bd0d6591194237fdfe37e29aa417a6abbbc65b100d97f7df767c9bc4d19"
     },
     {
-      "path": "design.md",
-      "size": 1577,
-      "sha256": "6c5b8424105d99b62feec118cdcc78839e66adc82140f23e8a9969342df06b5f"
+      "path": "tests/normal/source-integrity.test.js",
+      "size": 796,
+      "sha256": "eb8459921e7662e9e77fd9b5127af3371a5f8b07a9a88011863c61820c570309"
     },
     {
-      "path": "evidence.json",
-      "size": 1220,
-      "sha256": "27c1783d653a35c192c74922b12c16052c2892645f86c43f4ed487a1614f3a52"
-    },
-    {
-      "path": "logic.md",
-      "size": 293,
-      "sha256": "da8c058fef45553d7c39c3ceed46622521e0fbe52e9f29796df24fc6ce0aeb1b"
-    },
-    {
-      "path": "meta.json",
-      "size": 1097,
-      "sha256": "154994140b2cf472340a30ad73bcd168f648d5ed19c83e97648c6f12fda0455a"
-    },
-    {
-      "path": "README.md",
-      "size": 1219,
-      "sha256": "a92decc2d0bfa5a55ddbdd73842d119bd4eb8234d84b0c3f781cf2120b0c9c22"
-    },
-    {
-      "path": "tests/normal/integration.test.js",
-      "size": 880,
-      "sha256": "ce90afe1598fe3cc23bee4e9e5eb4cc0c69fd32e251cb558be058f6c26f78de9"
-    },
-    {
-      "path": "tests/user/evaluator-api-journey.test.js",
-      "size": 994,
-      "sha256": "b745ecf2ba8ce01d18df5708e8db039469d755367f36212f0f3111cb9894eaa4"
+      "path": "tests/user/astera-user-journey.test.js",
+      "size": 588,
+      "sha256": "4d0b56ad2ca3549e3566da1efe5d1f48cc44acb8a58af62b2f8d7bdb0b3e7474"
     }
   ]
 }

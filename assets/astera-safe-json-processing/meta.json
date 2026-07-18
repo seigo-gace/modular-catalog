@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "astera-safe-json-processing",
+  "name": "Astera Safe JSON Processing",
+  "version": "1.1.1",
+  "summary": "JSON入力検証、Secret除去、循環参照の安全化を行う。",
+  "purpose": "Astera v8のPart責務を次回開発で再利用可能にする。",
+  "responsibility": "JSON入力検証、Secret除去、循環参照の安全化を行う。",
+  "layers": [
+    "Part"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "astera",
+    "five-tier",
+    "verified",
+    "json",
+    "secret masking",
+    "security"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "ModuleCatalogへの実行時依存を作らない",
+    "再利用先Project内で二系統テストを再実行する",
+    "元SourceのLicenseと利用条件を維持する"
+  ],
+  "source": {
+    "repository": "seigo-gace/astera_v8",
+    "commit": "f76a533edace36f82c4685b8eb044e6596732a74"
+  },
+  "verifiedAt": "2026-07-18T02:30:00.000Z"
+}

@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "93b20a025e0ad740e949d8a5f408b29b4ecd42fb1b2d603116a19045ce75662d",
+  "files": [
+    {
+      "path": "architecture.md",
+      "size": 444,
+      "sha256": "68ad28bf1863d7607183f5e095068ae53811c8a6894a76636ffc0facdbf7dea9"
+    },
+    {
+      "path": "astera-evaluation.json",
+      "size": 11968,
+      "sha256": "6ca36a604d54023f646122096c87d9ab341620505b2f8e0f02b80c52f25516b0"
+    },
+    {
+      "path": "design.md",
+      "size": 2185,
+      "sha256": "420a09f7f2f87121accaadb3c14ae40632ab4355ca24a49bfb079fa3151209e7"
+    },
+    {
+      "path": "evidence.json",
+      "size": 1503,
+      "sha256": "a67f7c031e6ab4772de7653a74dd01dc65ab797dd8082b784091693985271f6a"
+    },
+    {
+      "path": "logic.md",
+      "size": 643,
+      "sha256": "e53400e0a78595b7d973eec7513c01fade9eb024306b1de445304db8a55d1e99"
+    },
+    {
+      "path": "meta.json",
+      "size": 1059,
+      "sha256": "752134e7a78c26de7158b0753c29ad172cdf5d8b7dfa3f43a4d6137833b9251c"
+    },
+    {
+      "path": "README.md",
+      "size": 853,
+      "sha256": "eedb4cd9ba1a44861fb9114977661d61cc2da7ff35043599bec193f771cac086"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/utils/errors.js",
+      "size": 204,
+      "sha256": "23cdaf42201f64ef2e3249e7a58fded63f066b6ea0d3143a90d4f043b0d4dc6d"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/utils/hash.js",
+      "size": 430,
+      "sha256": "893756c6f53adad37b0d71370abcdeea0c7566e846a3132a284be9d5c6813431"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/utils/load-config.js",
+      "size": 241,
+      "sha256": "03ecc9bc24a2a2829c298c9b7a85dfdd6d6d90704405d4e0a130a9bd155ba268"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/utils/scoring.js",
+      "size": 529,
+      "sha256": "baad7b33ae7327ad0c06120e40a27acfd9e4c75f5860d6ba7f7f9eb63381afa4"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/utils/stable-json.js",
+      "size": 358,
+      "sha256": "9bc6d96b9f2fd72a7a0996dd2c4e407a1061db52b273ae7c7b90e677c04e7f14"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/utils/text.js",
+      "size": 2218,
+      "sha256": "7d9dbb7b30d204acf79f841bcd8c316c6db99e1c561f685fd5a4113606b010f4"
+    },
+    {
+      "path": "tests/normal/source-integrity.test.js",
+      "size": 904,
+      "sha256": "af4a6e26ee41bb06987b183311153d58ef68da5746c530903e9f5553e86ee6e4"
+    },
+    {
+      "path": "tests/user/astera-user-journey.test.js",
+      "size": 588,
+      "sha256": "4d0b56ad2ca3549e3566da1efe5d1f48cc44acb8a58af62b2f8d7bdb0b3e7474"
+    }
+  ]
+}

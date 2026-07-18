@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "e1c2de28c6225c9f5d1640d64559cbf4f35a47946ffce78ea133435ae9970ee5",
+  "files": [
+    {
+      "path": "architecture.md",
+      "size": 469,
+      "sha256": "6419f1a2ff9ad5932e828e135fbb604c65596e22b791b317cc2d14d414ad41d6"
+    },
+    {
+      "path": "astera-evaluation.json",
+      "size": 12767,
+      "sha256": "4e95e4b1c104be42a13352c6dda9ca46b3953cf4c33f3a1bf2b470bb5bfe9baa"
+    },
+    {
+      "path": "design.md",
+      "size": 3008,
+      "sha256": "df3e68223b808ab4f19f9c54ef9cd5f02ad1e62b41eb3488f007ad358a9103eb"
+    },
+    {
+      "path": "evidence.json",
+      "size": 2316,
+      "sha256": "81b3a4fc1341973c821dc8408442d4178a9a23a19db8636c4e1c70f5eec0ea58"
+    },
+    {
+      "path": "logic.md",
+      "size": 1441,
+      "sha256": "ba863b4748eb6865e21d7878a9582786083515fe0bf89d4dffa9d6ed4e202d7e"
+    },
+    {
+      "path": "meta.json",
+      "size": 1108,
+      "sha256": "2af255dd019605c48a84d081a3c96a4934b57b381d153bea6e1c08b733824ca7"
+    },
+    {
+      "path": "README.md",
+      "size": 873,
+      "sha256": "3848df86dc95289d51fbef8a2dd909d5f937f5d9be8fb5bbfb30f912227cebde"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/blocking/blocking-rules.v1.json",
+      "size": 1028,
+      "sha256": "be0fd60a93585255bed10bdded0d43d52c5684ff5da7c90a59e32199130aeb02"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/completion/completion-rubric.v1.json",
+      "size": 417,
+      "sha256": "6e78c9c40b69d3d2de4d47dca25ccc0e0364519dafb2503b425303d8a54f9744"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/contracts/evaluation-request.v1.schema.json",
+      "size": 3003,
+      "sha256": "f60a79fe8c9cae4fcc80a2cb9360b30b5d480f2ec3551e5431db8cbe88ecfb20"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/contracts/evaluation-result.v1.schema.json",
+      "size": 1035,
+      "sha256": "5a34bedea8a32f1f26ad52e93609417ea1a9da2835294a15d259250914686c6e"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/contracts/kb-record.v1.schema.json",
+      "size": 951,
+      "sha256": "6bf1494e42c33e0f616efb0accff3bbc8b47d7e6e832c385a0da359f766a35b8"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/profiles/configuration.profile.v1.json",
+      "size": 1197,
+      "sha256": "66df719e307e09498bee340067f79e3feeccf6a202b7e61091ec3e2de116b2d2"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/profiles/design.profile.v1.json",
+      "size": 1555,
+      "sha256": "3dbd440f4494ef7cd750d9c2e98baf0261e12fdfeb080532fd21c2ea927466a6"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/profiles/implementation.profile.v1.json",
+      "size": 1370,
+      "sha256": "c352877854ef887fb121e6cb2dd9a71aa557667377eaa8fc5210fd38a535f438"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/profiles/incident-resolution.profile.v1.json",
+      "size": 1090,
+      "sha256": "0487611ec85648dd558c478f04687dca4def1426a47937113bb632c415f65f8f"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/profiles/knowledge.profile.v1.json",
+      "size": 850,
+      "sha256": "6c1db3b2714da8ea97ee35bb598314013486d104e1f0f581b37518322808a1ce"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/profiles/operation.profile.v1.json",
+      "size": 1187,
+      "sha256": "bd249c6d67aef02e10ab5a2581656c3bb6b908c338e73c4a3cc0123fd85a371d"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/profiles/other.profile.v1.json",
+      "size": 883,
+      "sha256": "3777af4e62446270928c31cf4c9672ae2f7b9c56636457e4636f2f46bb1029a6"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/profiles/research.profile.v1.json",
+      "size": 1036,
+      "sha256": "4612e06413fa7c5140b35bdf0fb0206c34acb30f1035b99caab797a360c900df"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/profiles/test.profile.v1.json",
+      "size": 1105,
+      "sha256": "bec63bf889a64d1718e7ef484964d4a56ecba913556ec9d609813b88903bb364"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/quality/quality-rubric.v1.json",
+      "size": 354,
+      "sha256": "d09def37ba602fe1081944dc02cb7e3d0f1cd2f2c1d887cf310407bcac46db78"
+    },
+    {
+      "path": "tests/normal/source-integrity.test.js",
+      "size": 1659,
+      "sha256": "75b768acd50639371f7a189075a0765ad1eb2cca5b7b1c15b450dee42994958a"
+    },
+    {
+      "path": "tests/user/astera-user-journey.test.js",
+      "size": 588,
+      "sha256": "4d0b56ad2ca3549e3566da1efe5d1f48cc44acb8a58af62b2f8d7bdb0b3e7474"
+    }
+  ]
+}

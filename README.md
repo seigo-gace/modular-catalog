@@ -37,4 +37,8 @@ node src/cli.js register /path/to/completed-asset
 npm run check
 ```
 
-`assets/`は最初の実資産登録時に作成します。空Directoryや未完成資産は置きません。
+検索対象はMeta情報だけではなく、各Assetの`design.md`、`logic.md`、`architecture.md`本文を含みます。検索結果の`matchedSections`で一致した文書種別を確認し、`show <asset-id> --section all`でSourceと3文書を一括取得できます。
+
+Astera v8は、検証済みSourceを`Part → Feature → Component → System → Application System`の責務境界へ分解した27 Assetとして登録しています。各Assetは`source/`、通常Test、ユーザー利用Test、Astera判定結果、設計、Logic、Architectureを一体で保持します。
+
+`assets/`には完成・検証・Astera判定済みの実資産だけを置きます。空Directoryや未完成資産は置きません。

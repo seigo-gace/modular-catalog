@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "5c3c1b7ce435f90606f33982f1265668664225dd0cb3329c17851496a8036f86",
+  "files": [
+    {
+      "path": "architecture.md",
+      "size": 445,
+      "sha256": "b585c9fd58ff85da504819a388fa7dedc941e9decb86ebde7dcd6b60d94185f0"
+    },
+    {
+      "path": "astera-evaluation.json",
+      "size": 11997,
+      "sha256": "cf3729b5ecac882c215f5bcc2ab874a6a9d141b27bc0ed1ae8f5fc71b8dfb9ba"
+    },
+    {
+      "path": "design.md",
+      "size": 2252,
+      "sha256": "1c3f2b1bc516855d7f3aca7fb9a1496893ed175dd5ef9fdbc187d28d87432c18"
+    },
+    {
+      "path": "evidence.json",
+      "size": 1564,
+      "sha256": "5c5382be71dc2821666ab8b5cca873ff7c94f8a7ce9f73bc783826973053ba2f"
+    },
+    {
+      "path": "logic.md",
+      "size": 709,
+      "sha256": "026eac7f22fc440c99d6b3d4f5f2112f36c7a296c6e2f0b70c3ae3c6a3371120"
+    },
+    {
+      "path": "meta.json",
+      "size": 1114,
+      "sha256": "76bf9409bba93fa12e3d44c92427a670e0fae14bdc24e6b0ecd61ff374780b1f"
+    },
+    {
+      "path": "README.md",
+      "size": 875,
+      "sha256": "562f5832972611460d1ef4c5e4e2fc54b64d94c5f7653a282417c9285bdbe8a0"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/blocking/blocking-rule-engine.js",
+      "size": 4959,
+      "sha256": "49704b1a1d2b96dd78f1244b635c9217eee55c31c72a740487581799ba589df7"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/completion/completion-rule-engine.js",
+      "size": 5578,
+      "sha256": "7986533b1e354020aef2e1f56a89eaa185f8512d5bc43fa702826f232e0b3a0e"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/evaluation-result-builder.js",
+      "size": 5071,
+      "sha256": "c84149a089d4a4cdabcf19320c7436fea74df09c7d5b4cc3ee8ef588b6fae766"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/kb-admission-gate.js",
+      "size": 916,
+      "sha256": "77fcd2433ada45e0eae10c5c6075c3d132a8580162e7d46a3ca7c9d1f310615b"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/quality/quality-rule-engine.js",
+      "size": 5980,
+      "sha256": "85223e868db50f7c7e1530ce54016687a3710a7245dcf13d1ae555c2a188d624"
+    },
+    {
+      "path": "source/src/quality-completion-evaluator/score-calculator.js",
+      "size": 987,
+      "sha256": "1a55b1f812c687c778d40acd87b1e54b74a204290605f57f1fa2c1d00ce3f6c2"
+    },
+    {
+      "path": "tests/normal/source-integrity.test.js",
+      "size": 972,
+      "sha256": "4c4127a3cd81433edb3dda3c423869c15dc68f4193cb4e03f7a20df8ee5861f9"
+    },
+    {
+      "path": "tests/user/astera-user-journey.test.js",
+      "size": 588,
+      "sha256": "4d0b56ad2ca3549e3566da1efe5d1f48cc44acb8a58af62b2f8d7bdb0b3e7474"
+    }
+  ]
+}

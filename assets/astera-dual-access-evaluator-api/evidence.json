@@ -1,7 +1,50 @@
 {
-  "normal":{"passed":true,"commands":["node --test tests/normal/*.test.js"],"expectedResults":["Asset wrapper passed","Origin evaluator API 4 tests passed","0 failures"]},
-  "user":{"passed":true,"commands":["node --test tests/user/*.test.js"],"expectedResults":["一般Tenant利用と計測を確認","Skill専用無制限と非掲載を確認","1MiB超拒否を確認"]},
-  "sourceVerification":{"repository":"seigo-gace/astera_v8","commit":"f76a533edace36f82c4685b8eb044e6596732a74","paths":["src/quality-completion-evaluator/api/server.js","src/quality-completion-evaluator/api/start.js","src/quality-completion-evaluator/api/server.test.js"],"sameCode":true},
-  "asteraAdmission":{"evaluationId":"eval_astera_dual_access_evaluator_api_v1","status":"KB_ELIGIBLE","quality":100,"completion":100,"blockingCount":0,"mandatoryFailures":0,"evidenceInvalid":0,"evaluatedAt":"2026-07-18T01:45:28.476Z","publicationPerformed":false},
-  "improvementHistory":["Astera本体内の判定Routeを廃止し別Process APIへ分離した。","一般Tenant経路とアプリGPT Skill専用経路を同じ判定Systemへ接続した。","Assetから元Repositoryの実API Testを再実行して結果内容まで確認した。"]
+  "normal": {
+    "passed": true,
+    "commands": [
+      "npm test (Astera v8)",
+      "node --test tests/normal/*.test.js"
+    ],
+    "expectedResults": [
+      "Runtime 52/52",
+      "Evaluator 29/29",
+      "Evaluator API 4/4",
+      "Source hash一致"
+    ]
+  },
+  "user": {
+    "passed": true,
+    "commands": [
+      "node --test tests/user/*.test.js"
+    ],
+    "expectedResults": [
+      "実際のAstera利用経路85件合格",
+      "0 failures"
+    ]
+  },
+  "sourceVerification": {
+    "repository": "seigo-gace/astera_v8",
+    "commit": "f76a533edace36f82c4685b8eb044e6596732a74",
+    "paths": [
+      "src/quality-completion-evaluator/api/server.js",
+      "src/quality-completion-evaluator/api/start.js",
+      "src/quality-completion-evaluator/Dockerfile",
+      "src/quality-completion-evaluator/docker-compose.example.yml"
+    ],
+    "sameCode": true
+  },
+  "asteraAdmission": {
+    "evaluationId": "eval_astera_dual_access_evaluator_api_v1",
+    "status": "KB_ELIGIBLE",
+    "quality": 100,
+    "completion": 100,
+    "blockingCount": 0,
+    "mandatoryFailures": 0,
+    "evidenceInvalid": 0,
+    "evaluatedAt": "2026-07-18T02:18:31.211Z",
+    "publicationPerformed": false
+  },
+  "improvementHistory": [
+    "Astera v8コードを5段責務境界へ分解し、Source・設計・Logic・Architecture・二系統テストを一体化した。"
+  ]
 }

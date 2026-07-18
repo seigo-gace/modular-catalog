@@ -1,20 +1,20 @@
 # Astera Dual Access Evaluator API
 
 ## 目的
-Astera品質・完成度判定Moduleを本体とは別Processで起動し、一般TenantとアプリGPT Skillの両方へ提供する。
+Astera v8のSystem責務を次回開発で再利用可能にする。
 ## 対象責務
-HTTP受付、二系統認証、一般TenantのPlan別Rate Limit・利用計測、Skill専用無制限経路、判定のみの返却。
+一般TenantとアプリGPT専用経路を持つ独立判定APIを提供する。
 ## 入力・出力
-入力はEvaluation Request JSONと`X-API-Key`。出力はEvaluation Result JSON。掲載処理は行わない。
+入力は公開契約、出力は責務の処理結果。
 ## 依存関係
-Astera `QualityCompletionEvaluator`、TenantManager、RateLimiter、UsageMeter、Logger、SQLiteStore、Safe JSON、Skill API Key認証。
+Component, Feature and Part assets named by the source imports
 ## 使用方法
-Codeを互換Astera Projectへ配置し、同じ`ASTERA_DB`と`ASTERA_KEY_PEPPER`を本体と共有して`node api/start.js`で別Process起動する。
+`source/`を対象Projectへ取り込み、Import契約を接続する。
 ## 使用条件・制約
-一般Endpointは`/v1/evaluate`、Skill専用は`/v1/skill/evaluate`。既定Port 7374。KBやCatalogへ自動掲載しない。
+ModuleCatalogへの実行時依存を作らない。再利用先Project内で二系統テストを再実行する。元SourceのLicenseと利用条件を維持する。
 ## 検証内容
-一般Tenant認証・利用計測、Plan別Rate Limit、Skill専用認証・無制限、非掲載、1MiB超拒否、独立起動を検証した。
+Astera通常テスト52件、Evaluator 29件、Evaluator API 4件、およびAsset Source一致検証。
 ## 元Repository・Commit
 `seigo-gace/astera_v8` / `f76a533edace36f82c4685b8eb044e6596732a74`
 ## Version
-1.0.0
+1.1.1

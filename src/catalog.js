@@ -161,7 +161,8 @@ export async function validateAssetDirectory(assetDir, { verifyManifest = false 
     const target = path.join(absolute, file);
     if (!await exists(target) || (await fs.stat(target)).size === 0) throw new CatalogError(`${file} is required and must not be empty.`, 'MISSING_FILE');
   }
-  for (const directory of ['code', 'tests/normal', 'tests/user']) {
+  const sourceDirectory = await exists(path.join(absolute, 'source')) ? 'source' : 'code';
+  for (const directory of [sourceDirectory, 'tests/normal', 'tests/user']) {
     const target = path.join(absolute, directory);
     if (!await exists(target) || !(await fs.stat(target)).isDirectory()) throw new CatalogError(`${directory}/ is required.`, 'MISSING_DIRECTORY');
     const files = await listFiles(target);
@@ -185,11 +186,12 @@ export async function validateAssetDirectory(assetDir, { verifyManifest = false 
   return { meta, evidence, manifest };
 }
 
-function compactEntry(meta, manifest) {
+function compactEntry(meta, manifest, documents = {}) {
   const searchText = [
     meta.id, meta.name, meta.summary, meta.purpose, meta.responsibility,
     ...meta.layers, ...meta.languages, ...meta.runtimes, ...meta.tags,
-    ...meta.dependencies, ...meta.constraints
+    ...meta.dependencies, ...meta.constraints,
+    ...Object.values(documents)
   ].join(' ');
   return {
     id: meta.id,
@@ -207,7 +209,8 @@ function compactEntry(meta, manifest) {
     verifiedAt: meta.verifiedAt,
     metaHash: sha256(canonicalJson(meta)),
     assetHash: manifest.assetHash,
-    tokens: tokenize(searchText)
+    tokens: tokenize(searchText),
+    documentTokens: Object.fromEntries(Object.entries(documents).map(([section, content]) => [section, tokenize(content)]))
   };
 }
 
@@ -222,7 +225,11 @@ export async function buildIndex(rootDir) {
       const assetDir = path.join(assetsDir, child.name);
       const result = await validateAssetDirectory(assetDir, { verifyManifest: true });
       if (result.meta.id !== child.name) throw new CatalogError(`Asset directory name must equal meta.id: ${child.name}`, 'ID_PATH_MISMATCH');
-      entries.push(compactEntry(result.meta, result.manifest));
+      const documents = {};
+      for (const section of ['design', 'logic', 'architecture']) {
+        documents[section] = await fs.readFile(path.join(assetDir, `${section}.md`), 'utf8');
+      }
+      entries.push(compactEntry(result.meta, result.manifest, documents));
     }
   }
   const index = {
@@ -265,6 +272,9 @@ function scoreEntry(entry, queryTokens, queryText) {
     if (entry.tokens.includes(token)) score += 12;
     if (responsibility.includes(token)) score += 18;
     if (summary.includes(token)) score += 8;
+    for (const sectionTokens of Object.values(entry.documentTokens || {})) {
+      if (sectionTokens.some((value) => value === token || value.includes(token))) score += 16;
+    }
   }
   return score;
 }
@@ -312,6 +322,9 @@ export async function searchCatalog(rootDir, options = {}) {
       source: meta.source,
       verifiedAt: meta.verifiedAt,
       assetHash: candidate.entry.assetHash,
+      matchedSections: Object.entries(candidate.entry.documentTokens || {})
+        .filter(([, tokens]) => queryTokens.some((token) => tokens.some((value) => value === token || value.includes(token))))
+        .map(([section]) => section),
       score
     });
   }
@@ -387,8 +400,9 @@ export async function loadAssetSection(rootDir, assetId, section = 'meta') {
     evidence: ['evidence.json'],
     manifest: ['manifest.json'],
     tests: ['tests'],
-    code: ['code'],
-    all: ['meta.json', 'design.md', 'logic.md', 'architecture.md', 'evidence.json', 'manifest.json', 'code', 'tests']
+    code: [await exists(path.join(assetDir, 'source')) ? 'source' : 'code'],
+    source: [await exists(path.join(assetDir, 'source')) ? 'source' : 'code'],
+    all: ['meta.json', 'design.md', 'logic.md', 'architecture.md', 'evidence.json', 'manifest.json', await exists(path.join(assetDir, 'source')) ? 'source' : 'code', 'tests']
   };
   const targets = map[section];
   if (!targets) throw new CatalogError(`Unknown section: ${section}`, 'INVALID_SECTION');
