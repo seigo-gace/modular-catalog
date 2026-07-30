@@ -12,6 +12,8 @@ class SearchQuery:
     limit_per_provider: int = 10
     minimum_stars: int = 0
     include_archived: bool = False
+    category: str = "uncategorized"
+    target_count: int = 10
 
     def __post_init__(self) -> None:
         if not self.keyword.strip():
@@ -20,6 +22,10 @@ class SearchQuery:
             raise ValueError("limit_per_provider must be between 1 and 100")
         if self.minimum_stars < 0:
             raise ValueError("minimum_stars must be >= 0")
+        if not self.category.strip():
+            raise ValueError("category must not be empty")
+        if self.target_count < 1 or self.target_count > 500:
+            raise ValueError("target_count must be between 1 and 500")
 
 
 @dataclass(slots=True)
@@ -43,6 +49,7 @@ class Candidate:
     updated_at: str | None = None
     archived: bool = False
     matched_keywords: list[str] = field(default_factory=list)
+    categories: list[str] = field(default_factory=list)
     raw: dict[str, Any] = field(default_factory=dict, repr=False)
 
     @property
@@ -93,6 +100,8 @@ class AsteraDecision:
     blocking_count: int
     eligible: bool
     reason: str
+    revision_count: int = 0
+    revision_history: list[dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
