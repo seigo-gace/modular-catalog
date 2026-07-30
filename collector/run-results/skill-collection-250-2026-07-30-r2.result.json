@@ -1,0 +1,95 @@
+{
+  "request": "skill-collection-250-2026-07-30-r2",
+  "workflow_run_id": "30545816015",
+  "workflow_attempt": "1",
+  "source_commit": "4bda2bddc4e80e55c2b3c7330678aa7d3e377061",
+  "execution_outcome": "failure",
+  "target_total": 250,
+  "selected_total": 250,
+  "quota_shortfall": 0,
+  "processed_total": 150,
+  "admitted_total": 0,
+  "processing_failures": 100,
+  "notion_created_or_updated": 0,
+  "notion_failures": 0,
+  "categories": [
+    {
+      "category": "token-compression",
+      "target": 20,
+      "discovered": 646,
+      "selected": 20,
+      "shortfall": 0
+    },
+    {
+      "category": "language-processing",
+      "target": 20,
+      "discovered": 317,
+      "selected": 20,
+      "shortfall": 0
+    },
+    {
+      "category": "japanese-specialized",
+      "target": 20,
+      "discovered": 348,
+      "selected": 20,
+      "shortfall": 0
+    },
+    {
+      "category": "document-generation",
+      "target": 20,
+      "discovered": 457,
+      "selected": 20,
+      "shortfall": 0
+    },
+    {
+      "category": "context-management",
+      "target": 20,
+      "discovered": 515,
+      "selected": 20,
+      "shortfall": 0
+    },
+    {
+      "category": "prompt-compression",
+      "target": 20,
+      "discovered": 237,
+      "selected": 20,
+      "shortfall": 0
+    },
+    {
+      "category": "long-running",
+      "target": 20,
+      "discovered": 439,
+      "selected": 20,
+      "shortfall": 0
+    },
+    {
+      "category": "orchestration",
+      "target": 20,
+      "discovered": 569,
+      "selected": 20,
+      "shortfall": 0
+    },
+    {
+      "category": "code-generation",
+      "target": 20,
+      "discovered": 688,
+      "selected": 20,
+      "shortfall": 0
+    },
+    {
+      "category": "search-retrieval",
+      "target": 20,
+      "discovered": 585,
+      "selected": 20,
+      "shortfall": 0
+    },
+    {
+      "category": "claude-code-models",
+      "target": 50,
+      "discovered": 1444,
+      "selected": 50,
+      "shortfall": 0
+    }
+  ],
+  "debugged_total": 0
+}
