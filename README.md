@@ -2,6 +2,40 @@
 
 完成・検証済みの再利用資産を、必要なときに必要な情報だけ読むPrivate Repositoryです。
 
+## Repository内の独立Module
+
+このRepositoryには、責務を混ぜない独立Moduleを置きます。
+
+```text
+modular-catalog/
+├── src/                 # 完成済み開発物を検索・検証・登録するCatalog本体
+├── assets/              # Application System → System → Component → Feature → Partへ分解済みの完成資産
+├── catalog/             # Catalog Index
+├── control/             # Work Control
+├── test/                # Catalog本体のTest
+└── collector/           # Open Source Skill／Script探索・解析用の独立Python Module
+```
+
+### Catalog本体
+
+Catalog本体は、別工程で完成・検証された開発物をModular Architectureに従って分解し、再利用可能な成果物として登録・検索します。
+
+- Application System
+- System
+- Component
+- Feature
+- Part
+
+Catalog本体はOpen Source探索、AI能力補強、Task分解、WORK AI実行を担当しません。
+
+### Collector Module
+
+`collector/`は、GitHub・GitLab・npm・PyPI・crates.ioをキーワード別に探索し、言語を問わずSkill、Script、Library、CLI、Adapter候補を解析する独立Python Moduleです。
+
+Collectorは独自の`pyproject.toml`、CLI、Test、Workflowを持ち、rootの`package.json`やCatalog本体のTestへ依存しません。
+
+CollectorからCatalogへの接続は、完成・検証・Astera判定済み成果物を渡す任意のRegistration Adapterだけに限定します。Collector内部Code、未完成候補、収集中Dataを`assets/`へ直接混在させません。
+
 ## ChatGPTアプリ
 
 パーソナルのカスタムプロンプトには `prompts/PERSONAL_CUSTOM_PROMPT.md` を使用します。
@@ -43,21 +77,19 @@ Astera v8は、検証済みSourceを`Part → Feature → Component → System �
 
 `assets/`には完成・検証・Astera判定済みの実資産だけを置きます。空Directoryや未完成資産は置きません。
 
-## Open Source Skill / Script Collector
-
-`collector/`は、GitHub・GitLab・npm・PyPI・crates.ioをキーワード別に検索し、言語を問わずSkill、Script、Library、CLI、Adapter候補を収集するPython基盤です。
+## Collectorの実行
 
 ```text
 Keyword Search
   -> Provider Adapter
   -> Safe Source Acquisition
   -> Multi-language Static Analysis
-  -> Modular Architecture Reconstruction
+  -> Capability / Architecture / Logic Extraction
   -> Astera /v1/skill/process
   -> Astera /v1/skill/evaluate
-  -> 95/95 + Blocking 0 Admission
-  -> Catalog Register
-  -> Notion Export
+  -> Admission Decision
+  -> Notion Search Ledger
+  -> Optional Catalog Registration Adapter
 ```
 
 外部Sourceは既定で実行しません。License不明、Secret検出、Hash不一致、Astera API失敗、品質・完成度95未満、BlockingありはFail Closedで未登録にします。
