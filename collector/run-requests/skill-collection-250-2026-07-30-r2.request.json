@@ -1,0 +1,16 @@
+{
+  "requestedAt": "2026-07-30T12:36:00Z",
+  "requestedBy": "operator-via-ai-assistant",
+  "config": "collector/skill-collection-250.json",
+  "targetTotal": 250,
+  "maxAsteraDebugRounds": 3,
+  "registerCatalog": true,
+  "syncNotion": true,
+  "publishRunResult": true,
+  "notionDataSourceId": "10d3c0ac-5b2b-4f3b-8a22-a2b7685003bb",
+  "executionBoundary": {
+    "serverDeployment": false,
+    "runtime": "github-actions",
+    "asteraUsage": "api-only"
+  }
+}
