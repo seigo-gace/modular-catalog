@@ -17,6 +17,7 @@ from .modularize import ModularAssetBuilder
 from .notion_export import write_notion_export
 from .notion_sync import NotionLedgerClient, sync_completed_records
 from .providers import Provider, default_providers
+from .selection import write_selection_index
 
 
 @dataclass(slots=True)
@@ -209,6 +210,7 @@ class CollectionPipeline:
 
         (output / "admissions.json").write_text(json.dumps([record.to_dict() for record in records], ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         (output / "processing-failures.json").write_text(json.dumps(failures, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        write_selection_index(records, output / "selection-index.json")
         export_path = write_notion_export(records, output / "notion-export.json", github_commit=os.getenv("GITHUB_SHA"))
         if self.config.sync_notion:
             if not self.config.notion_token or not self.config.notion_data_source_id:

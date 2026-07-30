@@ -26,6 +26,8 @@ class NotionLedgerClient:
     def upsert(self, flat_properties: dict[str, Any]) -> dict[str, Any]:
         if flat_properties.get("Admission Passed") is not True or flat_properties.get("Status") != "完了":
             return {"status": "skipped", "reason": "only completed Astera-admitted assets are synchronized"}
+        if flat_properties.get("Selectable") is not True:
+            return {"status": "skipped", "reason": "only selection-ready assets are synchronized"}
         content_hash = str(flat_properties.get("Content Hash") or "")
         if not content_hash:
             raise ValueError("Content Hash is required for Notion upsert")
@@ -71,11 +73,26 @@ class NotionLedgerClient:
         return [{"type": "text", "text": {"content": text}}] if text else []
 
     def _encode_properties(self, values: dict[str, Any]) -> dict[str, Any]:
-        multi_fields = {"Language", "Tags"}
-        select_fields = {"Artifact Type", "Risk Level"}
+        multi_fields = {"Language", "Tags", "Capability Domains", "Compatible Domains", "Execution Methods"}
+        select_fields = {"Artifact Type", "Risk Level", "Speed Profile", "Cost Profile", "Selection Readiness"}
         rich_text_fields = {
-            "Repository", "Module Path", "Entry Point", "Capabilities", "Source Version", "License",
-            "Content Hash", "GitHub Commit", "Notes",
+            "Repository",
+            "Module Path",
+            "Entry Point",
+            "Capabilities",
+            "Source Version",
+            "License",
+            "Content Hash",
+            "GitHub Commit",
+            "Notes",
+            "Problem Solved",
+            "Input Contract",
+            "Output Contract",
+            "Strength Conditions",
+            "Constraint Conditions",
+            "Dependencies",
+            "Compatible Skills",
+            "Selection Keywords",
         }
         result: dict[str, Any] = {"Name": {"title": self._text(values.get("Name"))}}
         for field in multi_fields:
@@ -90,10 +107,11 @@ class NotionLedgerClient:
             result[field] = {"rich_text": self._text(values.get(field))}
         result["Status"] = {"status": {"name": str(values.get("Status"))[:100]}}
         result["Source URL"] = {"url": str(values.get("Source URL") or "") or None}
-        for field in ("Quality Score", "Completion Score", "Evidence Count"):
+        for field in ("Quality Score", "Completion Score", "Evidence Count", "Base Fitness Score"):
             value = values.get(field)
             result[field] = {"number": float(value) if value is not None else None}
         result["Admission Passed"] = {"checkbox": bool(values.get("Admission Passed"))}
+        result["Selectable"] = {"checkbox": bool(values.get("Selectable"))}
         result["Last Validated"] = {"date": {"start": str(values.get("Last Validated"))} if values.get("Last Validated") else None}
         return result
 

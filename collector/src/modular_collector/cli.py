@@ -8,6 +8,7 @@ from pathlib import Path
 from .http import HttpClient
 from .models import SearchQuery
 from .pipeline import CollectionPipeline, PipelineConfig
+from .selection import select_from_files
 
 
 def _load_queries(path: Path) -> list[SearchQuery]:
@@ -61,11 +62,21 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--sync-notion", action="store_true")
     run.add_argument("--max-debug-rounds", type=int, default=3)
     run.add_argument("--json", action="store_true")
+    select = sub.add_parser("select")
+    select.add_argument("--index", type=Path, required=True)
+    select.add_argument("--request", type=Path, required=True)
+    select.add_argument("--output", type=Path)
+    select.add_argument("--json", action="store_true")
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command == "select":
+        result = select_from_files(args.index, args.request, args.output)
+        print(json.dumps(result, ensure_ascii=False, indent=2) if args.json else f"selected: {len(result['selected'])}; decision: {result['decision']}")
+        return 0
+
     config = PipelineConfig(
         workspace=args.workspace,
         catalog_root=getattr(args, "catalog_root", None),
