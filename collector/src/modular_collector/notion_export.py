@@ -13,22 +13,27 @@ def notion_properties(record: AdmissionRecord, *, github_commit: str | None = No
     analysis = record.analysis
     decision = record.astera
     languages = list(analysis.detected_languages) or candidate.languages
-    status = "完了" if record.catalog_registered and decision.eligible else ("進行中" if decision.evaluation else "未着手")
+    status = "完了" if decision.eligible else ("進行中" if decision.evaluation else "未着手")
     risk = "low"
     if analysis.license_policy == "blocked" or decision.blocking_count:
         risk = "blocked"
     elif analysis.risks:
         risk = "medium"
+    notes = (
+        f"categories={','.join(candidate.categories) or 'uncategorized'}; "
+        f"revision_count={decision.revision_count}; "
+        f"catalog_registered={record.catalog_registered}; reason={decision.reason}"
+    )
     return {
         "Name": f"{candidate.provider}｜{candidate.name}",
-        "Artifact Type": "Script" if analysis.code_files else "Library",
+        "Artifact Type": "Skill",
         "Language": languages,
         "Status": status,
         "Repository": candidate.repository_url or candidate.web_url,
         "Module Path": record.asset_directory,
         "Entry Point": ", ".join(analysis.entry_points[:20]),
         "Capabilities": ", ".join(analysis.reusable_capabilities),
-        "Tags": sorted(set([candidate.provider, "open-source", "modular", *candidate.matched_keywords, *analysis.architecture_patterns]))[:30],
+        "Tags": sorted(set([candidate.provider, "open-source", "modular", "reconstructed-skill", *candidate.categories, *candidate.matched_keywords, *analysis.architecture_patterns]))[:30],
         "Source URL": candidate.web_url,
         "Source Version": candidate.version or candidate.source_ref or "",
         "License": analysis.license_spdx or "unknown",
@@ -38,15 +43,15 @@ def notion_properties(record: AdmissionRecord, *, github_commit: str | None = No
         "Completion Score": decision.completion_score,
         "Evidence Count": len(analysis.documentation_files) + len(analysis.test_files) + len(analysis.source_files_selected),
         "Risk Level": risk,
-        "Admission Passed": bool(record.catalog_registered and decision.eligible),
+        "Admission Passed": bool(decision.eligible),
         "Last Validated": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-        "Notes": decision.reason,
+        "Notes": notes,
     }
 
 
 def write_notion_export(records: list[AdmissionRecord], destination: Path, *, github_commit: str | None = None) -> Path:
     payload = {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
         "generatedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "records": [notion_properties(record, github_commit=github_commit) for record in records],
     }
