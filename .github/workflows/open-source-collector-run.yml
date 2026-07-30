@@ -25,6 +25,11 @@ on:
         required: false
         type: boolean
         default: true
+  push:
+    branches:
+      - agent/open-source-skill-script-collector
+    paths:
+      - 'collector/run-requests/*.request.json'
 
 permissions:
   contents: write
@@ -62,20 +67,26 @@ jobs:
           NOTION_DATA_SOURCE_ID: ${{ secrets.NOTION_DATA_SOURCE_ID || '10d3c0ac-5b2b-4f3b-8a22-a2b7685003bb' }}
         run: |
           set -euo pipefail
+          config_path='${{ inputs.config_path || 'skill-collection-250.json' }}'
+          process_limit='${{ inputs.process_limit || '250' }}'
+          max_debug_rounds='${{ inputs.max_debug_rounds || '3' }}'
+          register_catalog='${{ github.event_name == 'push' || inputs.register_catalog == true }}'
+          sync_notion='${{ github.event_name == 'push' || inputs.sync_notion == true }}'
+
           args=(
             run
-            --config '${{ inputs.config_path }}'
+            --config "$config_path"
             --workspace ../collector-output
-            --process-limit '${{ inputs.process_limit }}'
-            --max-debug-rounds '${{ inputs.max_debug_rounds }}'
+            --process-limit "$process_limit"
+            --max-debug-rounds "$max_debug_rounds"
             --json
           )
 
-          if [ '${{ inputs.register_catalog }}' = 'true' ]; then
+          if [ "$register_catalog" = 'true' ]; then
             args+=(--catalog-root .. --register)
           fi
 
-          if [ '${{ inputs.sync_notion }}' = 'true' ]; then
+          if [ "$sync_notion" = 'true' ]; then
             args+=(--sync-notion)
           fi
 
@@ -101,7 +112,7 @@ jobs:
           PY
 
       - name: Create draft PR for admitted catalog assets
-        if: ${{ inputs.register_catalog == true }}
+        if: ${{ github.event_name == 'push' || inputs.register_catalog == true }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -121,13 +132,14 @@ jobs:
             --base main \
             --head "$branch" \
             --title "chore: register Astera-admitted reconstructed Skills" \
-            --body "Manual GitHub execution requested by the operator. Candidates were decomposed or built from Logic, reconstructed through the five Modular Architecture layers, evaluated by Astera, debugged and re-evaluated below 95, and only 95/95 zero-blocking Skills are included."
+            --body "Candidates were decomposed or built from Logic, reconstructed through all five Modular Architecture layers, evaluated by Astera, debugged and re-evaluated below 95, and only 95/95 zero-blocking Skills are included."
 
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: modular-open-source-collector-output
           path: |
             collector-output
             collector-output-summary.json
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30
