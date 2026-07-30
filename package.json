@@ -1,8 +1,8 @@
 {
   "name": "modular-catalog",
-  "version": "1.1.0",
+  "version": "1.0.0",
   "private": true,
-  "description": "Verified reusable development asset catalog with keyword-driven open-source collection and Astera admission.",
+  "description": "Verified reusable development asset catalog with compact multi-stage search.",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -12,12 +12,9 @@
     "validate": "node src/cli.js validate",
     "index": "node src/cli.js build-index",
     "verify": "node src/cli.js verify-index",
-    "collect:search": "python collector/collector.py search --config collector/keywords.example.json --workspace collector-output --json",
-    "collect:run": "python collector/collector.py run --config collector/keywords.example.json --workspace collector-output --json",
     "test:normal": "node --test test/normal.test.js test/control.test.js",
     "test:user": "node --test test/user-journey.test.js",
-    "test:collector": "python -m unittest discover -s collector/tests -p 'test_*.py'",
-    "test": "npm run test:normal && npm run test:user && npm run test:collector",
+    "test": "npm run test:normal && npm run test:user",
     "check": "node --check src/catalog.js && node --check src/cli.js && node --check src/control.js && npm test && npm run verify"
   }
 }
