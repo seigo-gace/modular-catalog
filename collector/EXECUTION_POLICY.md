@@ -37,6 +37,12 @@ Astera is used only through its API contracts:
 
 The Collector must not copy, vendor, import, or reimplement Astera Runtime internals.
 
+Every Astera evaluation must identify the caller as `open-source-skill-script-collector` and include these execution facts:
+
+- `runtime = github-actions-or-ai-assistant`
+- `server_deployment = false`
+- `astera_usage = api-only`
+
 Required credentials are supplied only at execution time:
 
 - `ASTERA_PROCESS_BASE_URL`
