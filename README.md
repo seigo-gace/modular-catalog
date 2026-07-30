@@ -36,6 +36,8 @@ Collectorは独自の`pyproject.toml`、CLI、Test、Workflowを持ち、rootの
 
 CollectorからCatalogへの接続は、完成・検証・Astera判定済み成果物を渡す任意のRegistration Adapterだけに限定します。Collector内部Code、未完成候補、収集中Dataを`assets/`へ直接混在させません。
 
+CollectorはServerへDeployしません。常駐Process、HTTP Server、Daemon、Cron、Webhook、GitHub Actions Scheduleを持たず、AI Assistantが使う一時実行環境または手動`workflow_dispatch`だけで実行します。Asteraは`/v1/skill/process`と`/v1/skill/evaluate`をAPI経由で呼び出し、Astera内部Codeを保持しません。
+
 ## ChatGPTアプリ
 
 パーソナルのカスタムプロンプトには `prompts/PERSONAL_CUSTOM_PROMPT.md` を使用します。
@@ -80,13 +82,14 @@ Astera v8は、検証済みSourceを`Part → Feature → Component → System �
 ## Collectorの実行
 
 ```text
-Keyword Search
+Manual GitHub Dispatch / AI Assistant Execution
+  -> Keyword Search
   -> Provider Adapter
   -> Safe Source Acquisition
   -> Multi-language Static Analysis
   -> Capability / Architecture / Logic Extraction
-  -> Astera /v1/skill/process
-  -> Astera /v1/skill/evaluate
+  -> Astera API /v1/skill/process
+  -> Astera API /v1/skill/evaluate
   -> Admission Decision
   -> Notion Search Ledger
   -> Optional Catalog Registration Adapter
@@ -99,4 +102,4 @@ python -m unittest discover -s collector/tests -p 'test_*.py'
 python collector/collector.py search --config collector/keywords.example.json --workspace collector-output --json
 ```
 
-詳細は[`collector/README.md`](collector/README.md)を参照してください。
+詳細は[`collector/README.md`](collector/README.md)と[`collector/EXECUTION_POLICY.md`](collector/EXECUTION_POLICY.md)を参照してください。
