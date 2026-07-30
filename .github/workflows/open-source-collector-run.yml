@@ -1,4 +1,4 @@
-name: Open Source Collector Run
+name: Open Source Collector Manual Run
 
 on:
   workflow_dispatch:
@@ -7,8 +7,16 @@ on:
         description: Maximum candidates to acquire and analyze
         required: false
         default: '20'
-  schedule:
-    - cron: '17 2 * * 1'
+      register_catalog:
+        description: Register Astera-admitted assets into modular-catalog
+        required: false
+        type: boolean
+        default: true
+      sync_notion:
+        description: Sync admitted records to the Notion search ledger
+        required: false
+        type: boolean
+        default: true
 
 permissions:
   contents: write
@@ -23,12 +31,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Test collector
+
+      - name: Test isolated collector module
         working-directory: collector
         env:
           PYTHONPATH: src
         run: python -m unittest discover -s tests -p 'test_*.py' -v
-      - name: Collect, modularize and evaluate
+
+      - name: Collect, modularize and call Astera APIs
         working-directory: collector
         env:
           PYTHONPATH: src
@@ -40,15 +50,27 @@ jobs:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_DATA_SOURCE_ID: ${{ secrets.NOTION_DATA_SOURCE_ID }}
         run: |
-          python -m modular_collector run \
-            --config keywords.example.json \
-            --workspace ../collector-output \
-            --catalog-root .. \
-            --register \
-            --sync-notion \
-            --process-limit '${{ inputs.process_limit || '20' }}' \
-            --json > ../collector-output-summary.json
-      - name: Create admitted-assets draft PR
+          set -euo pipefail
+          args=(
+            run
+            --config keywords.example.json
+            --workspace ../collector-output
+            --process-limit '${{ inputs.process_limit }}'
+            --json
+          )
+
+          if [ '${{ inputs.register_catalog }}' = 'true' ]; then
+            args+=(--catalog-root .. --register)
+          fi
+
+          if [ '${{ inputs.sync_notion }}' = 'true' ]; then
+            args+=(--sync-notion)
+          fi
+
+          python -m modular_collector "${args[@]}" > ../collector-output-summary.json
+
+      - name: Create draft PR for admitted catalog assets
+        if: ${{ inputs.register_catalog == true }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -68,7 +90,8 @@ jobs:
             --base main \
             --head "$branch" \
             --title "chore: register Astera-admitted open-source assets" \
-            --body "Automated collection from configured keywords. Only permissive-license candidates that passed local safety gates and Astera 95/95 with zero blocking are included."
+            --body "Manual GitHub execution requested by the operator. Only permissive-license candidates that passed local safety gates and Astera API evaluation at 95/95 with zero blocking are included."
+
       - uses: actions/upload-artifact@v4
         with:
           name: modular-open-source-collector-output
