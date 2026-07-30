@@ -3,17 +3,25 @@ name: Open Source Collector Manual Run
 on:
   workflow_dispatch:
     inputs:
-      process_limit:
-        description: Maximum candidates to acquire and analyze
+      config_path:
+        description: Collector category plan under collector/
         required: false
-        default: '20'
+        default: 'skill-collection-250.json'
+      process_limit:
+        description: Maximum candidates to acquire, reconstruct and evaluate
+        required: false
+        default: '250'
+      max_debug_rounds:
+        description: Astera debug and re-evaluation rounds below 95
+        required: false
+        default: '3'
       register_catalog:
         description: Register Astera-admitted assets into modular-catalog
         required: false
         type: boolean
         default: true
       sync_notion:
-        description: Sync admitted records to the Notion search ledger
+        description: Sync admitted records to the specified Notion search ledger
         required: false
         type: boolean
         default: true
@@ -25,20 +33,23 @@ permissions:
 jobs:
   collect:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Test isolated collector module
+      - name: Test isolated collector module and catalog boundary
         working-directory: collector
         env:
           PYTHONPATH: src
         run: python -m unittest discover -s tests -p 'test_*.py' -v
 
-      - name: Collect, modularize and call Astera APIs
+      - name: Collect, decompose, reconstruct and call Astera APIs
         working-directory: collector
         env:
           PYTHONPATH: src
@@ -48,14 +59,15 @@ jobs:
           ASTERA_EVALUATOR_BASE_URL: ${{ secrets.ASTERA_EVALUATOR_BASE_URL }}
           ASTERA_SKILL_API_KEY: ${{ secrets.ASTERA_SKILL_API_KEY }}
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
-          NOTION_DATA_SOURCE_ID: ${{ secrets.NOTION_DATA_SOURCE_ID }}
+          NOTION_DATA_SOURCE_ID: ${{ secrets.NOTION_DATA_SOURCE_ID || '10d3c0ac-5b2b-4f3b-8a22-a2b7685003bb' }}
         run: |
           set -euo pipefail
           args=(
             run
-            --config keywords.example.json
+            --config '${{ inputs.config_path }}'
             --workspace ../collector-output
             --process-limit '${{ inputs.process_limit }}'
+            --max-debug-rounds '${{ inputs.max_debug_rounds }}'
             --json
           )
 
@@ -68,6 +80,25 @@ jobs:
           fi
 
           python -m modular_collector "${args[@]}" > ../collector-output-summary.json
+
+      - name: Verify quota and admission outputs
+        run: |
+          test -f collector-output/discovery/quota-summary.json
+          test -f collector-output/results/admissions.json
+          test -f collector-output/results/checkpoint.jsonl
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          quotas = json.loads(Path('collector-output/discovery/quota-summary.json').read_text())
+          admissions = json.loads(Path('collector-output/results/admissions.json').read_text())
+          print(json.dumps({
+              'target_total': sum(int(item['target']) for item in quotas),
+              'selected_total': sum(int(item['selected']) for item in quotas),
+              'shortfall_total': sum(int(item['shortfall']) for item in quotas),
+              'processed_total': len(admissions),
+              'admitted_total': sum(1 for item in admissions if item['astera']['eligible']),
+          }, ensure_ascii=False, indent=2))
+          PY
 
       - name: Create draft PR for admitted catalog assets
         if: ${{ inputs.register_catalog == true }}
@@ -84,13 +115,13 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$branch"
           git add assets catalog
-          git commit -m "Register Astera-admitted open-source assets"
+          git commit -m "Register Astera-admitted reconstructed Skills"
           git push origin "$branch"
           gh pr create --draft \
             --base main \
             --head "$branch" \
-            --title "chore: register Astera-admitted open-source assets" \
-            --body "Manual GitHub execution requested by the operator. Only permissive-license candidates that passed local safety gates and Astera API evaluation at 95/95 with zero blocking are included."
+            --title "chore: register Astera-admitted reconstructed Skills" \
+            --body "Manual GitHub execution requested by the operator. Candidates were decomposed or built from Logic, reconstructed through the five Modular Architecture layers, evaluated by Astera, debugged and re-evaluated below 95, and only 95/95 zero-blocking Skills are included."
 
       - uses: actions/upload-artifact@v4
         with:
@@ -99,4 +130,4 @@ jobs:
             collector-output
             collector-output-summary.json
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 30
