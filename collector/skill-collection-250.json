@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "name": "astera-skill-collection-250",
+  "totalTarget": 250,
+  "defaults": {
+    "providers": ["github", "gitlab", "npm", "pypi", "crates"],
+    "minimum_stars": 0,
+    "include_archived": false,
+    "limit_per_provider": 100
+  },
+  "categories": [
+    {
+      "id": "token-compression",
+      "target_count": 20,
+      "queries": [
+        "LLM token compression context compression",
+        "token budget optimization prompt tokens",
+        "semantic text compression for language models"
+      ]
+    },
+    {
+      "id": "language-processing",
+      "target_count": 20,
+      "queries": [
+        "natural language processing multilingual tokenizer",
+        "language detection translation normalization NLP",
+        "linguistic parser morphology syntax semantics"
+      ]
+    },
+    {
+      "id": "japanese-specialized",
+      "target_count": 20,
+      "queries": [
+        "Japanese NLP tokenizer morphological analysis",
+        "Japanese language model text normalization",
+        "Japanese proofreading summarization generation"
+      ]
+    },
+    {
+      "id": "document-generation",
+      "target_count": 20,
+      "queries": [
+        "document generation markdown docx pdf template",
+        "AI report generator structured documents",
+        "office document automation template engine"
+      ]
+    },
+    {
+      "id": "context-management",
+      "target_count": 20,
+      "queries": [
+        "LLM context management memory retrieval",
+        "context window long context RAG memory",
+        "conversation memory context store agent"
+      ]
+    },
+    {
+      "id": "prompt-compression",
+      "target_count": 20,
+      "queries": [
+        "prompt compression LLMLingua optimizer",
+        "prompt shortening token reduction LLM",
+        "instruction compression prompt distillation"
+      ]
+    },
+    {
+      "id": "long-running",
+      "target_count": 20,
+      "queries": [
+        "long running AI agent checkpoint resume",
+        "durable workflow agent state recovery",
+        "autonomous agent long horizon task persistence"
+      ]
+    },
+    {
+      "id": "orchestration",
+      "target_count": 20,
+      "queries": [
+        "LLM orchestration multi agent workflow",
+        "AI agent router planner executor reviewer",
+        "model orchestration tool calling pipeline"
+      ]
+    },
+    {
+      "id": "code-generation",
+      "target_count": 20,
+      "queries": [
+        "AI code generation coding agent",
+        "LLM software engineering code assistant",
+        "repository code generation repair agent"
+      ]
+    },
+    {
+      "id": "search-retrieval",
+      "target_count": 20,
+      "queries": [
+        "semantic search RAG retrieval engine",
+        "AI web search evidence retrieval",
+        "hybrid search vector keyword reranker"
+      ]
+    },
+    {
+      "id": "claude-code-models",
+      "target_count": 50,
+      "queries": [
+        "Claude Code skills agents Anthropic",
+        "Claude Code hooks commands subagents",
+        "Anthropic MCP Claude tools",
+        "Claude model router Sonnet Opus Haiku",
+        "Claude coding agent workflow",
+        "Claude Code plugin skill marketplace"
+      ]
+    }
+  ]
+}

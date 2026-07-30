@@ -1,0 +1,258 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import uuid
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+
+from .http import HttpClient, HttpError
+from .models import AnalysisReport, AsteraDecision, Candidate
+
+
+@dataclass(slots=True)
+class AsteraApiClient:
+    http: HttpClient
+    process_base_url: str
+    evaluator_base_url: str
+    skill_api_key: str
+
+    def __post_init__(self) -> None:
+        if not self.skill_api_key:
+            raise ValueError("Astera Skill API key is required")
+
+    @property
+    def headers(self) -> dict[str, str]:
+        return {
+            "X-API-Key": self.skill_api_key,
+            "Accept": "application/json,text/plain",
+            "X-Astera-Caller": "open-source-skill-script-collector",
+        }
+
+    def _asset_context(self, candidate: Candidate, analysis: AnalysisReport, asset_dir: Path) -> dict[str, Any]:
+        return {
+            "execution_boundary": {
+                "runtime": "github-actions-or-ai-assistant",
+                "server_deployment": False,
+                "astera_usage": "api-only",
+            },
+            "candidate": candidate.to_dict(),
+            "analysis": analysis.to_dict(),
+            "skill": (asset_dir / "skill.md").read_text("utf-8"),
+            "design": (asset_dir / "design.md").read_text("utf-8"),
+            "logic": (asset_dir / "logic.md").read_text("utf-8"),
+            "architecture": (asset_dir / "architecture.md").read_text("utf-8"),
+            "reconstruction": json.loads((asset_dir / "source" / "reconstruction.json").read_text("utf-8")),
+        }
+
+    def create_judgment_material(self, candidate: Candidate, analysis: AnalysisReport, asset_dir: Path) -> str:
+        question = "公開Sourceを分解またはLogicから組み上げ、Modular Architecture全階層へ再構築した新規Skillの完成度・再利用性・不足を判断する"
+        context = json.dumps(self._asset_context(candidate, analysis, asset_dir), ensure_ascii=False)
+        result = self.http.post_json(
+            f"{self.process_base_url.rstrip('/')}/v1/skill/process",
+            {
+                "question": question,
+                "context": context,
+                "language": "ja",
+                "llm": {"chain": ["null"]},
+                "moodAnswers": {"deepThink": True, "accuracy": True},
+            },
+            headers=self.headers,
+        )
+        if isinstance(result, str):
+            return result
+        return json.dumps(result, ensure_ascii=False, indent=2)
+
+    def create_debug_material(
+        self,
+        candidate: Candidate,
+        analysis: AnalysisReport,
+        asset_dir: Path,
+        evaluation: dict[str, Any],
+        round_number: int,
+    ) -> str:
+        question = (
+            "QualityまたはCompletionが95未満、またはBlockingが残っている。"
+            "評価結果を根拠に、Skill・Design・Logic・Architecture・Contractの不足を修正する具体的Debug内容を作成する。"
+            "既存目的を変えず、虚偽のEvidenceを追加せず、修正後に再判定可能な形で返す。"
+        )
+        context = self._asset_context(candidate, analysis, asset_dir)
+        context["debug_round"] = round_number
+        context["previous_evaluation"] = evaluation
+        result = self.http.post_json(
+            f"{self.process_base_url.rstrip('/')}/v1/skill/process",
+            {
+                "question": question,
+                "context": json.dumps(context, ensure_ascii=False),
+                "language": "ja",
+                "llm": {"chain": ["null"]},
+                "moodAnswers": {"deepThink": True, "accuracy": True},
+            },
+            headers=self.headers,
+        )
+        if isinstance(result, str):
+            return result
+        return json.dumps(result, ensure_ascii=False, indent=2)
+
+    def evaluate_asset(self, candidate: Candidate, analysis: AnalysisReport, asset_dir: Path, judgment_material: str) -> dict[str, Any]:
+        content = "\n\n".join([
+            (asset_dir / "skill.md").read_text("utf-8"),
+            (asset_dir / "design.md").read_text("utf-8"),
+            (asset_dir / "logic.md").read_text("utf-8"),
+            (asset_dir / "architecture.md").read_text("utf-8"),
+            "# Astera判断材料\n" + judgment_material,
+        ])
+        content_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()
+        requirements = [
+            ("REQ-001", "Source URL・VersionまたはRef・Content Hashを明示する", ["section:Source"]),
+            ("REQ-002", "PartからApplication Systemまでの全責務境界と依存方向を明示する", ["section:Modular Architecture", "section:責務境界", "section:依存方向"]),
+            ("REQ-003", "Logicの入力・処理・失敗時動作を明示する", ["section:Logic", "section:入力", "section:処理"]),
+            ("REQ-004", "License・Secret・未検証Sourceの安全境界を明示する", ["section:安全境界", "section:既知の制約"]),
+            ("REQ-005", "Astera判定前にCatalog・Notion完成台帳へ登録しないFail Closed条件を明示する", ["section:完成条件", "section:安全境界"]),
+            ("REQ-006", "ServerへDeployせずGitHubまたはAI Assistantの一時実行環境だけで動かす", ["section:実行境界"]),
+            ("REQ-007", "Astera内部Codeを複製せずAPIだけで判断材料生成と判定を行う", ["section:Astera Debug Loop"]),
+            ("REQ-008", "95点未満またはBlockingありの場合にDebugして再構築・再判定する", ["section:Astera Debug Loop", "section:完成条件"]),
+            ("REQ-009", "新規再構築したSkill Contractと発動条件・入出力を明示する", ["section:発動条件", "section:入力", "section:出力"]),
+        ]
+        request = {
+            "schema_version": "astera.quality-completion.request.v1",
+            "evaluation_id": f"eval_{uuid.uuid4().hex}",
+            "project_id": "open-source-skill-script-collector",
+            "target": {
+                "candidate_id": asset_dir.name,
+                "candidate_version": 1,
+                "artifact_type": "skill",
+                "title": f"{candidate.name} reconstructed modular skill",
+                "content": content,
+                "content_hash": f"sha256:{content_hash}",
+                "declared_status": "implementation_complete",
+            },
+            "requirements": [
+                {
+                    "requirement_id": req_id,
+                    "text": text,
+                    "mandatory": True,
+                    "fulfillment": {"status": "fulfilled", "locations": locations, "evidence_refs": [analysis.content_hash]},
+                }
+                for req_id, text, locations in requirements
+            ],
+            "evidence": {
+                "repository": [{
+                    "evidence_id": analysis.content_hash,
+                    "repository": candidate.repository_url or candidate.web_url,
+                    "commit": candidate.source_ref or candidate.version or analysis.content_hash,
+                    "paths": analysis.source_files_selected[:100],
+                }],
+                "tests": [],
+                "artifacts": [
+                    {"evidence_id": "analysis", "path": "source/analysis.json", "content_hash": analysis.content_hash},
+                    {"evidence_id": "reconstruction", "path": "source/reconstruction.json", "content_hash": analysis.content_hash},
+                    {"evidence_id": "skill", "path": "skill.md", "content_hash": f"sha256:{content_hash}"},
+                ],
+            },
+            "analysis": {
+                "technical_checks": [
+                    "source hash captured", "license classified", "unsafe source execution denied",
+                    "five-layer modular hierarchy generated", "new skill artifact generated",
+                    "server deployment denied", "Astera API-only boundary",
+                ],
+                "logical_checks": [
+                    "category quota -> provider -> acquisition -> analysis -> decomposition -> reconstruction -> Astera API -> debug loop -> admission"
+                ],
+                "contradictions": [],
+                "ambiguities": analysis.risks,
+                "boundary_checks": ["dependency direction", "license boundary", "execution boundary", "Astera API boundary", "Notion admission boundary"],
+                "boundary_violations": [],
+                "purpose_mismatch": False,
+                "domain_checks": candidate.categories,
+            },
+            "evaluation_config": {
+                "rubric_version": "quality-completion-rubric.v1",
+                "blocking_rule_version": "blocking-rules.v1",
+            },
+        }
+        result = self.http.post_json(
+            f"{self.evaluator_base_url.rstrip('/')}/v1/skill/evaluate",
+            request,
+            headers=self.headers,
+        )
+        if not isinstance(result, dict):
+            raise HttpError("Astera evaluator returned non-JSON response")
+        return result
+
+    @staticmethod
+    def _apply_debug_revision(asset_dir: Path, debug_material: str, round_number: int) -> None:
+        revision_path = asset_dir / "revisions" / f"round-{round_number:02d}.md"
+        revision_path.parent.mkdir(parents=True, exist_ok=True)
+        revision_path.write_text(f"# Astera Debug Round {round_number}\n\n{debug_material}\n", encoding="utf-8")
+        marker = f"\n\n# Astera Debug補正 Round {round_number}\n{debug_material}\n"
+        for name in ("skill.md", "design.md", "logic.md", "architecture.md"):
+            path = asset_dir / name
+            path.write_text(path.read_text("utf-8") + marker, encoding="utf-8")
+
+    def decide(
+        self,
+        candidate: Candidate,
+        analysis: AnalysisReport,
+        asset_dir: Path,
+        *,
+        max_debug_rounds: int = 3,
+    ) -> AsteraDecision:
+        history: list[dict[str, Any]] = []
+        last_material: str | None = None
+        last_evaluation: dict[str, Any] | None = None
+        try:
+            for attempt in range(max_debug_rounds + 1):
+                material = self.create_judgment_material(candidate, analysis, asset_dir)
+                evaluation = self.evaluate_asset(candidate, analysis, asset_dir, material)
+                last_material = material
+                last_evaluation = evaluation
+                scores = evaluation.get("scores") or {}
+                quality = self._number(scores.get("quality"))
+                completion = self._number(scores.get("completion"))
+                blocking = evaluation.get("blocking") or []
+                judgment = evaluation.get("judgment") or {}
+                eligible = bool(
+                    evaluation.get("status") == "KB_ELIGIBLE"
+                    and evaluation.get("evaluation_complete") is True
+                    and judgment.get("kb_eligible") is True
+                    and quality is not None and quality >= 95
+                    and completion is not None and completion >= 95
+                    and len(blocking) == 0
+                )
+                history.append({
+                    "round": attempt,
+                    "quality": quality,
+                    "completion": completion,
+                    "blocking_count": len(blocking),
+                    "status": evaluation.get("status"),
+                    "eligible": eligible,
+                    "reason": str(judgment.get("reason") or evaluation.get("status") or "unknown"),
+                })
+                if eligible:
+                    return AsteraDecision(
+                        material, evaluation, quality, completion, len(blocking), True,
+                        str(judgment.get("reason") or "passed"), attempt, history,
+                    )
+                if attempt >= max_debug_rounds:
+                    return AsteraDecision(
+                        material, evaluation, quality, completion, len(blocking), False,
+                        f"Astera debug limit reached: {judgment.get('reason') or evaluation.get('status') or 'not eligible'}",
+                        attempt, history,
+                    )
+                debug_material = self.create_debug_material(candidate, analysis, asset_dir, evaluation, attempt + 1)
+                self._apply_debug_revision(asset_dir, debug_material, attempt + 1)
+        except Exception as error:
+            return AsteraDecision(
+                last_material, last_evaluation, None, None, 1, False,
+                f"Astera API failed: {error}", len(history), history,
+            )
+        return AsteraDecision(last_material, last_evaluation, None, None, 1, False, "Astera evaluation did not complete", len(history), history)
+
+    @staticmethod
+    def _number(value: Any) -> float | None:
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return None

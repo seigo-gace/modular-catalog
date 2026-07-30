@@ -1,0 +1,14 @@
+{
+  "task": "複数のSourceから根拠を収集し、日本語の比較Reportを作成する",
+  "required_capabilities": ["evidence retrieval", "structured report generation"],
+  "preferred_domains": ["search-evidence", "document-content", "language-japanese"],
+  "preferred_categories": ["search-retrieval", "document-generation", "japanese-specialized"],
+  "execution_methods": ["Skill Contract"],
+  "avoid_constraints": ["possible secret", "blocked"],
+  "max_speed_profile": "medium",
+  "max_cost_profile": "medium",
+  "min_quality": 95,
+  "min_completion": 95,
+  "max_results": 10,
+  "require_selectable": true
+}

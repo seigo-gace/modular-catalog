@@ -1,0 +1,25 @@
+{
+  "queries": [
+    {
+      "keyword": "evidence search source verification",
+      "providers": ["github", "gitlab", "npm", "pypi", "crates"],
+      "languages": [],
+      "limit_per_provider": 10,
+      "minimum_stars": 5
+    },
+    {
+      "keyword": "plugin architecture modular registry",
+      "providers": ["github", "gitlab", "npm", "pypi", "crates"],
+      "languages": [],
+      "limit_per_provider": 10,
+      "minimum_stars": 5
+    },
+    {
+      "keyword": "retry backoff circuit breaker",
+      "providers": ["github", "gitlab", "npm", "pypi", "crates"],
+      "languages": [],
+      "limit_per_provider": 10,
+      "minimum_stars": 5
+    }
+  ]
+}
