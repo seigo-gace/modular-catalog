@@ -81,15 +81,12 @@ jobs:
             --max-debug-rounds "$max_debug_rounds"
             --json
           )
-
           if [ "$register_catalog" = 'true' ]; then
             args+=(--catalog-root .. --register)
           fi
-
           if [ "$sync_notion" = 'true' ]; then
             args+=(--sync-notion)
           fi
-
           python -m modular_collector "${args[@]}" > ../collector-output-summary.json
 
       - name: Verify quota and admission outputs
@@ -112,7 +109,7 @@ jobs:
           PY
 
       - name: Create draft PR for admitted catalog assets
-        if: ${{ github.event_name == 'push' || inputs.register_catalog == true }}
+        if: ${{ success() && (github.event_name == 'push' || inputs.register_catalog == true) }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -143,3 +140,57 @@ jobs:
             collector-output-summary.json
           if-no-files-found: warn
           retention-days: 30
+
+      - name: Publish run result marker
+        if: always() && github.event_name == 'push'
+        env:
+          FINAL_STATUS: ${{ job.status }}
+        run: |
+          set -euo pipefail
+          mkdir -p collector/run-results
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          result = {
+              'run_id': os.environ['GITHUB_RUN_ID'],
+              'run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+              'commit': os.environ['GITHUB_SHA'],
+              'status': os.environ.get('FINAL_STATUS', 'unknown'),
+              'target_total': 250,
+              'selected_total': 0,
+              'processed_total': 0,
+              'admitted_total': 0,
+              'processing_failures': 0,
+              'notion_sync_results': [],
+          }
+          quota = Path('collector-output/discovery/quota-summary.json')
+          admissions = Path('collector-output/results/admissions.json')
+          failures = Path('collector-output/results/processing-failures.json')
+          notion = Path('collector-output/results/notion-sync-results.json')
+          if quota.exists():
+              rows = json.loads(quota.read_text())
+              result['target_total'] = sum(int(x['target']) for x in rows)
+              result['selected_total'] = sum(int(x['selected']) for x in rows)
+              result['quota_shortfall'] = sum(int(x['shortfall']) for x in rows)
+          if admissions.exists():
+              rows = json.loads(admissions.read_text())
+              result['processed_total'] = len(rows)
+              result['admitted_total'] = sum(1 for x in rows if x['astera']['eligible'])
+          if failures.exists():
+              result['processing_failures'] = len(json.loads(failures.read_text()))
+          if notion.exists():
+              rows = json.loads(notion.read_text())
+              result['notion_sync_results'] = rows
+              result['notion_created_or_updated'] = sum(1 for x in rows if x.get('status') in {'created', 'updated'})
+          output = Path('collector/run-results') / f"{os.environ['GITHUB_RUN_ID']}.result.json"
+          output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n')
+          print(output)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add collector/run-results
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "Record collector run ${GITHUB_RUN_ID} [skip ci]"
+          git push origin HEAD:${GITHUB_REF_NAME}
