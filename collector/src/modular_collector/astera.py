@@ -24,11 +24,20 @@ class AsteraApiClient:
 
     @property
     def headers(self) -> dict[str, str]:
-        return {"X-API-Key": self.skill_api_key, "Accept": "application/json,text/plain"}
+        return {
+            "X-API-Key": self.skill_api_key,
+            "Accept": "application/json,text/plain",
+            "X-Astera-Caller": "open-source-skill-script-collector",
+        }
 
     def create_judgment_material(self, candidate: Candidate, analysis: AnalysisReport, asset_dir: Path) -> str:
         question = "公開Sourceから抽出したSkill・Script候補をmodular architectureへ再構成し、再利用可能性と不足を判断する"
         context = json.dumps({
+            "execution_boundary": {
+                "runtime": "github-actions-or-ai-assistant",
+                "server_deployment": False,
+                "astera_usage": "api-only",
+            },
             "candidate": candidate.to_dict(),
             "analysis": analysis.to_dict(),
             "design": (asset_dir / "design.md").read_text("utf-8"),
@@ -58,11 +67,13 @@ class AsteraApiClient:
             ("REQ-003", "Logicの入力・処理・失敗時動作を明示する", ["section:Logic", "section:入力", "section:処理"]),
             ("REQ-004", "License・Secret・未検証Sourceの安全境界を明示する", ["section:安全境界", "section:既知の制約"]),
             ("REQ-005", "Astera判定前にCatalog登録しないFail Closed条件を明示する", ["section:完成条件", "section:安全境界"]),
+            ("REQ-006", "ServerへDeployせずGitHubまたはAI Assistantの一時実行環境だけで動かす", ["section:実行境界"]),
+            ("REQ-007", "Astera内部Codeを複製せずAPIだけで判断材料生成と判定を行う", ["section:Astera API"]),
         ]
         request = {
             "schema_version": "astera.quality-completion.request.v1",
             "evaluation_id": f"eval_{uuid.uuid4().hex}",
-            "project_id": "modular-catalog",
+            "project_id": "open-source-skill-script-collector",
             "target": {
                 "candidate_id": asset_dir.name,
                 "candidate_version": 1,
@@ -92,11 +103,11 @@ class AsteraApiClient:
                 "artifacts": [{"evidence_id": "analysis", "path": "source/analysis.json", "content_hash": analysis.content_hash}],
             },
             "analysis": {
-                "technical_checks": ["source hash captured", "license classified", "unsafe source execution denied"],
-                "logical_checks": ["provider -> acquisition -> analysis -> modularization -> Astera -> admission"],
+                "technical_checks": ["source hash captured", "license classified", "unsafe source execution denied", "server deployment denied", "Astera API-only boundary"],
+                "logical_checks": ["provider -> acquisition -> analysis -> modularization -> Astera API -> admission"],
                 "contradictions": [],
                 "ambiguities": analysis.risks,
-                "boundary_checks": ["dependency direction", "license boundary", "execution boundary"],
+                "boundary_checks": ["dependency direction", "license boundary", "execution boundary", "Astera API boundary"],
                 "boundary_violations": [],
                 "purpose_mismatch": False,
                 "domain_checks": [],
