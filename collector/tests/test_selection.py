@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import os
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -112,6 +114,31 @@ class SelectionTests(unittest.TestCase):
             self.assertEqual(len(profiles), 1)
             data = json.loads(output.read_text("utf-8"))
             self.assertEqual(data["schemaVersion"], 1)
+
+    def test_module_cli_select_entrypoint(self):
+        record = self.record("search-skill", "search-retrieval", "evidence retrieval")
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            index = root / "selection-index.json"
+            request = root / "request.json"
+            output = root / "result.json"
+            write_selection_index([record], index)
+            request.write_text(json.dumps({
+                "task": "evidence retrieval",
+                "required_capabilities": ["evidence retrieval"],
+                "preferred_domains": ["search-evidence"],
+            }), encoding="utf-8")
+            env = dict(os.environ)
+            env["PYTHONPATH"] = str(Path(__file__).resolve().parents[1] / "src")
+            completed = subprocess.run([
+                sys.executable, "-m", "modular_collector", "select",
+                "--index", str(index), "--request", str(request),
+                "--output", str(output), "--json",
+            ], check=True, capture_output=True, text=True, env=env)
+            result = json.loads(output.read_text("utf-8"))
+            self.assertEqual(result["decision"], "reuse-existing-skills")
+            self.assertEqual(result["selected"][0]["artifact_id"], "search-skill")
+            self.assertIn('"reuse-existing-skills"', completed.stdout)
 
 
 if __name__ == "__main__":
