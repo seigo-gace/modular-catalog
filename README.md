@@ -42,3 +42,29 @@ npm run check
 Astera v8は、検証済みSourceを`Part → Feature → Component → System → Application System`の責務境界へ分解した27 Assetとして登録しています。各Assetは`source/`、通常Test、ユーザー利用Test、Astera判定結果、設計、Logic、Architectureを一体で保持します。
 
 `assets/`には完成・検証・Astera判定済みの実資産だけを置きます。空Directoryや未完成資産は置きません。
+
+## Open Source Skill / Script Collector
+
+`collector/`は、GitHub・GitLab・npm・PyPI・crates.ioをキーワード別に検索し、言語を問わずSkill、Script、Library、CLI、Adapter候補を収集するPython基盤です。
+
+```text
+Keyword Search
+  -> Provider Adapter
+  -> Safe Source Acquisition
+  -> Multi-language Static Analysis
+  -> Modular Architecture Reconstruction
+  -> Astera /v1/skill/process
+  -> Astera /v1/skill/evaluate
+  -> 95/95 + Blocking 0 Admission
+  -> Catalog Register
+  -> Notion Export
+```
+
+外部Sourceは既定で実行しません。License不明、Secret検出、Hash不一致、Astera API失敗、品質・完成度95未満、BlockingありはFail Closedで未登録にします。
+
+```bash
+python -m unittest discover -s collector/tests -p 'test_*.py'
+python collector/collector.py search --config collector/keywords.example.json --workspace collector-output --json
+```
+
+詳細は[`collector/README.md`](collector/README.md)を参照してください。
