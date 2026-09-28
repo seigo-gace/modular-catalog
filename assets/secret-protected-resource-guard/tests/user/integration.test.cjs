@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('secret-protected-resource-guard user scenario',()=>{assert.equal(s.run({text:'edit production-db',protected_patterns:['production-db']}).status,'REJECT');});

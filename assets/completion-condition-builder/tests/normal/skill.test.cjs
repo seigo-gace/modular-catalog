@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('completion-condition-builder normal',()=>{assert.equal(s.run({conditions:[{id:'t'}],evidence:{t:true}}).status,'COMPLETE');assert.equal(s.run({conditions:[{id:'t'}],evidence:{}}).status,'INCOMPLETE');});
