@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('claim-extractor user scenario',()=>{const r=s.run({items:[{type:'claim',id:'runtime',kind:'fact',text:'runtime passed'}]});assert.equal(r.claims[0].id,'runtime');});

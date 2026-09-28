@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('capability-request-builder normal',()=>{const r=s.run({task_id:'t',needed:['b','a','a'],reason:'x'});assert.deepEqual(r.request.needed,['a','b']);});
