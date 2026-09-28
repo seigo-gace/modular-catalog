@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('context-weaver user scenario',()=>{const r=s.run({fragments:[{id:'master',value:'do-not-merge',priority:1},{id:'readme',value:'merge-ok',priority:7}]});assert.equal(r.context[0].value,'do-not-merge');});

@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('skill-binding-resolver normal',()=>{const r=s.run({requirements:['a','b'],registry:[{id:'s1',capabilities:['a']},{id:'s2',capabilities:['a','b']}],max_skills:1});assert.equal(r.status,'PASS');assert.deepEqual(r.selected,['s2']);});

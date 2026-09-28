@@ -1,0 +1,3 @@
+"use strict";
+function run({baseline,current,metrics}){if(!baseline||!current||!Array.isArray(metrics)||!metrics.length)return{status:'BLOCKED',regressions:[]};const regressions=[];for(const m of metrics){const b=baseline[m.id],c=current[m.id];if(typeof b!=='number'||typeof c!=='number'){regressions.push({id:m.id,reason:'MISSING_METRIC'});continue;}if(m.direction==='higher'&&c<b-(m.tolerance||0))regressions.push({id:m.id,before:b,after:c});if(m.direction==='lower'&&c>b+(m.tolerance||0))regressions.push({id:m.id,before:b,after:c});}return{status:regressions.length?'REGRESSION':'PASS',regressions};}
+module.exports={run};
