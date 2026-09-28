@@ -1,0 +1,25 @@
+{
+  "normal": {
+    "passed": true,
+    "commands": [
+      "node --test tests/normal/future-skills.test.cjs tests/normal/invariant-fuzz.test.cjs"
+    ],
+    "expectedResults": [
+      "15/15 PASS, 0 FAIL, 0 SKIP",
+      "13 Skillの単体境界を検証",
+      "Dependency closure / synchronized PatchSet / semantic scopeを各1000 iteration検証"
+    ]
+  },
+  "user": {
+    "passed": true,
+    "commands": [
+      "node --test tests/user/integration-e2e.test.cjs"
+    ],
+    "expectedResults": [
+      "4/4 PASS, 0 FAIL, 0 SKIP",
+      "Skill OFF単一File修正は実Test FAIL、Skill ON Cross-file同期修正は実Test PASS",
+      "Compile Error局所修復後にsyntax/runtime PASS",
+      "False-pass変更REJECT、不完全PatchSet Apply前BLOCK"
+    ]
+  }
+}

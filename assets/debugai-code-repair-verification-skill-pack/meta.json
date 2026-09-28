@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "debugai-code-repair-verification-skill-pack",
+  "name": "DebugAI Code Repair & Verification Skill Pack",
+  "version": "0.1.0",
+  "summary": "DebugAI向けCode Repair/Verificationの13再利用Skillを、候補生成・複数File整合・Compile局所修復・Test選択・False-pass拒否まで一体で提供する。",
+  "purpose": "DebugAIや他の開発Agentへ、実装前に検証済みのCode Repair/Verification Skillロジックを再利用可能な形で提供する。",
+  "responsibility": "Repository pattern再利用、Cross-file依存閉包、Multi-file PatchSet整合、Contract保持、Compile feedback局所修復、Test impact/Regression、Failure分類、False-pass拒否をCandidate-only/Fail-closedで提供する。",
+  "layers": ["Component"],
+  "languages": ["JavaScript"],
+  "runtimes": ["Node.js 22+"],
+  "tags": ["debugai","code-repair","verification","skills","multi-file","patchset","regression","false-pass","verified-local-lab"],
+  "dependencies": ["Node.js built-in node:test for bundled verification only"],
+  "constraints": [
+    "Modelへ直接Mutation Authorityを与えない",
+    "Candidate-only/Fail-closed境界を維持する",
+    "再利用先Projectで通常Testとユーザー利用Testを再実行する",
+    "実LLM Skill ON/OFF効果は別途再検証する",
+    "Module Catalogへの実行時依存を作らない"
+  ],
+  "source": {
+    "repository": "local-lab://chatgpt/debugai-code-repair-skill-pack",
+    "commit": "local-verified-2026-09-28T14:17:13Z"
+  },
+  "verifiedAt": "2026-09-28T14:17:13Z"
+}
