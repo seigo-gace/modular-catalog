@@ -21,8 +21,10 @@ test('real repo: Skill ON multi-file repair passes where single-file OFF repair 
  const base=fs.mkdtempSync(path.join(os.tmpdir(),'debugai-wire-base-')); makeWireRepo(base);
  const baseline=run(base); assert.notEqual(baseline.status,0,'baseline must reproduce failure');
  const off=base+'-off', on=base+'-on'; copyDir(base,off); copyDir(base,on);
+ // OFF: naive single-file repair only fixes serializer.
  write(path.join(off,'src/serializer.js'),`"use strict"; function serialize(user){return {user_id:user.id,name:user.name};} module.exports={serialize};\n`);
  const offRun=run(off); assert.notEqual(offRun.status,0,'single-file repair should expose unsynchronized validator');
+ // ON: use dependency trace + planner + synchronized patchset contract before applying both files.
  const traced=s.crossFileDependencyTrace({graph:{'src/serializer.js':['src/validator.js','src/contract.js'],'src/validator.js':['src/contract.js'],'src/contract.js':[]},roots:['src/serializer.js']});
  assert.deepEqual(traced.closure,['src/serializer.js','src/validator.js','src/contract.js']);
  const plan=s.multiFileChangePlanner({requiredChanges:[{file:'src/serializer.js',reason:'wire key'},{file:'src/validator.js',reason:'validation key'}],dependencyClosure:traced.closure});
@@ -33,6 +35,7 @@ test('real repo: Skill ON multi-file repair passes where single-file OFF repair 
  const patch=s.synchronizedPatchsetGenerator({plan,edits,contracts:[{file:'src/serializer.js',must_include:'user_id'},{file:'src/validator.js',must_include:'user_id'}]});
  assert.equal(patch.status,'READY'); for(const e of patch.edits) write(path.join(on,e.file),e.after);
  const review=s.semanticDiffReview({changes:patch.edits.map(e=>({file:e.file,before:'userId',after:e.after})),allowedFiles:['src/serializer.js','src/validator.js'],allowedSymbols:[]});
+ // no symbol names supplied -> file scope only review should pass
  assert.equal(review.status,'PASS');
  const onRun=run(on); assert.equal(onRun.status,0,`ON failed:\n${onRun.stdout}\n${onRun.stderr}`);
 });
