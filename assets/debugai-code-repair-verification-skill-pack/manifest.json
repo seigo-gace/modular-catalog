@@ -3,15 +3,55 @@
   "algorithm": "sha256",
   "assetHash": "91447b70f34a1ab7dc13c081de079436c48fa673d54c0dd91ab9e3e6ab2b9f25",
   "files": [
-    {"path":"README.md","size":587,"sha256":"006fe7ffa9ba9f8f58cc5a8b35e9face7235c1f83a7e89658a2d6c8014e535a6"},
-    {"path":"architecture.md","size":602,"sha256":"e82918e429721d2f853c36800de8755f91db02ecf71913492247f78e191efddb"},
-    {"path":"design.md","size":1988,"sha256":"bd4de0f99eb9d3f04d2c6bfc072a36e560b42f9e3a79beac4398f1008b5abd9b"},
-    {"path":"evidence.json","size":770,"sha256":"2ee0b9596d179934f2c5ec8c51bedc8785add18ad2e3de27f4e82a0762b8bfe7"},
-    {"path":"logic.md","size":830,"sha256":"5c202e3a6700bcba604fe73b04607cc9f8958bff960f288a8b864ae31c2ddd5e"},
-    {"path":"meta.json","size":1590,"sha256":"419aae55b9234d379aa10daeae5891901675534a20612c6938cf8eca4e026a3a"},
-    {"path":"source/index.js","size":5812,"sha256":"d62e7d2896453f0d1d43b1f9f054919050879b68aa2d35ae258eb7d77f741ce9"},
-    {"path":"tests/normal/future-skills.test.cjs","size":4404,"sha256":"1165994505e464a0b8af34c298f0c177fd15de6514a798aea5cdc99876588c34"},
-    {"path":"tests/normal/invariant-fuzz.test.cjs","size":2034,"sha256":"22b7777cf7298cad8cb62687b375815f783ebafba0528d0b8954287e0fafc13b"},
-    {"path":"tests/user/integration-e2e.test.cjs","size":6081,"sha256":"2b3d203e3bd1e76228b280631c6b4d30584fc92929463aff20305ba9e942f879"}
+    {
+      "path": "README.md",
+      "size": 587,
+      "sha256": "006fe7ffa9ba9f8f58cc5a8b35e9face7235c1f83a7e89658a2d6c8014e535a6"
+    },
+    {
+      "path": "architecture.md",
+      "size": 602,
+      "sha256": "e82918e429721d2f853c36800de8755f91db02ecf71913492247f78e191efddb"
+    },
+    {
+      "path": "design.md",
+      "size": 1988,
+      "sha256": "bd4de0f99eb9d3f04d2c6bfc072a36e560b42f9e3a79beac4398f1008b5abd9b"
+    },
+    {
+      "path": "evidence.json",
+      "size": 770,
+      "sha256": "2ee0b9596d179934f2c5ec8c51bedc8785add18ad2e3de27f4e82a0762b8bfe7"
+    },
+    {
+      "path": "logic.md",
+      "size": 830,
+      "sha256": "5c202e3a6700bcba604fe73b04607cc9f8958bff960f288a8b864ae31c2ddd5e"
+    },
+    {
+      "path": "meta.json",
+      "size": 1590,
+      "sha256": "419aae55b9234d379aa10daeae5891901675534a20612c6938cf8eca4e026a3a"
+    },
+    {
+      "path": "source/index.js",
+      "size": 5812,
+      "sha256": "d62e7d2896453f0d1d43b1f9f054919050879b68aa2d35ae258eb7d77f741ce9"
+    },
+    {
+      "path": "tests/normal/future-skills.test.cjs",
+      "size": 4404,
+      "sha256": "1165994505e464a0b8af34c298f0c177fd15de6514a798aea5cdc99876588c34"
+    },
+    {
+      "path": "tests/normal/invariant-fuzz.test.cjs",
+      "size": 2034,
+      "sha256": "22b7777cf7298cad8cb62687b375815f783ebafba0528d0b8954287e0fafc13b"
+    },
+    {
+      "path": "tests/user/integration-e2e.test.cjs",
+      "size": 6081,
+      "sha256": "2b3d203e3bd1e76228b280631c6b4d30584fc92929463aff20305ba9e942f879"
+    }
   ]
 }
