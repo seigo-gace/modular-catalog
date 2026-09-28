@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('evidence-need-detector normal',()=>{assert.deepEqual(s.run({claims:[{id:'c1',type:'fact'},{id:'c2',type:'opinion'}]}).needs,['c1']);});

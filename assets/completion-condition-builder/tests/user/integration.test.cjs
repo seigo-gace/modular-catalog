@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('completion-condition-builder user scenario',()=>{assert.equal(s.run({conditions:[{id:'source'},{id:'test'},{id:'runtime'}],evidence:{source:true,test:true}}).status,'INCOMPLETE');});
