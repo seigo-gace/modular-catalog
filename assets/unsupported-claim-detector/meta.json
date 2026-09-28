@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "unsupported-claim-detector",
+  "name": "Unsupported Claim Detector",
+  "version": "1.0.0",
+  "summary": "Unsupported Claim Detector reusable minimal skill",
+  "purpose": "Unsupported Claim Detector",
+  "responsibility": "Unsupported Claim Detector",
+  "layers": [
+    "Skill"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "gace",
+    "skill",
+    "minimal-module"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "single responsibility",
+    "fail closed where input is insufficient",
+    "no direct mutation authority"
+  ],
+  "source": {
+    "repository": "local-lab://chatgpt/individual-skill-modules",
+    "commit": "local-verified-2026-09-29"
+  },
+  "verifiedAt": "2026-09-29T00:30:00+09:00"
+}
