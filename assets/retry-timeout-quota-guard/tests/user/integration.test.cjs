@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('retry-timeout-quota-guard user scenario',()=>{assert.equal(s.run({attempt:1,max_attempts:3,elapsed_ms:101,timeout_ms:100,remaining_quota:9}).action,'STOP_TIMEOUT');});

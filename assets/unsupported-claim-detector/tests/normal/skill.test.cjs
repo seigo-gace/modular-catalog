@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('unsupported-claim-detector normal',()=>{assert.equal(s.run({claims:[{id:'a',type:'fact'}],evidence:{a:true}}).status,'PASS');assert.deepEqual(s.run({claims:[{id:'a',type:'fact'}],evidence:{}}).unsupported,['a']);});

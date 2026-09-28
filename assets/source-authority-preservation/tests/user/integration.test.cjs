@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('source-authority-preservation user scenario',()=>{assert.equal(s.run({claims:[{source_type:'github',value:'old'},{source_type:'runtime',value:'live'}]}).selected.value,'live');});
