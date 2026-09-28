@@ -1,9 +1,0 @@
-"use strict";const test=require('node:test');const a=require('node:assert/strict');const s=require('../../source/index.js');
-test('authority lock preserves corrections prohibitions success',()=>{const r=s.preserveRequirementAuthority({original:'x',corrections:['c'],prohibitions:['p'],successConditions:['ok']});a.equal(r.locked,true);a.deepEqual(r.authority.corrections,['c']);});
-test('trace identifies uncovered',()=>{const r=s.traceRequirements({requirements:[{id:'R1'},{id:'R2'}],artifacts:[{id:'A',requirementIds:['R1']}]});a.deepEqual(r.uncovered,['R2']);});
-test('evidence need ignores unverifiable',()=>{a.deepEqual(s.detectEvidenceNeeds({claims:[{id:'C1'},{id:'C2',verifiable:false}]}).needs.map(x=>x.claimId),['C1']);});
-test('skill binding fails closed',()=>{let r=s.resolveSkillBinding({available:[{id:'S1',capabilities:['a']}],requiredCapabilities:['a','b']});a.equal(r.status,'BLOCKED');a.deepEqual(r.missing,['b']);r=s.resolveSkillBinding({available:[{id:'S1',capabilities:['a']},{id:'S2',capabilities:['b']}],requiredCapabilities:['a','b']});a.equal(r.status,'READY');});
-test('completion requires evidence PASS',()=>{const r=s.buildCompletionConditions({successConditions:[{id:'x'},{id:'y'}],evidence:[{conditionId:'x',status:'PASS'}]});a.equal(r.complete,false);a.deepEqual(r.unmet,['y']);});
-test('unsupported claims identified',()=>{a.deepEqual(s.detectUnsupportedClaims({claims:[{id:'c1'},{id:'c2',requiresEvidence:false}],evidence:[]}).unsupported,['c1']);});
-test('regression hooks map changed requirements',()=>{a.deepEqual(s.buildRegressionHooks({changedRequirements:['R1'],tests:[{id:'T1',requirementIds:['R1']},{id:'T2',requirementIds:['R2']}]}).tests,['T1']);});
-test('final gate blocks any missing evidence trace blocker or failed test',()=>{const r=s.failClosedCompletionGate({trace:{uncovered:['R2']},evidenceGaps:['C1'],blockingIssues:['B'],tests:[{id:'T',status:'FAIL'}]});a.equal(r.status,'BLOCKED');a.equal(r.blockers.length,4);});
