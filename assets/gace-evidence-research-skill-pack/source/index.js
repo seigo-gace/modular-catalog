@@ -1,0 +1,12 @@
+"use strict";const uniq=x=>[...new Set(x)];
+function planQueries({claim,terms=[]}){return {queries:uniq([claim,...terms.map(t=>`${claim} ${t}`)]).filter(Boolean)};}
+function evaluateSourceAuthority({sources=[]}){const rank={primary:3,official:3,secondary:2,community:1,unknown:0};return {sources:sources.map(s=>({...s,authorityScore:rank[s.tier]??0})).sort((a,b)=>b.authorityScore-a.authorityScore)};}
+function checkFreshness({sources=[],now,maxAgeDays=365}){const n=new Date(now).getTime();return {results:sources.map(s=>{const t=s.publishedAt?new Date(s.publishedAt).getTime():NaN;const age=Number.isFinite(t)?Math.floor((n-t)/86400000):null;return {id:s.id,ageDays:age,status:age===null?'UNKNOWN':age<=maxAgeDays?'FRESH':'STALE'};})};}
+function extractClaims({records=[]}){return {claims:records.flatMap(r=>(r.claims||[]).map(c=>({sourceId:r.id,...c})))};}
+function mapClaimsToEvidence({claims=[],evidence=[]}){return {mapping:claims.map(c=>({claimId:c.id,evidenceIds:evidence.filter(e=>(e.claimIds||[]).includes(c.id)).map(e=>e.id)}))};}
+function detectContradictorySources({statements=[]}){const by={};for(const s of statements)(by[s.claimId]??=[]).push(s);const conflicts=[];for(const [claimId,ss] of Object.entries(by))if(new Set(ss.map(x=>JSON.stringify(x.value))).size>1)conflicts.push({claimId,sourceIds:ss.map(x=>x.sourceId),values:ss.map(x=>x.value)});return {conflicts};}
+function verifyCitations({claims=[],citations=[]}){const valid=new Set(citations.filter(c=>c.resolves&&c.supportsClaim).map(c=>c.claimId));return {invalid:claims.filter(c=>c.requiresEvidence!==false&&!valid.has(c.id)).map(c=>c.id)};}
+function detectEvidenceGaps({claims=[],mapping=[]}){const m=new Map(mapping.map(x=>[x.claimId,x.evidenceIds||[]]));return {gaps:claims.filter(c=>!(m.get(c.id)||[]).length).map(c=>({claimId:c.id,reason:'NO_EVIDENCE_FOUND_NOT_PROOF_OF_ABSENCE'}))};}
+function scopeEvidence({evidence=[],scope}){return {accepted:evidence.filter(e=>!e.scope||e.scope===scope),rejected:evidence.filter(e=>e.scope&&e.scope!==scope).map(e=>e.id)};}
+function mergeEvidenceResults({primary=[],external=[]}){const all=[...primary,...external],seen=new Set(),merged=[];for(const e of all){const k=e.canonicalKey||e.id;if(seen.has(k))continue;seen.add(k);merged.push(e);}return {merged,duplicates:all.length-merged.length};}
+module.exports={planQueries,evaluateSourceAuthority,checkFreshness,extractClaims,mapClaimsToEvidence,detectContradictorySources,verifyCitations,detectEvidenceGaps,scopeEvidence,mergeEvidenceResults};
