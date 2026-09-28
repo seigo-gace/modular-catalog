@@ -1,0 +1,12 @@
+"use strict";
+function enforceCostBudget({spent=0,estimatedNext=0,budget=0}){const remaining=budget-spent;return {remaining,allowed:estimatedNext<=remaining,status:estimatedNext<=remaining?'ALLOW':'BLOCK'};}
+function planRetry({attempt,maxAttempts=3,errorClass='UNKNOWN',baseDelayMs=1000}){const retryable=['TRANSIENT','TIMEOUT','RATE_LIMIT'].includes(errorClass);return {retry:retryable&&attempt<maxAttempts,nextAttempt:attempt+1,delayMs:retryable?baseDelayMs*Math.max(1,2**(attempt-1)):0};}
+function guardRateLimit({used,limit,requested=1}){return {allowed:used+requested<=limit,remaining:Math.max(0,limit-used),status:used+requested<=limit?'ALLOW':'BLOCK'};}
+function circuitBreakerDecision({recentFailures,threshold,state='CLOSED'}){if(state==='OPEN')return {state:'OPEN',allow:false};if(recentFailures>=threshold)return {state:'OPEN',allow:false};return {state:'CLOSED',allow:true};}
+function backpressureDecision({queueDepth,highWatermark}){return {status:queueDepth>=highWatermark?'THROTTLE':'ACCEPT',accept:queueDepth<highWatermark};}
+function buildCheckpoint({runId,step,state,effects=[]}){if(!runId||!step)return {status:'BLOCKED'};return {status:'READY',checkpoint:{runId,step,state,effects:[...effects]}};}
+function resumeFromCheckpoint({checkpoint,completedEffects=[]}){if(!checkpoint?.runId)return {status:'BLOCKED'};const done=new Set(completedEffects);return {status:'READY',runId:checkpoint.runId,step:checkpoint.step,state:checkpoint.state,pendingEffects:(checkpoint.effects||[]).filter(e=>!done.has(e))};}
+function captureObservability({taskId,latencyMs,tokens=0,cost=0,status}){return {taskId,metrics:{latencyMs,tokens,cost,status}};}
+function assessAvailability({checks=[]}){const required=checks.filter(c=>c.required!==false),failed=required.filter(c=>c.status!=='PASS');return {status:failed.length?'DEGRADED':'AVAILABLE',failed:failed.map(c=>c.id)};}
+function classifyDeadLetter({errorClass,attempt,maxAttempts}){if(attempt<maxAttempts)return {deadLetter:false};return {deadLetter:true,reason:errorClass||'UNKNOWN'};}
+module.exports={enforceCostBudget,planRetry,guardRateLimit,circuitBreakerDecision,backpressureDecision,buildCheckpoint,resumeFromCheckpoint,captureObservability,assessAvailability,classifyDeadLetter};

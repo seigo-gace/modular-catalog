@@ -1,0 +1,11 @@
+{
+  "schemaVersion":1,"algorithm":"sha256","assetHash":"62d015ba401075db6c11dde0c87989158ee5960d88273f0f0e36c5cba416a2d9","files":[
+  {"path":"README.md","size":483,"sha256":"59861cbed7c1493fc4d3cdbc6baf29aca21a6093106fd0971995228258f92d76"},
+  {"path":"architecture.md","size":161,"sha256":"78a0eedb291b01912ac1111eaf5d41389d706bc4670023abfabb6cc5edb5ee9c"},
+  {"path":"design.md","size":499,"sha256":"49ec46ff081cac7b63fcc5685b3e9737e6343868cf32b8903da498c4bec925ba"},
+  {"path":"evidence.json","size":472,"sha256":"5447a04a941579a5b0b2be433994f9aa5f8c9f6f8f63ee2cbceaf3971b7e35c4"},
+  {"path":"logic.md","size":310,"sha256":"66d67509cfbaccaf1a35bb5759e81878133435a5be0e066747fb04c70e577a27"},
+  {"path":"meta.json","size":1309,"sha256":"c05646cfd5ee88fdf06738759a799d895a098e3d7a336c0d37fb257742a117a5"},
+  {"path":"source/index.js","size":2242,"sha256":"dbf927824699fa8b3b024c23c366aaa0eebf412b8d46cdbd6338918fd2f56dfa"},
+  {"path":"tests/normal/skills.test.cjs","size":1688,"sha256":"faaddd79215b36153e2ef7dfaaed38fc153b671c71c04b6c453a8bb659b885fe"},
+  {"path":"tests/user/integration.test.cjs","size":921,"sha256":"a8d41a632c76a0e7cc25b28aaee43dc5c86a41354aa4da1b4b60dd3fd9cb051e"}]}
