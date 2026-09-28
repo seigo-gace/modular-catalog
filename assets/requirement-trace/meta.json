@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "requirement-trace",
+  "name": "Requirement Trace",
+  "version": "1.0.0",
+  "summary": "Requirement Trace reusable minimal skill",
+  "purpose": "Requirement Trace",
+  "responsibility": "Requirement Trace",
+  "layers": ["Skill"],
+  "languages": ["JavaScript"],
+  "runtimes": ["Node.js 22+"],
+  "tags": ["gace","skill","minimal-module"],
+  "dependencies": [],
+  "constraints": ["single responsibility","fail closed where input is insufficient","no direct mutation authority"],
+  "source": {"repository":"local-lab://chatgpt/individual-skill-modules","commit":"local-verified-2026-09-29"},
+  "verifiedAt": "2026-09-29T00:30:00+09:00"
+}
