@@ -1,13 +1,37 @@
 {
-  "schemaVersion":1,
-  "id":"gace-evidence-research-skill-pack",
-  "name":"G-ACE Evidence Research Skill Pack",
-  "version":"1.0.0",
-  "summary":"Query planning、Source authority/freshness、Claim-Evidence mapping、Conflict/Citation/Gap/Scope判定を提供する。",
-  "purpose":"Query planning、Source authority/freshness、Claim-Evidence mapping、Conflict/Citation/Gap/Scope判定を提供する。",
-  "responsibility":"Query planning、Source authority/freshness、Claim-Evidence mapping、Conflict/Citation/Gap/Scope判定を提供する。",
-  "layers":["Component"],"languages":["JavaScript"],"runtimes":["Node.js 22+"],
-  "tags":["g-ace","skills","deterministic","fail-closed","reusable"],"dependencies":[],
-  "constraints":["外部Repository codeを直接コピーしない","Module Catalogへの実行時依存を作らない","再利用先で通常Testとユーザー利用Testを再実行する","Secret/Network/Git mutation/Deployを所有しない"],
-  "source":{"repository":"original://g-ace/notion-skill-matrix-reimplementation","commit":"generated-2026-09-28"},"verifiedAt":"2026-09-28T14:57:43Z"
+  "schemaVersion": 1,
+  "id": "gace-evidence-research-skill-pack",
+  "name": "G-ACE Evidence Research Skill Pack",
+  "version": "1.0.0",
+  "summary": "Query planning、Source authority/freshness、Claim-Evidence mapping、Conflict/Citation/Gap/Scope判定を提供する。",
+  "purpose": "Query planning、Source authority/freshness、Claim-Evidence mapping、Conflict/Citation/Gap/Scope判定を提供する。",
+  "responsibility": "Query planning、Source authority/freshness、Claim-Evidence mapping、Conflict/Citation/Gap/Scope判定を提供する。",
+  "layers": [
+    "Component"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "g-ace",
+    "skills",
+    "deterministic",
+    "fail-closed",
+    "reusable"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "外部Repository codeを直接コピーしない",
+    "Module Catalogへの実行時依存を作らない",
+    "再利用先で通常Testとユーザー利用Testを再実行する",
+    "Secret/Network/Git mutation/Deployを所有しない"
+  ],
+  "source": {
+    "repository": "original://g-ace/notion-skill-matrix-reimplementation",
+    "commit": "generated-2026-09-28"
+  },
+  "verifiedAt": "2026-09-28T14:57:43Z"
 }
