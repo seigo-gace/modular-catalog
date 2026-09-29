@@ -3,50 +3,14 @@
   "algorithm": "sha256",
   "assetHash": "b36b2f83406177ab03eec31cb028406fcbd5d52cc9075144f633e3aa74ee6215",
   "files": [
-    {
-      "path": "README.md",
-      "size": 145,
-      "sha256": "ff0478d79fff2b3e90f8388f05c36a988c54547182a861f1af111678a556f36f"
-    },
-    {
-      "path": "architecture.md",
-      "size": 122,
-      "sha256": "8376a3eb11242fd5f75bc77714ee4a32706e37f2f67d2e596ddc836f2b2e6bca"
-    },
-    {
-      "path": "design.md",
-      "size": 215,
-      "sha256": "db633b97ced573dc4685a639347155b366fd51351e5ca33b8b7177924de4376d"
-    },
-    {
-      "path": "evidence.json",
-      "size": 249,
-      "sha256": "c3b533546a04e7455ad34e0a49696ca82669fb551801bad1305994cdcddc14d6"
-    },
-    {
-      "path": "logic.md",
-      "size": 140,
-      "sha256": "a22b1ff24c9ba5545e5ec337a953a3ac6a735c357629676a29c27426d18bd4cd"
-    },
-    {
-      "path": "meta.json",
-      "size": 604,
-      "sha256": "ea8e6ca6ba68729e67302d87cfb2c32c1ff393e5078e2faae09b24a198ab5d14"
-    },
-    {
-      "path": "source/index.js",
-      "size": 403,
-      "sha256": "42b2146a1fc1e0ea013a3659c88cd782de9e930f7c5e3b551e3f3ea4f31c61f6"
-    },
-    {
-      "path": "tests/normal/implementation-completion-contract.test.cjs",
-      "size": 279,
-      "sha256": "13c837a78640bbfa6f0e252f552e245d8493ffbae0c48d7665382a79e53cfc18"
-    },
-    {
-      "path": "tests/user/implementation-completion-contract.test.cjs",
-      "size": 304,
-      "sha256": "b26cd6b8e94a836ee4cf8e2d4fdf5c28689e90a892131805c1c4e35cc742991c"
-    }
+    {"path":"README.md","size":145,"sha256":"ff0478d79fff2b3e90f8388f05c36a988c54547182a861f1af111678a556f36f"},
+    {"path":"architecture.md","size":122,"sha256":"8376a3eb11242fd5f75bc77714ee4a32706e37f2f67d2e596ddc836f2b2e6bca"},
+    {"path":"design.md","size":215,"sha256":"db633b97ced573dc4685a639347155b366fd51351e5ca33b8b7177924de4376d"},
+    {"path":"evidence.json","size":249,"sha256":"c3b533546a04e7455ad34e0a49696ca82669fb551801bad1305994cdcddc14d6"},
+    {"path":"logic.md","size":140,"sha256":"a22b1ff24c9ba5545e5ec337a953a3ac6a735c357629676a29c27426d18bd4cd"},
+    {"path":"meta.json","size":604,"sha256":"ea8e6ca6ba68729e67302d87cfb2c32c1ff393e5078e2faae09b24a198ab5d14"},
+    {"path":"source/index.js","size":403,"sha256":"42b2146a1fc1e0ea013a3659c88cd782de9e930f7c5e3b551e3f3ea4f31c61f6"},
+    {"path":"tests/normal/implementation-completion-contract.test.cjs","size":279,"sha256":"13c837a78640bbfa6f0e252f552e245d8493ffbae0c48d7665382a79e53cfc18"},
+    {"path":"tests/user/implementation-completion-contract.test.cjs","size":304,"sha256":"b26cd6b8e94a836ee4cf8e2d4fdf5c28689e90a892131805c1c4e35cc742991c"}
   ]
 }

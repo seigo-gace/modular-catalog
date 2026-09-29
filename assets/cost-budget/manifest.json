@@ -3,50 +3,14 @@
   "algorithm": "sha256",
   "assetHash": "3de14f31a4b11474e43f4859619d961ee7476eebd700598c788e4617d26c389d",
   "files": [
-    {
-      "path": "README.md",
-      "size": 110,
-      "sha256": "b7203adaa70b6f122383df04e4c8dc1f54e3ccf4c699f22c710e09a2648007d0"
-    },
-    {
-      "path": "architecture.md",
-      "size": 122,
-      "sha256": "8376a3eb11242fd5f75bc77714ee4a32706e37f2f67d2e596ddc836f2b2e6bca"
-    },
-    {
-      "path": "design.md",
-      "size": 203,
-      "sha256": "b2dbbe0a67a21b4ee820317a86490614e736c0dcce8b7daeb3155b3165f364ad"
-    },
-    {
-      "path": "evidence.json",
-      "size": 203,
-      "sha256": "9ca565b5790b4f34753eefe216fd08698275749111b7be5efe3b5b554cda1807"
-    },
-    {
-      "path": "logic.md",
-      "size": 140,
-      "sha256": "a22b1ff24c9ba5545e5ec337a953a3ac6a735c357629676a29c27426d18bd4cd"
-    },
-    {
-      "path": "meta.json",
-      "size": 523,
-      "sha256": "d7ff7e2a93acf9ee34e49c18e0930a99728bc725bf940db210e208b93483b3dc"
-    },
-    {
-      "path": "source/index.js",
-      "size": 434,
-      "sha256": "9dda08c6ad3bed1b29c0b42eee86e2e6652ee0d45d3a20697fa618baa3c52adc"
-    },
-    {
-      "path": "tests/normal/cost-budget.test.cjs",
-      "size": 258,
-      "sha256": "5577d577efd217ad95632f9b997bd5aa19f1ede9984d683921f8c37beb82f272"
-    },
-    {
-      "path": "tests/user/cost-budget.test.cjs",
-      "size": 208,
-      "sha256": "8246aac6285a35ee03dceffc07304d6b3804363ce6e77cc6c0953f0426f9120c"
-    }
+    {"path":"README.md","size":110,"sha256":"b7203adaa70b6f122383df04e4c8dc1f54e3ccf4c699f22c710e09a2648007d0"},
+    {"path":"architecture.md","size":122,"sha256":"8376a3eb11242fd5f75bc77714ee4a32706e37f2f67d2e596ddc836f2b2e6bca"},
+    {"path":"design.md","size":203,"sha256":"b2dbbe0a67a21b4ee820317a86490614e736c0dcce8b7daeb3155b3165f364ad"},
+    {"path":"evidence.json","size":203,"sha256":"9ca565b5790b4f34753eefe216fd08698275749111b7be5efe3b5b554cda1807"},
+    {"path":"logic.md","size":140,"sha256":"a22b1ff24c9ba5545e5ec337a953a3ac6a735c357629676a29c27426d18bd4cd"},
+    {"path":"meta.json","size":523,"sha256":"d7ff7e2a93acf9ee34e49c18e0930a99728bc725bf940db210e208b93483b3dc"},
+    {"path":"source/index.js","size":434,"sha256":"9dda08c6ad3bed1b29c0b42eee86e2e6652ee0d45d3a20697fa618baa3c52adc"},
+    {"path":"tests/normal/cost-budget.test.cjs","size":258,"sha256":"5577d577efd217ad95632f9b997bd5aa19f1ede9984d683921f8c37beb82f272"},
+    {"path":"tests/user/cost-budget.test.cjs","size":208,"sha256":"8246aac6285a35ee03dceffc07304d6b3804363ce6e77cc6c0953f0426f9120c"}
   ]
 }
