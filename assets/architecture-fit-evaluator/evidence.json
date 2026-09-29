@@ -1,7 +1,10 @@
 {
-  "status": "LOCAL_CANDIDATE",
-  "normal_user": "PENDING",
-  "adversarial": "PENDING",
-  "manifest": "PENDING",
-  "secret_scan": "PENDING"
+  "normal": {
+    "passed": true,
+    "command": "node --test tests/normal/architecture-fit-evaluator.test.cjs"
+  },
+  "user": {
+    "passed": true,
+    "command": "node --test tests/user/architecture-fit-evaluator.test.cjs"
+  }
 }
