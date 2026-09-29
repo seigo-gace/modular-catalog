@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source');test('extract invariants',()=>{const r=s.run({requirements:[{id:'a',kind:'invariant',text:'x'},{id:'b',text:'y'}]});a.deepEqual(r.invariants,[{id:'a',value:'x'}]);});

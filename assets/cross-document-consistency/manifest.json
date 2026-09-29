@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "a95db4c9c63cbc8e609e61e70ac6ede384789948fe01b4d0d7b5a39f5748f22b",
+  "files": [
+    {"path":"README.md","size":74,"sha256":"81ab678fa438c5e8f3e00730ccf77316ee99a5fa0cb456b936eea14a1d304ec9"},
+    {"path":"architecture.md","size":83,"sha256":"2fc40d62d5a6776a5617ee6e09f0ce2902cf23470980b790759f5d90a3223b08"},
+    {"path":"design.md","size":85,"sha256":"6ee6c70cab242c03f411772d982a93832d19c0e03e8ae7f2d8475ba83c5dda06"},
+    {"path":"evidence.json","size":197,"sha256":"de03fbf8ec4ac20a5438168ab4466245af8028aef64559f53a9b46e4e6cfb0d5"},
+    {"path":"logic.md","size":71,"sha256":"ea44502d6ea621b8dd04c897f1d0f82a95395cf2930eb760de2ca35048b7a1ba"},
+    {"path":"meta.json","size":409,"sha256":"993e70070c8f858bed2d21f0e88abfd9295381a58f4574020cdf28a521f1d76f"},
+    {"path":"source/index.js","size":520,"sha256":"822b3e12bcc91114686308a1257091b0ff1c2b3d1c4aaaeeca3acca685a842a6"},
+    {"path":"tests/normal/skill.test.cjs","size":209,"sha256":"732609d9bc62083175cd13c8fdc05b6960d7c2c468126e7b1d16b04dee69d267"},
+    {"path":"tests/user/integration.test.cjs","size":236,"sha256":"08e574f9654c5ad5564aaa203a8dbd7a1b2166402d88414471d9d4e3ca808124"}
+  ]
+}

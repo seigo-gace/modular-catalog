@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source');test('orders by score',()=>{const r=s.run({risks:[{id:'a',impact:1,likelihood:2},{id:'b',impact:3,likelihood:3}]});a.equal(r.items[0].id,'b');});

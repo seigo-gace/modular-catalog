@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "risk-trace",
+  "name": "Risk Trace",
+  "version": "0.1.0",
+  "layers": ["Component"],
+  "languages": ["JavaScript"],
+  "runtimes": ["Node.js 22+"],
+  "constraints": ["single responsibility","fail closed","no mutation authority"],
+  "source": {"repository": "local-lab://chatgpt/skill-wave3"}
+}

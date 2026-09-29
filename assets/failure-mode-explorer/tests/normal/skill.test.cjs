@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source');test('cartesian modes',()=>a.equal(s.run({components:['api'],dimensions:['availability','capacity']}).modes.length,2));

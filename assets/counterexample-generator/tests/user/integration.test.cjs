@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source');test('captures predicate error as counterexample evidence',()=>{const r=s.run({rule:x=>x.v>0,candidates:[null]});a.equal(r.counterexamples.length,1);a.ok(r.counterexamples[0].error);});
