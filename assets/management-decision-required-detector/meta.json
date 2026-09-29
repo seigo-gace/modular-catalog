@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "management-decision-required-detector",
+  "name": "Management Decision Required Detector",
+  "version": "1.0.0",
+  "summary": "Detect records that explicitly require management decision without inventing business judgment.",
+  "purpose": "Detect records that explicitly require management decision without inventing business judgment.",
+  "responsibility": "Detect records that explicitly require management decision without inventing business judgment.",
+  "layers": [
+    "Skill"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "gace",
+    "admini",
+    "management-ai",
+    "minimal-module"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "single responsibility",
+    "V8 business authority preserved",
+    "fail closed where input is insufficient",
+    "no direct mutation authority"
+  ],
+  "source": {
+    "repository": "local-lab://chatgpt/admin-ai-wave1",
+    "commit": "local-verified-2026-09-30"
+  },
+  "verifiedAt": "2026-09-30T01:00:00+09:00"
+}

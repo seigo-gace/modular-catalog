@@ -1,0 +1,10 @@
+{
+  "normal": {
+    "passed": true,
+    "command": "node --test tests/normal/reconciliation-mismatch-detector.test.cjs"
+  },
+  "user": {
+    "passed": true,
+    "command": "node --test tests/user/reconciliation-mismatch-detector.test.cjs"
+  }
+}

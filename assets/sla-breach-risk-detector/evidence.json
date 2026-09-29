@@ -1,0 +1,10 @@
+{
+  "normal": {
+    "passed": true,
+    "command": "node --test tests/normal/sla-breach-risk-detector.test.cjs"
+  },
+  "user": {
+    "passed": true,
+    "command": "node --test tests/user/sla-breach-risk-detector.test.cjs"
+  }
+}

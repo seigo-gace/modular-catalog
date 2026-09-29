@@ -1,0 +1,10 @@
+{
+  "normal": {
+    "passed": true,
+    "command": "node --test tests/normal/approval-route-resolver.test.cjs"
+  },
+  "user": {
+    "passed": true,
+    "command": "node --test tests/user/approval-route-resolver.test.cjs"
+  }
+}

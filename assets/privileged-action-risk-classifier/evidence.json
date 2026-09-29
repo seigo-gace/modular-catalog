@@ -1,0 +1,10 @@
+{
+  "normal": {
+    "passed": true,
+    "command": "node --test tests/normal/privileged-action-risk-classifier.test.cjs"
+  },
+  "user": {
+    "passed": true,
+    "command": "node --test tests/user/privileged-action-risk-classifier.test.cjs"
+  }
+}

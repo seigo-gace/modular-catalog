@@ -1,0 +1,10 @@
+{
+  "normal": {
+    "passed": true,
+    "command": "node --test tests/normal/management-decision-required-detector.test.cjs"
+  },
+  "user": {
+    "passed": true,
+    "command": "node --test tests/user/management-decision-required-detector.test.cjs"
+  }
+}

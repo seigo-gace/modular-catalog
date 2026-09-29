@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "reconciliation-mismatch-detector",
+  "name": "Reconciliation Mismatch Detector",
+  "version": "1.0.0",
+  "summary": "Detect deterministic mismatches between canonical and provider records on explicitly selected fields.",
+  "purpose": "Detect deterministic mismatches between canonical and provider records on explicitly selected fields.",
+  "responsibility": "Detect deterministic mismatches between canonical and provider records on explicitly selected fields.",
+  "layers": [
+    "Skill"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "gace",
+    "admini",
+    "management-ai",
+    "minimal-module"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "single responsibility",
+    "V8 business authority preserved",
+    "fail closed where input is insufficient",
+    "no direct mutation authority"
+  ],
+  "source": {
+    "repository": "local-lab://chatgpt/admin-ai-wave1",
+    "commit": "local-verified-2026-09-30"
+  },
+  "verifiedAt": "2026-09-30T01:00:00+09:00"
+}

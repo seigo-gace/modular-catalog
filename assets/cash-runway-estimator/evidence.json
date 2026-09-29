@@ -1,0 +1,10 @@
+{
+  "normal": {
+    "passed": true,
+    "command": "node --test tests/normal/cash-runway-estimator.test.cjs"
+  },
+  "user": {
+    "passed": true,
+    "command": "node --test tests/user/cash-runway-estimator.test.cjs"
+  }
+}

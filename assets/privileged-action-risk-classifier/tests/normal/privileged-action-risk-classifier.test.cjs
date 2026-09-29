@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {run}=require('../../source/index.js'); const r=run({action:{flags:['money','external_send']},policy:{high_risk_flags:['money'],medium_risk_flags:['external_send']}}); assert.equal(r.risk,'HIGH'); assert.equal(r.requires_approval,true);

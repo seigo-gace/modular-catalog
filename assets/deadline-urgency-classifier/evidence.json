@@ -1,0 +1,10 @@
+{
+  "normal": {
+    "passed": true,
+    "command": "node --test tests/normal/deadline-urgency-classifier.test.cjs"
+  },
+  "user": {
+    "passed": true,
+    "command": "node --test tests/user/deadline-urgency-classifier.test.cjs"
+  }
+}

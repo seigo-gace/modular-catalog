@@ -1,0 +1,10 @@
+{
+  "normal": {
+    "passed": true,
+    "command": "node --test tests/normal/budget-actual-variance-calculator.test.cjs"
+  },
+  "user": {
+    "passed": true,
+    "command": "node --test tests/user/budget-actual-variance-calculator.test.cjs"
+  }
+}
