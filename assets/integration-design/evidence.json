@@ -1,0 +1,10 @@
+{
+  "normal": {
+    "passed": true,
+    "command": "node --test tests/normal/integration-design.test.cjs"
+  },
+  "user": {
+    "passed": true,
+    "command": "node --test tests/user/integration-design.test.cjs"
+  }
+}

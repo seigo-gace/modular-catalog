@@ -1,0 +1,10 @@
+{
+  "normal": {
+    "passed": true,
+    "command": "node --test tests/normal/code-localization.test.cjs"
+  },
+  "user": {
+    "passed": true,
+    "command": "node --test tests/user/code-localization.test.cjs"
+  }
+}

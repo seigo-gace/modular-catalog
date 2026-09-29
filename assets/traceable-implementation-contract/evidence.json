@@ -1,0 +1,10 @@
+{
+  "normal": {
+    "passed": true,
+    "command": "node --test tests/normal/traceable-implementation-contract.test.cjs"
+  },
+  "user": {
+    "passed": true,
+    "command": "node --test tests/user/traceable-implementation-contract.test.cjs"
+  }
+}

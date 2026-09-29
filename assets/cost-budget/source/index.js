@@ -1,0 +1,2 @@
+"use strict";
+function run(i={}){const b=Number(i.budget), spent=Number(i.spent||0), reserved=Number(i.reserved||0), next=Number(i.nextCost||0); if(!Number.isFinite(b)||b<0||[spent,reserved,next].some(x=>!Number.isFinite(x)||x<0))return{status:'BLOCKED',reason:'INVALID_COST'}; const remaining=Math.max(0,b-spent-reserved); return{status:next<=remaining?'ALLOW':'DENY',remaining,projected:spent+reserved+next};} module.exports={run};

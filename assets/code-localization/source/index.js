@@ -1,0 +1,2 @@
+"use strict";
+function run(i={}){const scores=new Map(); const add=(file,n,why)=>{if(!file)return;const x=scores.get(file)||{file,score:0,evidence:[]};x.score+=n;x.evidence.push(why);scores.set(file,x)}; for(const s of i.stack||[])add(s.file,5,'STACK'); for(const s of i.symbolHits||[])add(s.file,4,'SYMBOL'); for(const f of i.changedFiles||[])add(f,2,'CHANGED'); const out=[...scores.values()].sort((a,b)=>b.score-a.score||a.file.localeCompare(b.file)); return{status:out.length?'LOCALIZED':'UNKNOWN',locations:out.slice(0,i.limit||10)};} module.exports={run};

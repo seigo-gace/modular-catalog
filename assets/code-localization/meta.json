@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "code-localization",
+  "name": "Code Localization",
+  "version": "0.1.0",
+  "summary": "Stack・symbol・changed-file evidenceから修正候補位置を局所化する。",
+  "layers": [
+    "Component"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "g-ace",
+    "skill",
+    "code-localization"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "pure deterministic",
+    "fail-closed where required",
+    "no external mutation authority"
+  ]
+}

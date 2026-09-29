@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "test-generation",
+  "name": "Test Generation",
+  "version": "0.1.0",
+  "summary": "再現EvidenceからRepository非依存のRegression Test仕様を生成し、期待値不足時はFail-Closedする。",
+  "layers": [
+    "Component"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "g-ace",
+    "skill",
+    "test-generation"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "pure deterministic",
+    "fail-closed where required",
+    "no external mutation authority"
+  ]
+}

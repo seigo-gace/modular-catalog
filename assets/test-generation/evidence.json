@@ -1,0 +1,10 @@
+{
+  "normal": {
+    "passed": true,
+    "command": "node --test tests/normal/test-generation.test.cjs"
+  },
+  "user": {
+    "passed": true,
+    "command": "node --test tests/user/test-generation.test.cjs"
+  }
+}
