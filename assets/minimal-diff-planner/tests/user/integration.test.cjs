@@ -1,0 +1,1 @@
+const t=require('node:test'),a=require('node:assert/strict'),s=require('../../source');t('flags scope creep',()=>{const r=s.run({required_changes:[{file:'a'}],candidate_changes:[{file:'a'},{file:'metrics'}]});a.equal(r.status,'REVIEW');a.equal(r.excess.length,1)});

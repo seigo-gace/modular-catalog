@@ -1,0 +1,1 @@
+const t=require('node:test'),a=require('node:assert/strict'),s=require('../../source');t('blocks approval tool',()=>a.equal(s.run({request:{tool:'write'},allowed_tools:['write'],requires_approval:['write'],approved:false}).status,'BLOCKED'));

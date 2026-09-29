@@ -1,0 +1,1 @@
+const t=require('node:test'),a=require('node:assert/strict'),s=require('../../source');t('requires isolated contract',()=>a.equal(s.run({command:'node x',network:'deny',filesystem:'workspace',limits:{timeout_ms:1000,memory_mb:128}}).status,'PASS'));

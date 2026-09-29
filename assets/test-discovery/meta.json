@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "test-discovery",
+  "name": "Test Discovery",
+  "version": "0.1.0",
+  "layers": [
+    "Component"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "constraints": [
+    "single responsibility",
+    "fail closed",
+    "no direct mutation authority"
+  ],
+  "source": {
+    "repository": "local-lab://chatgpt/skill-wave4"
+  }
+}
