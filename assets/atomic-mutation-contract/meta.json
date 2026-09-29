@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "atomic-mutation-contract",
+  "name": "Atomic Mutation Contract",
+  "version": "1.0.0",
+  "summary": "Represent one approved mutation with before/after/rollback boundaries.",
+  "purpose": "Represent one approved mutation with before/after/rollback boundaries.",
+  "responsibility": "Represent one approved mutation with before/after/rollback boundaries.",
+  "layers": [
+    "Skill"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "gace",
+    "skill",
+    "minimal-module"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "single responsibility",
+    "fail closed where input is insufficient",
+    "no direct mutation authority"
+  ],
+  "source": {
+    "repository": "local-lab://chatgpt/individual-skill-modules",
+    "commit": "local-verified-2026-09-30"
+  },
+  "verifiedAt": "2026-09-30T00:00:00+09:00"
+}

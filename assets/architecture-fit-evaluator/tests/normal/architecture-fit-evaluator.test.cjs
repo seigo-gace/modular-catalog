@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {run}=require('../../source/index.js'); assert.deepEqual(run({candidate:{capabilities:['audit'],traits:['safe']},required:['audit'],forbidden:['mutable-global']}),{status:'PASS',missing:[],violations:[]});

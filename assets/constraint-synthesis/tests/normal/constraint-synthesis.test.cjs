@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {run}=require('../../source/index.js'); const r=run({requirements:[{id:'r1',kind:'must',value:'a'},{id:'r2',kind:'must_not',value:'b'}]}); assert.equal(r.constraints.must.length,1); assert.equal(r.constraints.must_not.length,1);

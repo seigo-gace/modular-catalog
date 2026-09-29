@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "resource-budget",
+  "name": "Resource Budget",
+  "version": "1.0.0",
+  "summary": "Validate runtime resource, sleep and restart budgets before execution.",
+  "purpose": "Validate runtime resource, sleep and restart budgets before execution.",
+  "responsibility": "Validate runtime resource, sleep and restart budgets before execution.",
+  "layers": [
+    "Skill"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "gace",
+    "skill",
+    "minimal-module"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "single responsibility",
+    "fail closed where input is insufficient",
+    "no direct mutation authority"
+  ],
+  "source": {
+    "repository": "local-lab://chatgpt/individual-skill-modules",
+    "commit": "local-verified-2026-09-30"
+  },
+  "verifiedAt": "2026-09-30T00:00:00+09:00"
+}

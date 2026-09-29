@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "result-integration",
+  "name": "Result Integration",
+  "version": "1.0.0",
+  "summary": "Integrate worker results while preserving claim/source trace and conflicts instead of flattening them.",
+  "purpose": "Integrate worker results while preserving claim/source trace and conflicts instead of flattening them.",
+  "responsibility": "Integrate worker results while preserving claim/source trace and conflicts instead of flattening them.",
+  "layers": [
+    "Skill"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "gace",
+    "skill",
+    "minimal-module"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "single responsibility",
+    "fail closed where input is insufficient",
+    "no direct mutation authority"
+  ],
+  "source": {
+    "repository": "local-lab://chatgpt/individual-skill-modules",
+    "commit": "local-verified-2026-09-30"
+  },
+  "verifiedAt": "2026-09-30T00:00:00+09:00"
+}

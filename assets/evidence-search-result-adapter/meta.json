@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "evidence-search-result-adapter",
+  "name": "Evidence Search Result Adapter",
+  "version": "1.0.0",
+  "summary": "Normalize multiple search results into traceable source and evidence records.",
+  "purpose": "Normalize multiple search results into traceable source and evidence records.",
+  "responsibility": "Normalize multiple search results into traceable source and evidence records.",
+  "layers": [
+    "Skill"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "gace",
+    "skill",
+    "minimal-module"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "single responsibility",
+    "fail closed where input is insufficient",
+    "no direct mutation authority"
+  ],
+  "source": {
+    "repository": "local-lab://chatgpt/individual-skill-modules",
+    "commit": "local-verified-2026-09-30"
+  },
+  "verifiedAt": "2026-09-30T00:00:00+09:00"
+}

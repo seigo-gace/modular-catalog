@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {run}=require('../../source/index.js'); const r=run({candidate:{capabilities:['search'],traits:['direct-prod-write']},required:['search','audit'],forbidden:['direct-prod-write']}); assert.equal(r.status,'REJECT'); assert.deepEqual(r.missing,['audit']); assert.deepEqual(r.violations,['direct-prod-write']);

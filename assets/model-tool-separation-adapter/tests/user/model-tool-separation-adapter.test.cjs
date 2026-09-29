@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {propose,authorize}=require('../../source/index.js'); const p=propose({proposal_id:'p1',tool:'write',args:{},reason:'change'}).proposal; assert.equal(authorize({proposal:p,approval:{proposal_id:'p2',approved:true}}).status,'DENY');
