@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source'); test('chunks parallel tasks',()=>{const r=s.planParallelSearch({questions:[{id:'q1'},{id:'q2'}],routes:[{id:'a'},{id:'b'}],max_parallel:3});a.equal(r.total_tasks,4);a.equal(r.waves.length,2);});

@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source'); test('normalizes source metadata',()=>{const r=s.normalizeSourceMetadata({source_id:' s1 ',url:' https://x ',authority_level:'PRIMARY',published_at:'2026-09-01'});a.equal(r.status,'READY');a.equal(r.source.source_id,'s1');a.equal(r.source.authority_level,'primary');});

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "evidence-coverage-scorer",
+  "name": "Evidence Coverage Scorer",
+  "version": "1.0.0",
+  "summary": "Evidence Coverage Scorer reusable minimal skill",
+  "purpose": "Evidence Coverage Scorer",
+  "responsibility": "Evidence Coverage Scorer",
+  "layers": [
+    "Skill"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "gace",
+    "skill",
+    "minimal-module",
+    "evidence-research"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "single responsibility",
+    "fail closed where input is insufficient",
+    "no direct mutation authority"
+  ],
+  "source": {
+    "repository": "local-lab://chatgpt/individual-skill-modules",
+    "commit": "local-verified-2026-09-29-wave5"
+  },
+  "verifiedAt": "2026-09-29T21:16:00+09:00"
+}

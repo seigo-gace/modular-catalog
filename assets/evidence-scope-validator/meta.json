@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "evidence-scope-validator",
+  "name": "Evidence Scope Validator",
+  "version": "1.0.0",
+  "summary": "Evidence Scope Validator reusable minimal skill",
+  "purpose": "Evidence Scope Validator",
+  "responsibility": "Evidence Scope Validator",
+  "layers": [
+    "Skill"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "gace",
+    "skill",
+    "minimal-module",
+    "evidence-research"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "single responsibility",
+    "fail closed where input is insufficient",
+    "no direct mutation authority"
+  ],
+  "source": {
+    "repository": "local-lab://chatgpt/individual-skill-modules",
+    "commit": "local-verified-2026-09-29-wave5"
+  },
+  "verifiedAt": "2026-09-29T21:16:00+09:00"
+}

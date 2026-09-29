@@ -1,0 +1,9 @@
+{
+  "local": {
+    "normal_user": "PASS 20/20 across wave5",
+    "adversarial": "PASS 10/10 across wave5",
+    "manifest": "PASS",
+    "secret_scan": "PASS 0"
+  },
+  "remote": "PENDING"
+}

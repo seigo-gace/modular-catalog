@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source'); test('no claims is blocked, not complete',()=>{const r=s.scoreEvidenceCoverage({claims:[],evidence:[]});a.equal(r.status,'BLOCKED');a.equal(r.score,null);});

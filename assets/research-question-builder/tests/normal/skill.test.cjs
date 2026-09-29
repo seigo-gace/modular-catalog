@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source'); test('builds traceable questions',()=>{const r=s.buildResearchQuestions({unknowns:[{id:'u1',text:'What changed?'}],scope:'runtime'});a.equal(r.questions[0].unknown_id,'u1');});

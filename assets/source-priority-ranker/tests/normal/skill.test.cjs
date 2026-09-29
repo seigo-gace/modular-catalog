@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source'); test('primary outranks secondary',()=>{const r=s.rankSources({sources:[{id:'b',authority_level:'secondary'},{id:'a',authority_level:'primary'}]});a.equal(r.ranked[0].id,'a');});

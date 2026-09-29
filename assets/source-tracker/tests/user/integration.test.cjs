@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source'); test('invalid time blocks',()=>a.equal(s.trackSource({source:{source_id:'s'},event:{type:'read',at:'bad'}}).status,'BLOCKED'));
