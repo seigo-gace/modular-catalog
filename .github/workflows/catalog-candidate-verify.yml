@@ -23,26 +23,38 @@ jobs:
       - name: Catalog core tests
         run: npm test
 
-      - name: Execute all asset normal tests
+      - name: Execute all asset normal tests with CommonJS asset boundary
         shell: bash
         run: |
           set -euo pipefail
           mapfile -t files < <(find assets -type f -path '*/tests/normal/*.test.cjs' | sort)
           test "${#files[@]}" -eq 80
           for file in "${files[@]}"; do
+            asset="${file%%/tests/normal/*}"
             echo "[NORMAL] $file"
+            printf '%s\n' '{"type":"commonjs"}' > "$asset/package.json"
+            cleanup() { rm -f "$asset/package.json"; }
+            trap cleanup RETURN
             node --test "$file"
+            cleanup
+            trap - RETURN
           done
 
-      - name: Execute all asset user tests
+      - name: Execute all asset user tests with CommonJS asset boundary
         shell: bash
         run: |
           set -euo pipefail
           mapfile -t files < <(find assets -type f -path '*/tests/user/*.test.cjs' | sort)
           test "${#files[@]}" -eq 80
           for file in "${files[@]}"; do
+            asset="${file%%/tests/user/*}"
             echo "[USER] $file"
+            printf '%s\n' '{"type":"commonjs"}' > "$asset/package.json"
+            cleanup() { rm -f "$asset/package.json"; }
+            trap cleanup RETURN
             node --test "$file"
+            cleanup
+            trap - RETURN
           done
 
       - name: Rebuild catalog index
