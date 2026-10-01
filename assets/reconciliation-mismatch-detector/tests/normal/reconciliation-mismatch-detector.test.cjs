@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {run}=require('../../source/index.js'); const r=run({canonical:{amount:100,state:'paid'},provider:{amount:100,state:'open'},fields:['amount','state']}); assert.equal(r.status,'MISMATCH'); assert.equal(r.mismatches[0].field,'state');

@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source');test('detect conflict',()=>a.equal(s.run({documents:[{id:'a',facts:{x:1}},{id:'b',facts:{x:2}}]}).status,'CONFLICT'));

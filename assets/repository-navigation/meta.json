@@ -1,0 +1,11 @@
+{
+  "schemaVersion":1,"id":"repository-navigation","name":"Repository Navigation","version":"0.1.0",
+  "summary":"Repository内の候補Fileをquery tokenとpath evidenceで順位付けする。",
+  "purpose":"Repository内の候補Fileをquery tokenとpath evidenceで順位付けする。",
+  "responsibility":"Repository内の候補Fileをquery tokenとpath evidenceで順位付けする。",
+  "layers":["Component"],"languages":["JavaScript"],"runtimes":["Node.js 22+"],
+  "tags":["g-ace","skill","repository-navigation"],"dependencies":[],
+  "constraints":["pure deterministic","fail-closed where required","no external mutation authority"],
+  "source":{"repository":"local-lab://chatgpt/individual-skill-modules","commit":"local-verified-2026-09-29"},
+  "verifiedAt":"2026-09-29T23:39:00+09:00"
+}

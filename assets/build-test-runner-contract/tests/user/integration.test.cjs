@@ -1,0 +1,1 @@
+const t=require('node:test'),a=require('node:assert/strict'),s=require('../../source');t('zero exit but not executed is fail',()=>a.equal(s.run({commands:['test'],results:[{command:'test',executed:false,exit_code:0}]}).status,'FAIL'));

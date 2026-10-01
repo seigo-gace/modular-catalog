@@ -1,0 +1,20 @@
+{
+  "normal": {
+    "passed": true,
+    "commands": [
+      "node --test tests/normal/sla-breach-risk-detector.test.cjs"
+    ],
+    "expectedResults": [
+      "Command exits with code 0 and all assertions pass."
+    ]
+  },
+  "user": {
+    "passed": true,
+    "commands": [
+      "node --test tests/user/sla-breach-risk-detector.test.cjs"
+    ],
+    "expectedResults": [
+      "Command exits with code 0 and all assertions pass."
+    ]
+  }
+}

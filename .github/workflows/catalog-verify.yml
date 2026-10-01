@@ -1,0 +1,82 @@
+name: Catalog Verify
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Core tests
+        run: npm test
+
+      - name: Verify all registered assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t assets < <(find assets -mindepth 1 -maxdepth 1 -type d ! -name '.*' | sort)
+          test "${#assets[@]}" -eq 80
+          for asset in "${assets[@]}"; do
+            echo "[ASSET] $asset"
+            node src/cli.js validate "${asset#assets/}" --json
+          done
+          npm run verify
+
+      - name: Verify all asset normal tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(find assets -type f -path '*/tests/normal/*.test.cjs' | sort)
+          test "${#files[@]}" -eq 80
+          for file in "${files[@]}"; do
+            asset="${file%%/tests/normal/*}"
+            (
+              trap 'rm -f "$asset/package.json"' EXIT
+              printf '%s\n' '{"type":"commonjs"}' > "$asset/package.json"
+              node --test "$file"
+            )
+          done
+
+      - name: Verify all asset user tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(find assets -type f -path '*/tests/user/*.test.cjs' | sort)
+          test "${#files[@]}" -eq 80
+          for file in "${files[@]}"; do
+            asset="${file%%/tests/user/*}"
+            (
+              trap 'rm -f "$asset/package.json"' EXIT
+              printf '%s\n' '{"type":"commonjs"}' > "$asset/package.json"
+              node --test "$file"
+            )
+          done
+
+      - name: Confirm catalog index cardinality
+        shell: bash
+        run: |
+          node --input-type=module - <<'NODE'
+          import fs from 'node:fs';
+          const index = JSON.parse(fs.readFileSync('catalog/index.json', 'utf8'));
+          if (index.assetCount !== 80 || index.entries.length !== 80) {
+            throw new Error(`Catalog cardinality invalid: assetCount=${index.assetCount}, entries=${index.entries.length}`);
+          }
+          if (new Set(index.entries.map((entry) => entry.id)).size !== 80) {
+            throw new Error('Catalog contains duplicate asset ids');
+          }
+          console.log('CATALOG_80_PASS');
+          NODE

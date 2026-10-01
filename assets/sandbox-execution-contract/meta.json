@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "sandbox-execution-contract",
+  "name": "Sandbox Execution Contract",
+  "version": "0.1.0",
+  "summary": "Sandbox Execution Contractを1責務の独立Skillとして提供する。",
+  "purpose": "Sandbox Execution Contractを1責務の独立Skillとして提供する。",
+  "responsibility": "Sandbox Execution Contractを1責務の独立Skillとして提供する。",
+  "layers": [
+    "Component"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "gace",
+    "skill",
+    "minimal-module"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "single responsibility",
+    "fail closed",
+    "no direct mutation authority"
+  ],
+  "source": {
+    "repository": "local-lab://chatgpt/skill-wave4",
+    "commit": "local-verified-2026-09-29-wave4"
+  },
+  "verifiedAt": "2026-09-29T19:09:00+09:00"
+}

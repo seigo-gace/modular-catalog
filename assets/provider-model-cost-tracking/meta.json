@@ -1,0 +1,11 @@
+{
+  "schemaVersion":1,"id":"provider-model-cost-tracking","name":"Provider Model Cost Tracking","version":"0.1.0",
+  "summary":"Provider/Model別token・request costを集計し、未知単価はUNKNOWNとして保持する。",
+  "purpose":"Provider/Model別token・request costを集計し、未知単価はUNKNOWNとして保持する。",
+  "responsibility":"Provider/Model別token・request costを集計し、未知単価はUNKNOWNとして保持する。",
+  "layers":["Component"],"languages":["JavaScript"],"runtimes":["Node.js 22+"],
+  "tags":["g-ace","skill","provider-model-cost-tracking"],"dependencies":[],
+  "constraints":["pure deterministic","fail-closed where required","no external mutation authority"],
+  "source":{"repository":"local-lab://chatgpt/individual-skill-modules","commit":"local-verified-2026-09-29"},
+  "verifiedAt":"2026-09-29T23:39:00+09:00"
+}

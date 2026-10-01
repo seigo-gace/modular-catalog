@@ -14,7 +14,9 @@
     "verify": "node src/cli.js verify-index",
     "test:normal": "node --test test/normal.test.js test/control.test.js",
     "test:user": "node --test test/user-journey.test.js",
-    "test": "npm run test:normal && npm run test:user",
-    "check": "node --check src/catalog.js && node --check src/cli.js && node --check src/control.js && npm test && npm run verify"
+    "test": "npm run test:normal && npm run test:user && npm run test:reusable",
+    "check": "node --check src/catalog.js && node --check src/cli.js && node --check src/reusable-asset-export.js && npm test && npm run verify",
+    "export:reusable": "node src/cli.js export-reusable-assets",
+    "test:reusable": "node --test test/reusable-asset.test.js"
   }
 }

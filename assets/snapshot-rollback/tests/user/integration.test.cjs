@@ -1,0 +1,1 @@
+const t=require('node:test'),a=require('node:assert/strict'),s=require('../../source');t('blocks changed state without rollback',()=>a.equal(s.run({before_hash:'a',after_hash:'b'}).status,'BLOCKED'));

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "f89d0dd86641af7ff75348891db2404fc5590ab8c38616f220d7289464555557",
+  "files": [
+    {
+      "path": "architecture.md",
+      "size": 101,
+      "sha256": "5c1ca5f8e241c2426e9abc6517ad86c92964d7329841cd371b8f77e7c449b7b2"
+    },
+    {
+      "path": "design.md",
+      "size": 158,
+      "sha256": "ac75e2a40be2944816f89b0d2b1f8fa07658ffabe76a82ea0409c08f68372e1f"
+    },
+    {
+      "path": "evidence.json",
+      "size": 409,
+      "sha256": "08033bb9752833600c2f1542221962ba3ae65eb837832b0abcc4debeaee78caf"
+    },
+    {
+      "path": "logic.md",
+      "size": 114,
+      "sha256": "f5a981263338f627fe665ba350f7619afc1de40d7ce1c5c1f007b28b280bc00c"
+    },
+    {
+      "path": "meta.json",
+      "size": 889,
+      "sha256": "a4718c2add4a69866a22d305c8670e8e1b53c0ef05c4dc8714a10f97a5f47128"
+    },
+    {
+      "path": "README.md",
+      "size": 99,
+      "sha256": "2e3d8830e80647ab7b213fca8950bc3d245cd529c00f22d86554e51aaa94ec07"
+    },
+    {
+      "path": "source/index.js",
+      "size": 440,
+      "sha256": "377a15374462d6a4629626386a60b23e4c4a816854862bb8430294be973213dd"
+    },
+    {
+      "path": "tests/normal/atomic-mutation-contract.test.cjs",
+      "size": 199,
+      "sha256": "d589231e536c754882053be2091673573cbe77bf4472fca2c00a942eb7f5f331"
+    },
+    {
+      "path": "tests/user/atomic-mutation-contract.test.cjs",
+      "size": 233,
+      "sha256": "02227d8b726b142eb651f0dbde88bea8d43ef912a2a1c37a255dad445d95c2af"
+    }
+  ]
+}

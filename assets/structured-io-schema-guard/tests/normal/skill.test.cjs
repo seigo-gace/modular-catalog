@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('structured-io-schema-guard normal',()=>{assert.equal(s.run({value:{a:1},required:['a']}).status,'PASS');assert.deepEqual(s.run({value:{},required:['a']}).missing,['a']);});

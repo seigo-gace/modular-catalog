@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "capacity-planning",
+  "name": "Capacity Planning",
+  "version": "0.1.0",
+  "summary": "需要・同時実行・Service capacityから必要instance数とHeadroomを算出する。",
+  "purpose": "需要・同時実行・Service capacityから必要instance数とHeadroomを算出する。",
+  "responsibility": "需要・同時実行・Service capacityから必要instance数とHeadroomを算出する。",
+  "layers": [
+    "Component"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "g-ace",
+    "skill",
+    "capacity-planning"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "pure deterministic",
+    "fail-closed where required",
+    "no external mutation authority"
+  ],
+  "source": {
+    "repository": "local-lab://chatgpt/individual-skill-modules",
+    "commit": "local-verified-2026-09-29"
+  },
+  "verifiedAt": "2026-09-29T23:39:00+09:00"
+}

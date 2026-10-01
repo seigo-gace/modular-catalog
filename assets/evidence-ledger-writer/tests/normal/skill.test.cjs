@@ -1,0 +1,1 @@
+const t=require('node:test'),a=require('node:assert/strict'),s=require('../../source');t('binds evidence',()=>a.equal(s.run({worker_id:'w',task_id:'t',claim_id:'c',evidence:{id:'e'}}).entry.evidence_id,'e'));

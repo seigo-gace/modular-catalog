@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source');test('maps recovery',()=>{const r=s.run({failures:[{id:'f',type:'timeout'}],recovery_catalog:[{id:'resume',failure_types:['timeout'],steps:['checkpoint','resume']}]});a.equal(r.status,'PASS');});

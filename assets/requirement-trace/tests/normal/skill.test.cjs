@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('requirement-trace normal',()=>{assert.equal(s.run({requirements:[{id:'R1'}],artifacts:[{requirement_ids:['R1']}]}).status,'PASS');assert.deepEqual(s.run({requirements:[{id:'R1'},{id:'R2'}],artifacts:[{requirement_ids:['R1']}]}).missing,['R2']);});

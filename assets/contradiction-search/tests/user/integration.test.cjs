@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source');test('no false contradiction across predicates',()=>a.equal(s.run({claims:[{id:'1',subject:'x',predicate:'mode',value:'a'},{id:'2',subject:'x',predicate:'state',value:'b'}]}).status,'PASS'));

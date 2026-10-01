@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "deadline-urgency-classifier",
+  "name": "Deadline Urgency Classifier",
+  "version": "1.0.0",
+  "summary": "Classify deadline urgency from explicit current time and policy thresholds.",
+  "purpose": "Classify deadline urgency from explicit current time and policy thresholds.",
+  "responsibility": "Classify deadline urgency from explicit current time and policy thresholds.",
+  "layers": [
+    "Part"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "gace",
+    "admini",
+    "management-ai",
+    "minimal-module"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "single responsibility",
+    "V8 business authority preserved",
+    "fail closed where input is insufficient",
+    "no direct mutation authority"
+  ],
+  "source": {
+    "repository": "local-lab://chatgpt/admin-ai-wave1",
+    "commit": "local-verified-2026-09-30"
+  },
+  "verifiedAt": "2026-09-30T01:00:00+09:00"
+}

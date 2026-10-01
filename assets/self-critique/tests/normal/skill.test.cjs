@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('self-critique normal',()=>{assert.equal(s.run({claims:[{id:'c',requirement_id:'r',kind:'fact'}],requirements:[{id:'r'}],evidence:{c:true}}).status,'PASS');});

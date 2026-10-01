@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source'); test('freshness computed',()=>{const r=s.evaluateFreshness({published_at:'2026-09-01',as_of:'2026-09-10',max_age_days:30});a.equal(r.fresh,true);});

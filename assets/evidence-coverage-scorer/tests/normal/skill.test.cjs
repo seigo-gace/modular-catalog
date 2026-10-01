@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source'); test('scores claim coverage',()=>{const r=s.scoreEvidenceCoverage({claims:[{id:'c1'},{id:'c2'}],evidence:[{claim_ids:['c1']}]});a.equal(r.score,.5);a.deepEqual(r.missing_claim_ids,['c2']);});

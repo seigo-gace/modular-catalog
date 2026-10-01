@@ -1,0 +1,2 @@
+"use strict";
+function run(i={}){const miss=[]; for(const k of ['producer','consumer','contract','transport','failurePolicy'])if(!i[k])miss.push(k); if(miss.length)return{status:'BLOCKED',missing:miss}; if(i.producer===i.consumer)return{status:'BLOCKED',reason:'SELF_INTEGRATION'}; return{status:'READY',plan:{producer:i.producer,consumer:i.consumer,contract:i.contract,transport:i.transport,failurePolicy:i.failurePolicy,idempotent:!!i.idempotent,verification:[...new Set(i.verification||[])].sort()}};} module.exports={run};

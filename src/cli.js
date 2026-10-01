@@ -9,6 +9,7 @@ import {
   validateAssetDirectory,
   verifyIndex
 } from './catalog.js';
+import { exportReusableAssets } from './reusable-asset-export.js';
 
 function parseArgs(argv) {
   const positionals = [];
@@ -28,7 +29,7 @@ function parseArgs(argv) {
 }
 
 function help() {
-  console.log(`Modular Catalog CLI\n\nCommands:\n  search --query <text> [--language <name>] [--runtime <name>] [--layer <layer>] [--tag <tag>] [--limit <n>] [--json]\n  show <asset-id> [--section meta|design|logic|architecture|evidence|manifest|code|tests|all] [--json]\n  validate [asset-id|path]\n  register <candidate-directory>\n  build-index\n  verify-index\n\nGlobal:\n  --root <catalog-root>   Default: current directory`);
+  console.log(`Modular Catalog CLI\n\nCommands:\n  search --query <text> [--language <name>] [--runtime <name>] [--layer <layer>] [--tag <tag>] [--limit <n>] [--json]\n  show <asset-id> [--section meta|design|logic|architecture|evidence|manifest|code|tests|all] [--json]\n  validate [asset-id|path]\n  register <candidate-directory>\n  build-index\n  verify-index\n  export-reusable-assets [asset-id] --output <directory> [--catalog-commit <sha>]\n\nGlobal:\n  --root <catalog-root>   Default: current directory`);
 }
 
 function output(value, json) {

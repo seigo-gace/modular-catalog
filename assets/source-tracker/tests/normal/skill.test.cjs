@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source'); test('tracks ordered provenance',()=>{const r=s.trackSource({source:{source_id:'s',history:[{type:'found',at:'2026-09-02T00:00:00.000Z'}]},event:{type:'read',at:'2026-09-01'}});a.equal(r.source.history[0].type,'read');});

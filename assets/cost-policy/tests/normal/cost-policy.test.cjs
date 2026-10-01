@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {run}=require('../../source/index.js'); assert.equal(run({limits:{max_calls:3,max_tokens:1000,max_latency_ms:1000},usage:{calls:2,tokens:900,latency_ms:500},quality_floor:80,requested_quality:90}).status,'ALLOW');

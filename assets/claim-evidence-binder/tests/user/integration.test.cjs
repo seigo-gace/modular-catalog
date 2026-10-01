@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source'); test('unsupported stays unsupported',()=>a.equal(s.bindClaimEvidence({claim:{id:'c1'},evidence:[]}).status,'UNSUPPORTED'));

@@ -1,0 +1,1 @@
+const t=require('node:test'),a=require('node:assert/strict'),s=require('../../source');t('rejects network access',()=>a.equal(s.run({command:'x',network:'allow',filesystem:'workspace',limits:{timeout_ms:1,memory_mb:1}}).status,'REJECT'));

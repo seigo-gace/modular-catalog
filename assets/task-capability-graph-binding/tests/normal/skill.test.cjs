@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('task-capability-graph-binding normal',()=>{assert.equal(s.run({tasks:[{id:'t',requires:['a']}],capabilities:[{id:'a'}]}).status,'PASS');});

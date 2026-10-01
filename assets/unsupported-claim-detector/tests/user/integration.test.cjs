@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('unsupported-claim-detector user scenario',()=>{assert.equal(s.run({claims:[{id:'ci-green',type:'fact'}],evidence:{}}).status,'REJECT');});

@@ -1,0 +1,1 @@
+const t=require('node:test'),a=require('node:assert/strict'),s=require('../../source');t('requires executed results',()=>a.equal(s.run({commands:['test'],results:[{command:'test',executed:true,exit_code:0}]}).status,'PASS'));

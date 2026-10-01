@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "evaluation-regression-hook",
+  "name": "Evaluation Regression Hook",
+  "version": "1.0.0",
+  "summary": "Evaluation Regression Hook reusable minimal skill",
+  "purpose": "Evaluation Regression Hook",
+  "responsibility": "Evaluation Regression Hook",
+  "layers": [
+    "Part"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "gace",
+    "skill",
+    "minimal-module"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "single responsibility",
+    "fail closed where input is insufficient",
+    "no direct mutation authority"
+  ],
+  "source": {
+    "repository": "local-lab://chatgpt/individual-skill-modules",
+    "commit": "local-verified-2026-09-29-wave2"
+  },
+  "verifiedAt": "2026-09-29T00:50:00+09:00"
+}

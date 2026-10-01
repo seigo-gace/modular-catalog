@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source'); test('binds evidence refs',()=>{const r=s.bindClaimEvidence({claim:{id:'c1'},evidence:[{source_id:'s1',claim_ids:['c1']}]});a.equal(r.status,'READY');a.deepEqual(r.evidence_refs,['s1']);});

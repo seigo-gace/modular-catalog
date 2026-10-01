@@ -1,0 +1,2 @@
+"use strict";
+function run(i={}){const f=i.failure||{}; const miss=[]; for(const k of ['id','subject','input','expected']) if(f[k]===undefined||f[k]===null||f[k]==='')miss.push(k); if(miss.length)return{status:'BLOCKED',missing:miss}; return{status:'READY',test:{name:'regression:'+f.id,subject:f.subject,input:f.input,expected:f.expected,oracle:f.oracle||'deepEqual',fixture:f.fixture||null}};} module.exports={run};

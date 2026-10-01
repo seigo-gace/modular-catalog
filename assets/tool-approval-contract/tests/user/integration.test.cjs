@@ -1,0 +1,1 @@
+const t=require('node:test'),a=require('node:assert/strict'),s=require('../../source');t('rejects unauthorized tool',()=>a.equal(s.run({request:{tool:'deploy'},allowed_tools:['read']}).status,'REJECT'));

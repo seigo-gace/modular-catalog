@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "45a8d79b99db350dfd209d305ebce11437ec59f429c5489e69bc35e6b188c40b",
+  "files": [
+    {
+      "path": "architecture.md",
+      "size": 166,
+      "sha256": "6b17500d7063f02a0496d64ac3f5a5c3a7a8e9d0385c2bdf01794d89db574787"
+    },
+    {
+      "path": "design.md",
+      "size": 207,
+      "sha256": "3fadec3ed3e85583977403a24967447e598bc3c08234de0c26b3a7b5df4833c7"
+    },
+    {
+      "path": "evidence.json",
+      "size": 459,
+      "sha256": "c9c2d786ee76d35cbaa070fca1c892df54484ae93da1fec183ca6e77d5070a75"
+    },
+    {
+      "path": "logic.md",
+      "size": 144,
+      "sha256": "6f87980c12cd929261e070e442461dfd961d927305d0258d2ba713add325123c"
+    },
+    {
+      "path": "meta.json",
+      "size": 976,
+      "sha256": "ff9de276d7718a792785a08ca3b1f19b38aa203186989e4202c8540ee5dcb9cc"
+    },
+    {
+      "path": "README.md",
+      "size": 114,
+      "sha256": "ffab7f57c536ffd97a62fd20396b0a3c2017d674ef26db0567f11b83cf87f9de"
+    },
+    {
+      "path": "source/index.js",
+      "size": 371,
+      "sha256": "1609a0ef14443793cd7ae22684c975bb766bc99cb812aa0c4b6ef339bb88d88a"
+    },
+    {
+      "path": "tests/normal/budget-actual-variance-calculator.test.cjs",
+      "size": 190,
+      "sha256": "8022e811f1896c5e8704c0d53d675b0e3b1de5ea54621f8aeca37cefc545b3c7"
+    },
+    {
+      "path": "tests/user/budget-actual-variance-calculator.test.cjs",
+      "size": 189,
+      "sha256": "9a59b438ea922e01906c149e9244cf68a17573b0f05810de3d9667574acced01"
+    }
+  ]
+}

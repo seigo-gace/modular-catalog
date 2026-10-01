@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "4e866397d441ca2f7450ada1250bffd2b33ac770cf7081a9b166fff39e3a4245",
+  "files": [
+    {
+      "path": "architecture.md",
+      "size": 166,
+      "sha256": "6b17500d7063f02a0496d64ac3f5a5c3a7a8e9d0385c2bdf01794d89db574787"
+    },
+    {
+      "path": "design.md",
+      "size": 206,
+      "sha256": "640b720eb75112b57c68c22838fa460b9a67ec28f5406f7a8b872169af07d406"
+    },
+    {
+      "path": "evidence.json",
+      "size": 447,
+      "sha256": "348134b7f29b8da3f7c9229ff9e72ba1232704be53fb0404253f027f8b98e9d2"
+    },
+    {
+      "path": "logic.md",
+      "size": 144,
+      "sha256": "6f87980c12cd929261e070e442461dfd961d927305d0258d2ba713add325123c"
+    },
+    {
+      "path": "meta.json",
+      "size": 961,
+      "sha256": "6a11051ad13f42805e7a92bb57a80ed017594e2fb3685691b274f1fa6093a8e5"
+    },
+    {
+      "path": "README.md",
+      "size": 107,
+      "sha256": "9ac211ff79efe1ef5deb908d346b3453abfea89744d6313cde5d29732b49ed62"
+    },
+    {
+      "path": "source/index.js",
+      "size": 581,
+      "sha256": "83d0d62c37bdc919f882ec72268d944cfc80afa5cfcb6a5916ce99ffdb45519d"
+    },
+    {
+      "path": "tests/normal/deadline-urgency-classifier.test.cjs",
+      "size": 231,
+      "sha256": "1fa461360268201600c8084328250c012c967f7c86ef9203f578ee44023620f2"
+    },
+    {
+      "path": "tests/user/deadline-urgency-classifier.test.cjs",
+      "size": 230,
+      "sha256": "fc92b6d7bda304c2487188db11015845c873428feced30d728a5c3ea319e18ce"
+    }
+  ]
+}

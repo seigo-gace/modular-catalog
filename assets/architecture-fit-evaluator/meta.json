@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "architecture-fit-evaluator",
+  "name": "Architecture Fit Evaluator",
+  "version": "1.0.0",
+  "summary": "Evaluate candidate architecture against required capabilities and forbidden traits.",
+  "purpose": "Evaluate candidate architecture against required capabilities and forbidden traits.",
+  "responsibility": "Evaluate candidate architecture against required capabilities and forbidden traits.",
+  "layers": [
+    "Part"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "gace",
+    "skill",
+    "minimal-module"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "single responsibility",
+    "fail closed where input is insufficient",
+    "no direct mutation authority"
+  ],
+  "source": {
+    "repository": "local-lab://chatgpt/individual-skill-modules",
+    "commit": "local-verified-2026-09-30"
+  },
+  "verifiedAt": "2026-09-30T00:00:00+09:00"
+}

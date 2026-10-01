@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "parallel-search-planner",
+  "name": "Parallel Search Planner",
+  "version": "1.0.0",
+  "summary": "Parallel Search Planner reusable minimal skill",
+  "purpose": "Parallel Search Planner",
+  "responsibility": "Parallel Search Planner",
+  "layers": [
+    "Part"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "gace",
+    "skill",
+    "minimal-module",
+    "evidence-research"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "single responsibility",
+    "fail closed where input is insufficient",
+    "no direct mutation authority"
+  ],
+  "source": {
+    "repository": "local-lab://chatgpt/individual-skill-modules",
+    "commit": "local-verified-2026-09-29-wave5"
+  },
+  "verifiedAt": "2026-09-29T22:20:00+09:00"
+}
