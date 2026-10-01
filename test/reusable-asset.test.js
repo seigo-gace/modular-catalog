@@ -9,7 +9,12 @@ import { exportReusableAssets } from '../src/reusable-asset-export.js';
 const root = process.cwd();
 
 test('exports the full current catalog as reusable asset bundles without inventing missing fields', async () => {
-  const schema = JSON.parse(await fs.readFile(path.join(root, 'schemas/reusable-asset-v1.schema.json'), 'utf8'));\n  assert.equal(schema.$schema, 'https://json-schema.org/draft/2020-12/schema');\n  assert.equal(schema.$id, 'urn:gace:modular-catalog:reusable-asset:v1');\n  assert.deepEqual(schema.required, ['schema_version', 'identity', 'classification', 'discovery', 'applicability', 'contract', 'composition', 'implementation', 'verification', 'provenance', 'lifecycle', 'integrity', 'derivation']);\n\n  const output = await fs.mkdtemp(path.join(os.tmpdir(), 'modular-catalog-export-'));
+  const schema = JSON.parse(await fs.readFile(path.join(root, 'schemas/reusable-asset-v1.schema.json'), 'utf8'));
+  assert.equal(schema.$schema, 'https://json-schema.org/draft/2020-12/schema');
+  assert.equal(schema.$id, 'urn:gace:modular-catalog:reusable-asset:v1');
+  assert.deepEqual(schema.required, ['schema_version', 'identity', 'classification', 'discovery', 'applicability', 'contract', 'composition', 'implementation', 'verification', 'provenance', 'lifecycle', 'integrity', 'derivation']);
+
+  const output = await fs.mkdtemp(path.join(os.tmpdir(), 'modular-catalog-export-'));
   try {
     const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
     const result = await exportReusableAssets(root, output, { catalogCommit: commit });
