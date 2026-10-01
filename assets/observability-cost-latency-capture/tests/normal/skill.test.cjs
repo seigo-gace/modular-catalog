@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('observability-cost-latency-capture normal',()=>{assert.equal(s.run({worker_id:'w',task_id:'t',calls:1,tokens_in:10,tokens_out:2,latency_ms:20}).status,'PASS');});

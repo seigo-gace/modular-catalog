@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source'); test('scope mismatch detected',()=>a.equal(s.validateEvidenceScope({claim:{scope:'JP'},evidence:{scope:'US'}}).status,'OUT_OF_SCOPE'));

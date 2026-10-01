@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('self-critique user scenario',()=>{const r=s.run({claims:[{id:'done',requirement_id:'r1',kind:'fact'}],requirements:[{id:'r1'},{id:'r2'}],evidence:{}});assert.equal(r.status,'REVISE');assert.equal(r.issues.length,2);});

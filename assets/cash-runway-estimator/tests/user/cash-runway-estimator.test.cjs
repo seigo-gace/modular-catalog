@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {run}=require('../../source/index.js'); const r=run({cash:50000,monthly_net_burn:-1000}); assert.equal(r.state,'NON_BURNING'); assert.equal(r.runway_months,null);

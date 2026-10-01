@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source');test('covers operations dimensions',()=>{const r=s.run({components:['worker'],dimensions:['quota','restart','dead-letter']});a.deepEqual(r.modes.map(x=>x.dimension),['quota','restart','dead-letter']);});

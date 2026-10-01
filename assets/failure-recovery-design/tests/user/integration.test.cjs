@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source');test('does not invent recovery',()=>{const r=s.run({failures:[{id:'f',type:'corrupt'}],recovery_catalog:[]});a.equal(r.status,'PARTIAL');a.deepEqual(r.uncovered,['f']);});

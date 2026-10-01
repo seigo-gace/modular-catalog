@@ -1,0 +1,1 @@
+const t=require('node:test'),a=require('node:assert/strict'),s=require('../../source');t('reproduces exact failure',()=>a.equal(s.run({baseline:{expected_failure:'E'},observed:{failure:'E'}}).status,'PASS'));

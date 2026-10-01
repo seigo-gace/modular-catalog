@@ -1,0 +1,1 @@
+const t=require('node:test'),a=require('node:assert/strict'),s=require('../../source');t('single failure is partial',()=>a.equal(s.run({attempts:[{executed:true,failed:true,signature:'E'}]}).status,'PARTIAL'));

@@ -1,0 +1,2 @@
+"use strict";
+function run(i={}){const demand=Number(i.demandPerMinute), cap=Number(i.capacityPerInstancePerMinute), target=Number(i.targetUtilization??0.7); if(!Number.isFinite(demand)||demand<0||!Number.isFinite(cap)||cap<=0||!Number.isFinite(target)||target<=0||target>1)return{status:'BLOCKED',reason:'INVALID_INPUT'}; const effective=cap*target; const instances=Math.max(1,Math.ceil(demand/effective)); const raw=instances*cap; return{status:'READY',instances,targetUtilization:target,rawCapacity:raw,headroom:raw-demand};} module.exports={run};

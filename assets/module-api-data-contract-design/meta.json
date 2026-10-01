@@ -1,0 +1,11 @@
+{
+  "schemaVersion":1,"id":"module-api-data-contract-design","name":"Module API Data Contract Design","version":"0.1.0",
+  "summary":"Module/API/Dataの公開契約を責務・入出力・依存・状態所有者付きで決定論的に構成する。",
+  "purpose":"Module/API/Dataの公開契約を責務・入出力・依存・状態所有者付きで決定論的に構成する。",
+  "responsibility":"Module/API/Dataの公開契約を責務・入出力・依存・状態所有者付きで決定論的に構成する。",
+  "layers":["Component"],"languages":["JavaScript"],"runtimes":["Node.js 22+"],
+  "tags":["g-ace","skill","module-api-data-contract-design"],"dependencies":[],
+  "constraints":["pure deterministic","fail-closed where required","no external mutation authority"],
+  "source":{"repository":"local-lab://chatgpt/individual-skill-modules","commit":"local-verified-2026-09-29"},
+  "verifiedAt":"2026-09-29T23:39:00+09:00"
+}

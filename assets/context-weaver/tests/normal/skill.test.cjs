@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('context-weaver normal',()=>{const r=s.run({fragments:[{id:'a',value:1,priority:2},{id:'a',value:2,priority:1},{id:'b',value:3,priority:3},{id:'z',value:0,priority:0}]});assert.deepEqual(r.context.map(x=>x.value),[0,2,3]);});

@@ -1,0 +1,20 @@
+{
+  "normal": {
+    "passed": true,
+    "commands": [
+      "node --test tests/normal/architecture-fit-evaluator.test.cjs"
+    ],
+    "expectedResults": [
+      "Recorded test result: passed=true."
+    ]
+  },
+  "user": {
+    "passed": true,
+    "commands": [
+      "node --test tests/user/architecture-fit-evaluator.test.cjs"
+    ],
+    "expectedResults": [
+      "Recorded test result: passed=true."
+    ]
+  }
+}

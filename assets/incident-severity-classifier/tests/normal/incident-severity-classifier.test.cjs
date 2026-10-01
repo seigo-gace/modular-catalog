@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {run}=require('../../source/index.js'); const r=run({impact:4,urgency:4,policy:{sev1_min:12,sev2_min:8,sev3_min:4}}); assert.equal(r.severity,'SEV1');

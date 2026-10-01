@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source');test('unknown required blocks',()=>a.equal(s.run({issues:[{id:'evidence',status:'UNKNOWN_REQUIRED'}]}).status,'BLOCKED'));

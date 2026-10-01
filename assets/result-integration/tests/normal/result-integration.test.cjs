@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {run}=require('../../source/index.js'); const r=run({results:[{worker_id:'w1',claims:[{id:'c1',value:1,source_ids:['s1']}]}]}); assert.equal(r.claims[0].worker_id,'w1');

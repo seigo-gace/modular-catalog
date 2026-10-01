@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {run}=require('../../source/index.js'); const p={routes:[{actions:['publish'],route:'PUBLISHER'}]}; assert.equal(run({action:'publish',risk:'LOW',capability:'content.publish',policy:p}).route,'PUBLISHER');

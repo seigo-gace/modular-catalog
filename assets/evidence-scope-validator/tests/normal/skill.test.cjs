@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source'); test('scope matches',()=>a.equal(s.validateEvidenceScope({claim:{scope:['JP','2026']},evidence:{scope:['JP','2026','law']}}).status,'PASS'));

@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {run}=require('../../source/index.js'); const r=run({claim:{id:'c',text:'claim'},scopes:['official','official','academic'],max_queries:2}); assert.deepEqual(r.requests.map(x=>x.scope),['official','academic']);

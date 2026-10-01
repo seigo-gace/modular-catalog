@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {run}=require('../../source/index.js'); const r=run({claim_id:'c',searches:[{status:'FOUND'},{status:'NOT_FOUND'}]}); assert.equal(r.gap.state,'EVIDENCE_AVAILABLE'); assert.equal(r.gap.absence_proven,false);

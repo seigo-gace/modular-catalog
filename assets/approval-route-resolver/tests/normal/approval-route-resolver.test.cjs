@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {run}=require('../../source/index.js'); const p={routes:[{actions:['refund'],risks:['HIGH'],capabilities:['refund.manage'],route:'MASTER'}]}; assert.equal(run({action:'refund',risk:'HIGH',capability:'refund.manage',policy:p}).route,'MASTER');

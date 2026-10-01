@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source');test('finds unhandled rollback',()=>{const r=s.run({declared:['success','retry'],required:['success','retry','rollback']});a.deepEqual(r.missing,['rollback']);});

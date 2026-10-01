@@ -1,0 +1,1 @@
+const t=require('node:test'),a=require('node:assert/strict'),s=require('../../source');t('discovers deduped tests',()=>a.deepEqual(s.run({changed_files:['a','b'],mapping:{a:['t'],b:['t','u']}}).tests,['t','u']));

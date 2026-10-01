@@ -1,0 +1,2 @@
+"use strict";
+function run(i={}){const req=i.requirements||[]; if(!req.length)return{status:'BLOCKED',reason:'NO_REQUIREMENTS'}; const auth=new Set(i.authorityIds||[]); const missing=req.filter(r=>!r.id||!auth.has(r.authorityId)); if(missing.length)return{status:'BLOCKED',reason:'UNTRACED_REQUIREMENT',missing:missing.map(x=>x.id||null)}; return{status:'READY',tasks:req.map(r=>({taskId:'impl:'+r.id,requirementId:r.id,authorityId:r.authorityId,target:r.target||null,acceptance:r.acceptance||[]}))};} module.exports={run};

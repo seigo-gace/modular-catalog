@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('structured-io-schema-guard user scenario',()=>{assert.equal(s.run({value:{status:'PASS',evidence:['x']},required:['status','evidence']}).status,'PASS');});

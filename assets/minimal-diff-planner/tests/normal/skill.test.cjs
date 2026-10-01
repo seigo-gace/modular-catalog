@@ -1,0 +1,1 @@
+const t=require('node:test'),a=require('node:assert/strict'),s=require('../../source');t('passes exact minimal diff',()=>a.equal(s.run({required_changes:[{file:'a',symbol:'x'}],candidate_changes:[{file:'a',symbol:'x'}]}).status,'PASS'));

@@ -1,0 +1,3 @@
+"use strict";
+function run({claim_id,searches=[]}={}){if(!claim_id||!Array.isArray(searches))return{status:"BLOCKED",gap:null};let found=0,failed=0,not_found=0,not_run=0;for(const s of searches){if(!s||!s.status){not_run++;continue;}if(s.status==='FOUND')found++;else if(['ERROR','FAILED','BLOCKED'].includes(s.status))failed++;else if(s.status==='NOT_FOUND')not_found++;else not_run++;}let state='INSUFFICIENT';if(found>0)state='EVIDENCE_AVAILABLE';else if(failed>0)state='SEARCH_FAILED';else if(not_run>0)state='SEARCH_NOT_RUN';else if(not_found>0)state='NOT_FOUND_NOT_ABSENCE';return{status:'PASS',gap:{claim_id,state,found,failed,not_found,not_run,absence_proven:false}};}
+module.exports={run};

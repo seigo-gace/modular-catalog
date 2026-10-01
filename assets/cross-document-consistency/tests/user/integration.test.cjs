@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source');test('same contract across docs',()=>a.equal(s.run({documents:[{id:'spec',facts:{port:8080}},{id:'runbook',facts:{port:8080}}]}).status,'PASS'));

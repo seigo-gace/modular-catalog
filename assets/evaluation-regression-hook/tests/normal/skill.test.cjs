@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('evaluation-regression-hook normal',()=>{assert.equal(s.run({baseline:{q:10},current:{q:11},metrics:[{id:'q',direction:'higher'}]}).status,'PASS');});

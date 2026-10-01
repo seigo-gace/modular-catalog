@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "research-question-builder",
+  "name": "Research Question Builder",
+  "version": "1.0.0",
+  "summary": "Research Question Builder reusable minimal skill",
+  "purpose": "Research Question Builder",
+  "responsibility": "Research Question Builder",
+  "layers": [
+    "Part"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "gace",
+    "skill",
+    "minimal-module",
+    "evidence-research"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "single responsibility",
+    "fail closed where input is insufficient",
+    "no direct mutation authority"
+  ],
+  "source": {
+    "repository": "local-lab://chatgpt/individual-skill-modules",
+    "commit": "local-verified-2026-09-29-wave5"
+  },
+  "verifiedAt": "2026-09-29T22:20:00+09:00"
+}

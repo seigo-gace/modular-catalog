@@ -1,0 +1,2 @@
+"use strict";
+function run({limits={},request={}}={}){const fields=['cpu','memory_mb','disk_mb','sleep_ms','restarts'];for(const f of fields){const v=Number(request[f]??0),m=limits[f]==null?Infinity:Number(limits[f]);if(!Number.isFinite(v)||v<0||(!Number.isFinite(m)&&m!==Infinity)||m<0)return{status:'BLOCKED',reason:'INVALID_RESOURCE'};if(v>m)return{status:'DENY',reason:`${f.toUpperCase()}_EXCEEDED`,field:f};}return{status:'ALLOW'};}module.exports={run};

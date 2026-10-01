@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source');test('keeps protected requirement',()=>{const r=s.run({requirements:[{id:'auth',must_not_change:true,value:'Master instruction'},{id:'ui',value:'optional'}]});a.equal(r.invariants[0].id,'auth');});
