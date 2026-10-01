@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { CatalogError, loadAssetSection, sha256, tokenize, validateAssetDirectory } from './catalog.js';
+import { CatalogError, sha256, tokenize, validateAssetDirectory } from './catalog.js';
 
 const CATALOG_REPOSITORY = 'seigo-gace/modular-catalog';
 const BUNDLE_FORMAT = 'gace.reusable-asset.v1';
@@ -197,7 +197,8 @@ export async function exportReusableAssets(rootDir, outputDir, { assetId = null,
   const commit = getCatalogCommit(root, catalogCommit);
   const assetsRoot = path.join(root, 'assets');
   if (!await exists(assetsRoot)) throw new CatalogError('assets/ directory is required.', 'MISSING_ASSETS');
-  let assetIds = (await fs.readdir(assetsRoot, { withFileTypes: true })).filter((entry) => entry.isDirectory() && !entry.name.startsWith('.')).map((entry) => entry.name).sort();
+  const allCatalogAssetIds = (await fs.readdir(assetsRoot, { withFileTypes: true })).filter((entry) => entry.isDirectory() && !entry.name.startsWith('.')).map((entry) => entry.name).sort();
+  let assetIds = [...allCatalogAssetIds];
   if (assetId) {
     if (!assetIds.includes(assetId)) throw new CatalogError('Unknown asset: ' + assetId, 'ASSET_NOT_FOUND');
     assetIds = [assetId];
@@ -206,7 +207,7 @@ export async function exportReusableAssets(rootDir, outputDir, { assetId = null,
     const index = JSON.parse(await fs.readFile(path.join(root, 'catalog', 'index.json'), 'utf8'));
     if (index.assetCount !== assetIds.length || index.entries.length !== assetIds.length) throw new CatalogError('Catalog index cardinality does not match assets/.', 'CATALOG_CARDINALITY_MISMATCH');
   }
-  const allAssetIds = new Set(assetIds);
+  const allAssetIds = new Set(allCatalogAssetIds);
   await fs.rm(output, { recursive: true, force: true });
   await fs.mkdir(output, { recursive: true });
   const exported = [];
