@@ -1,0 +1,77 @@
+name: Catalog Candidate Runtime Verify
+
+on:
+  push:
+    branches:
+      - verify/catalog-migration-20261001
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Catalog core tests
+        run: npm test
+
+      - name: Execute all asset normal tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(find assets -type f -path '*/tests/normal/*.test.cjs' | sort)
+          test "${#files[@]}" -eq 80
+          for file in "${files[@]}"; do
+            echo "[NORMAL] $file"
+            node --test "$file"
+          done
+
+      - name: Execute all asset user tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(find assets -type f -path '*/tests/user/*.test.cjs' | sort)
+          test "${#files[@]}" -eq 80
+          for file in "${files[@]}"; do
+            echo "[USER] $file"
+            node --test "$file"
+          done
+
+      - name: Rebuild catalog index
+        run: npm run index
+
+      - name: Verify all 80 registered assets and index integrity
+        run: |
+          set -euo pipefail
+          npm run verify
+          node --input-type=module - <<'NODE'
+          import fs from 'node:fs';
+          const index = JSON.parse(fs.readFileSync('catalog/index.json','utf8'));
+          if (index.assetCount !== 80) throw new Error(`assetCount=${index.assetCount}, expected 80`);
+          if (index.entries.length !== 80) throw new Error(`entries=${index.entries.length}, expected 80`);
+          const ids = new Set(index.entries.map((entry) => entry.id));
+          if (ids.size !== 80) throw new Error(`unique ids=${ids.size}, expected 80`);
+          console.log(`CATALOG_80_PASS entries=${index.entries.length}`);
+          NODE
+
+      - name: Commit generated verified index to temporary verification branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add catalog/index.json
+          if git diff --cached --quiet; then
+            echo "INDEX_CHANGE=NONE"
+            exit 0
+          fi
+          git commit -m "chore: materialize verified catalog index [skip ci]"
+          git push origin HEAD:verify/catalog-migration-20261001
