@@ -42,3 +42,31 @@ npm run check
 現行Catalogの80 Assetは、Git履歴とNotionで確定した個別Skill集合を現行Catalog契約へ正規化したものです。各Assetは`source/`、通常Test、ユーザー利用Test、検証結果、設計、Logic、Architecture、出所、Manifestを一体で保持します。撤回済みの旧27 Assetは現行Catalogから除外し、Git履歴だけに保持します。
 
 `assets/`には完成・検証・Astera判定済みの実資産だけを置きます。空Directoryや未完成資産は置きません。
+
+## Reusable Asset Schema v1 / Export
+
+ModuleCatalog is the canonical repository for reusable development assets. The KB is a derived runtime representation and must be reproducible from the catalog.
+
+The current export contract is defined by `schemas/reusable-asset-v1.schema.json`. It keeps Canonical data separate from deterministic Derived data and does not fabricate missing applicability or contract fields; unavailable information remains `unknown` / `not_recorded`.
+
+Export a complete catalog bundle:
+
+```bash
+node src/cli.js export-reusable-assets --output <directory>
+```
+
+Export one asset only:
+
+```bash
+node src/cli.js export-reusable-assets approval-route-resolver --output <directory>
+```
+
+Each exported asset contains:
+
+- `asset.json`: Reusable Asset Schema v1 projection
+- `knowledge-units.jsonl`: searchable Knowledge Units with `parent_asset_id`
+- `relationships.jsonl`: asset-to-unit containment and only explicitly resolvable dependency relations
+- `cases.jsonl`: Normal/User test cases with PASS evidence; unextractable scenario/input/actual fields remain null
+- `manifest.json`: SHA-256 bundle integrity and exact catalog provenance
+
+The export is deliberately kept outside the catalog working tree so generated KB data cannot be accidentally committed as canonical source.
