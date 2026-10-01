@@ -1,1 +1,52 @@
-{"schemaVersion":1,"algorithm":"sha256","assetHash":"7abe8dfe4efe209b731ab4882ff63c567fbe9d38c966fcc99f284b6615201e6b","files":[{"path":"README.md","size":138,"sha256":"13ec33ef3d9ad369d6a671b4289b5552ab4111205439869baa9b7a0664602194"},{"path":"architecture.md","size":101,"sha256":"5c1ca5f8e241c2426e9abc6517ad86c92964d7329841cd371b8f77e7c449b7b2"},{"path":"design.md","size":192,"sha256":"a8770b9d98695e8da278b94a4f5697b830b1d22b2e6d733c8feca1c88f998876"},{"path":"evidence.json","size":419,"sha256":"3a407e31ce8f2cc59a6aa86c86cac4f5a4c640e32109dc0d78a9283891a85f0c"},{"path":"logic.md","size":114,"sha256":"f5a981263338f627fe665ba350f7619afc1de40d7ce1c5c1f007b28b280bc00c"},{"path":"meta.json","size":1001,"sha256":"b68af93b8e8b7c73ed81f1153f4dc000c14604dfc31d85521bbe8fe568e13929"},{"path":"source/index.js","size":625,"sha256":"8b5d92e18251a242a48e065f22a94f09214e64e421129f983f7ccab5fc1dc37b"},{"path":"tests/normal/model-tool-separation-adapter.test.cjs","size":320,"sha256":"1dd5b99c237596986f5b4d19dc839c07325882c4a820bd225c6ffccef722c53b"},{"path":"tests/user/model-tool-separation-adapter.test.cjs","size":282,"sha256":"963f616727b03f55187ae67df0661e1b1b64872d4b336da78f33f07949c85a54"}]}
+{
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "2cd70d7af80b96d6b762b65601af715cf734b7f88c5900cb0978e8cf7d37dbf0",
+  "files": [
+    {
+      "path": "architecture.md",
+      "size": 101,
+      "sha256": "5c1ca5f8e241c2426e9abc6517ad86c92964d7329841cd371b8f77e7c449b7b2"
+    },
+    {
+      "path": "design.md",
+      "size": 192,
+      "sha256": "a8770b9d98695e8da278b94a4f5697b830b1d22b2e6d733c8feca1c88f998876"
+    },
+    {
+      "path": "evidence.json",
+      "size": 419,
+      "sha256": "3a407e31ce8f2cc59a6aa86c86cac4f5a4c640e32109dc0d78a9283891a85f0c"
+    },
+    {
+      "path": "logic.md",
+      "size": 114,
+      "sha256": "f5a981263338f627fe665ba350f7619afc1de40d7ce1c5c1f007b28b280bc00c"
+    },
+    {
+      "path": "meta.json",
+      "size": 1001,
+      "sha256": "b68af93b8e8b7c73ed81f1153f4dc000c14604dfc31d85521bbe8fe568e13929"
+    },
+    {
+      "path": "README.md",
+      "size": 138,
+      "sha256": "13ec33ef3d9ad369d6a671b4289b5552ab4111205439869baa9b7a0664602194"
+    },
+    {
+      "path": "source/index.js",
+      "size": 625,
+      "sha256": "8b5d92e18251a242a48e065f22a94f09214e64e421129f983f7ccab5fc1dc37b"
+    },
+    {
+      "path": "tests/normal/model-tool-separation-adapter.test.cjs",
+      "size": 320,
+      "sha256": "1dd5b99c237596986f5b4d19dc839c07325882c4a820bd225c6ffccef722c53b"
+    },
+    {
+      "path": "tests/user/model-tool-separation-adapter.test.cjs",
+      "size": 282,
+      "sha256": "963f616727b03f55187ae67df0661e1b1b64872d4b336da78f33f07949c85a54"
+    }
+  ]
+}

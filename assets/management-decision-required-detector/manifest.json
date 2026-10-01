@@ -1,1 +1,52 @@
-{"schemaVersion":1,"algorithm":"sha256","assetHash":"b46a61b08af3ce0bc8736b713bbaa376d6b71497362d1c62bcc5abc27ee351e2","files":[{"path":"README.md","size":137,"sha256":"70eb00ad2bd5855e14f9dcc81397b217cd802e51748b56a16f2a58f47cbe1e89"},{"path":"architecture.md","size":166,"sha256":"6b17500d7063f02a0496d64ac3f5a5c3a7a8e9d0385c2bdf01794d89db574787"},{"path":"design.md","size":226,"sha256":"3cac1f4563ac6a37ead87199176f74011033db999d31cf9d30a335126337aeb2"},{"path":"evidence.json","size":467,"sha256":"1239012d5b37831ec166e1e5e485cbfccbfade5de3e98ca5dff6c5ecb6c7400b"},{"path":"logic.md","size":144,"sha256":"6f87980c12cd929261e070e442461dfd961d927305d0258d2ba713add325123c"},{"path":"meta.json","size":1041,"sha256":"ca41a0678db49efe53b935b398c7bfe8d2a768dc47c931ed149cb6c784447761"},{"path":"source/index.js","size":688,"sha256":"e20785bef3f62fe6d0242a604272a49b72f1a44bb7a00f303f1bfa38631fa709"},{"path":"tests/normal/management-decision-required-detector.test.cjs","size":238,"sha256":"5c54b882c179a6554cef4e2722f87e60fea76cc5f77059d90305a59462f81d45"},{"path":"tests/user/management-decision-required-detector.test.cjs","size":266,"sha256":"15328e0741891968c161b6d461e58efd927ce88f78aaff49bbe9f5e873b943f9"}]}
+{
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "31aad50495d275ebccc1239543f371047742f693709785e1100f2c3e85400c73",
+  "files": [
+    {
+      "path": "architecture.md",
+      "size": 166,
+      "sha256": "6b17500d7063f02a0496d64ac3f5a5c3a7a8e9d0385c2bdf01794d89db574787"
+    },
+    {
+      "path": "design.md",
+      "size": 226,
+      "sha256": "3cac1f4563ac6a37ead87199176f74011033db999d31cf9d30a335126337aeb2"
+    },
+    {
+      "path": "evidence.json",
+      "size": 467,
+      "sha256": "1239012d5b37831ec166e1e5e485cbfccbfade5de3e98ca5dff6c5ecb6c7400b"
+    },
+    {
+      "path": "logic.md",
+      "size": 144,
+      "sha256": "6f87980c12cd929261e070e442461dfd961d927305d0258d2ba713add325123c"
+    },
+    {
+      "path": "meta.json",
+      "size": 1041,
+      "sha256": "ca41a0678db49efe53b935b398c7bfe8d2a768dc47c931ed149cb6c784447761"
+    },
+    {
+      "path": "README.md",
+      "size": 137,
+      "sha256": "70eb00ad2bd5855e14f9dcc81397b217cd802e51748b56a16f2a58f47cbe1e89"
+    },
+    {
+      "path": "source/index.js",
+      "size": 688,
+      "sha256": "e20785bef3f62fe6d0242a604272a49b72f1a44bb7a00f303f1bfa38631fa709"
+    },
+    {
+      "path": "tests/normal/management-decision-required-detector.test.cjs",
+      "size": 238,
+      "sha256": "5c54b882c179a6554cef4e2722f87e60fea76cc5f77059d90305a59462f81d45"
+    },
+    {
+      "path": "tests/user/management-decision-required-detector.test.cjs",
+      "size": 266,
+      "sha256": "15328e0741891968c161b6d461e58efd927ce88f78aaff49bbe9f5e873b943f9"
+    }
+  ]
+}

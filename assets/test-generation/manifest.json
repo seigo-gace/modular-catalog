@@ -1,14 +1,52 @@
 {
-  "schemaVersion":1,"algorithm":"sha256","assetHash":"3562c150fb0087d8057f3509a3f8f25c8ef51cf4d8978fd8c62f0042b391b5a0",
-  "files":[
-    {"path":"README.md","size":139,"sha256":"bc830a7dfcf079b049fa92e05ca6e866e7121e50d5ce91b06e59540b006b74c0"},
-    {"path":"architecture.md","size":122,"sha256":"8376a3eb11242fd5f75bc77714ee4a32706e37f2f67d2e596ddc836f2b2e6bca"},
-    {"path":"design.md","size":228,"sha256":"e6e02741b3e07be75351bb31c9a161444daada2245b6e77d7a0efc622cd7f56b"},
-    {"path":"evidence.json","size":391,"sha256":"26d07fd31d40ca52e637728f988c3a84b63fa07ce2783eae70698694a400c90a"},
-    {"path":"logic.md","size":140,"sha256":"a22b1ff24c9ba5545e5ec337a953a3ac6a735c357629676a29c27426d18bd4cd"},
-    {"path":"meta.json","size":1011,"sha256":"1ec1a7123830f484fe0b339031e8d234affbf1dee0e1be45b4b791ee239b1921"},
-    {"path":"source/index.js","size":418,"sha256":"84c448b707032b456bd081de0298119af069e70ce9467d98de4f411f567dbbd7"},
-    {"path":"tests/normal/test-generation.test.cjs","size":296,"sha256":"9f74240e8b7e8e99283963f07b12cde411954d9168264a05ee64ce4463823965"},
-    {"path":"tests/user/test-generation.test.cjs","size":257,"sha256":"c829541364a7974ec036bb8fc841f5d1f8b2cd99b5d6ee908af67ed84b3ab353"}
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "61304d95ced79028fdbaad9895cc2a423bb4b56dd6668fc73e0fde3dfa7ed005",
+  "files": [
+    {
+      "path": "architecture.md",
+      "size": 122,
+      "sha256": "8376a3eb11242fd5f75bc77714ee4a32706e37f2f67d2e596ddc836f2b2e6bca"
+    },
+    {
+      "path": "design.md",
+      "size": 228,
+      "sha256": "e6e02741b3e07be75351bb31c9a161444daada2245b6e77d7a0efc622cd7f56b"
+    },
+    {
+      "path": "evidence.json",
+      "size": 299,
+      "sha256": "a073d9f577f4395df90a72251ac1b1ae1e10c6545a6211d3dd26d1f78b9af1c0"
+    },
+    {
+      "path": "logic.md",
+      "size": 140,
+      "sha256": "a22b1ff24c9ba5545e5ec337a953a3ac6a735c357629676a29c27426d18bd4cd"
+    },
+    {
+      "path": "meta.json",
+      "size": 903,
+      "sha256": "d735c801cf8ec82ce72e429b5142065436b15c7b3f040a772f3122d0c3fcb132"
+    },
+    {
+      "path": "README.md",
+      "size": 139,
+      "sha256": "bc830a7dfcf079b049fa92e05ca6e866e7121e50d5ce91b06e59540b006b74c0"
+    },
+    {
+      "path": "source/index.js",
+      "size": 418,
+      "sha256": "84c448b707032b456bd081de0298119af069e70ce9467d98de4f411f567dbbd7"
+    },
+    {
+      "path": "tests/normal/test-generation.test.cjs",
+      "size": 296,
+      "sha256": "9f74240e8b7e8e99283963f07b12cde411954d9168264a05ee64ce4463823965"
+    },
+    {
+      "path": "tests/user/test-generation.test.cjs",
+      "size": 257,
+      "sha256": "c829541364a7974ec036bb8fc841f5d1f8b2cd99b5d6ee908af67ed84b3ab353"
+    }
   ]
 }

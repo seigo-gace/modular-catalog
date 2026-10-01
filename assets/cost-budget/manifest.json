@@ -1,14 +1,52 @@
 {
-  "schemaVersion":1,"algorithm":"sha256","assetHash":"95f4a50c394070d5982d0948fac20e0a17b7d0ab09d5d4138c29952f1df62908",
-  "files":[
-    {"path":"README.md","size":110,"sha256":"b7203adaa70b6f122383df04e4c8dc1f54e3ccf4c699f22c710e09a2648007d0"},
-    {"path":"architecture.md","size":122,"sha256":"8376a3eb11242fd5f75bc77714ee4a32706e37f2f67d2e596ddc836f2b2e6bca"},
-    {"path":"design.md","size":203,"sha256":"b2dbbe0a67a21b4ee820317a86490614e736c0dcce8b7daeb3155b3165f364ad"},
-    {"path":"evidence.json","size":383,"sha256":"89dc0eb50fe56abac5809ca36757f0334ca30d6969533c98335e84f4578c0909"},
-    {"path":"logic.md","size":140,"sha256":"a22b1ff24c9ba5545e5ec337a953a3ac6a735c357629676a29c27426d18bd4cd"},
-    {"path":"meta.json","size":924,"sha256":"06c80180484032e65c74e57badd9e965f26e5fde60285f8b0061054b7ccc91be"},
-    {"path":"source/index.js","size":434,"sha256":"9dda08c6ad3bed1b29c0b42eee86e2e6652ee0d45d3a20697fa618baa3c52adc"},
-    {"path":"tests/normal/cost-budget.test.cjs","size":258,"sha256":"5577d577efd217ad95632f9b997bd5aa19f1ede9984d683921f8c37beb82f272"},
-    {"path":"tests/user/cost-budget.test.cjs","size":208,"sha256":"8246aac6285a35ee03dceffc07304d6b3804363ce6e77cc6c0953f0426f9120c"}
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "c2b86ab93e0bde11ebab420141914f3fb50f75a1daf54c903dda7d42b994452a",
+  "files": [
+    {
+      "path": "architecture.md",
+      "size": 122,
+      "sha256": "8376a3eb11242fd5f75bc77714ee4a32706e37f2f67d2e596ddc836f2b2e6bca"
+    },
+    {
+      "path": "design.md",
+      "size": 203,
+      "sha256": "b2dbbe0a67a21b4ee820317a86490614e736c0dcce8b7daeb3155b3165f364ad"
+    },
+    {
+      "path": "evidence.json",
+      "size": 291,
+      "sha256": "778cfe1386d5eeee67fa93870c3102caa75004cb32452e56ed5caf59805e5c09"
+    },
+    {
+      "path": "logic.md",
+      "size": 140,
+      "sha256": "a22b1ff24c9ba5545e5ec337a953a3ac6a735c357629676a29c27426d18bd4cd"
+    },
+    {
+      "path": "meta.json",
+      "size": 816,
+      "sha256": "282952a15f2f299cfb009af1aeb9967c322373ef3ac66f66f2824172ec10b58b"
+    },
+    {
+      "path": "README.md",
+      "size": 110,
+      "sha256": "b7203adaa70b6f122383df04e4c8dc1f54e3ccf4c699f22c710e09a2648007d0"
+    },
+    {
+      "path": "source/index.js",
+      "size": 434,
+      "sha256": "9dda08c6ad3bed1b29c0b42eee86e2e6652ee0d45d3a20697fa618baa3c52adc"
+    },
+    {
+      "path": "tests/normal/cost-budget.test.cjs",
+      "size": 258,
+      "sha256": "5577d577efd217ad95632f9b997bd5aa19f1ede9984d683921f8c37beb82f272"
+    },
+    {
+      "path": "tests/user/cost-budget.test.cjs",
+      "size": 208,
+      "sha256": "8246aac6285a35ee03dceffc07304d6b3804363ce6e77cc6c0953f0426f9120c"
+    }
   ]
 }

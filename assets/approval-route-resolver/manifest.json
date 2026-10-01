@@ -1,1 +1,52 @@
-{"schemaVersion":1,"algorithm":"sha256","assetHash":"d6d78685c0a2c3e14b3b27892bf66e74b6b75bb372e22d7c34b8fb4e144e72a5","files":[{"path":"README.md","size":110,"sha256":"9a8ef619900b1a6200b27d539debda658e7854b4b15c1e6bab9a680d591575c0"},{"path":"architecture.md","size":166,"sha256":"6b17500d7063f02a0496d64ac3f5a5c3a7a8e9d0385c2bdf01794d89db574787"},{"path":"design.md","size":213,"sha256":"f5adc51107ab1ed51acab26ce6910df208248a16c66d6b29a2b28308b741bec2"},{"path":"evidence.json","size":439,"sha256":"235e3afb7aaf0e80de34b4bd56a97464b9f3594c5de3e3754173b685e966df2c"},{"path":"logic.md","size":144,"sha256":"6f87980c12cd929261e070e442461dfd961d927305d0258d2ba713add325123c"},{"path":"meta.json","size":974,"sha256":"f9fe3768258b86e9ec71b3ed3d8d0f9914d2c27852f4cfadee7dea9a7fd0e500"},{"path":"source/index.js","size":575,"sha256":"7a4d35afe55e59c4750e67396a5538f302fb31d2a6bbe9cdf2b041527f3a0411"},{"path":"tests/normal/approval-route-resolver.test.cjs","size":293,"sha256":"e0adc52a7d70a31ebb7764fa1bc1335796245e7e74b8a06494f9396dc98a5f0b"},{"path":"tests/user/approval-route-resolver.test.cjs","size":256,"sha256":"a07c26f77a63aa9c32665cbbc4cab69c1aaf3a7d7ea75f78fbb7f9833b7bc837"}]}
+{
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "4a4336ddedad329fc8e00a663549fd1e3012ad427cca4a968ef6b1e9c2175837",
+  "files": [
+    {
+      "path": "architecture.md",
+      "size": 166,
+      "sha256": "6b17500d7063f02a0496d64ac3f5a5c3a7a8e9d0385c2bdf01794d89db574787"
+    },
+    {
+      "path": "design.md",
+      "size": 213,
+      "sha256": "f5adc51107ab1ed51acab26ce6910df208248a16c66d6b29a2b28308b741bec2"
+    },
+    {
+      "path": "evidence.json",
+      "size": 439,
+      "sha256": "235e3afb7aaf0e80de34b4bd56a97464b9f3594c5de3e3754173b685e966df2c"
+    },
+    {
+      "path": "logic.md",
+      "size": 144,
+      "sha256": "6f87980c12cd929261e070e442461dfd961d927305d0258d2ba713add325123c"
+    },
+    {
+      "path": "meta.json",
+      "size": 974,
+      "sha256": "f9fe3768258b86e9ec71b3ed3d8d0f9914d2c27852f4cfadee7dea9a7fd0e500"
+    },
+    {
+      "path": "README.md",
+      "size": 110,
+      "sha256": "9a8ef619900b1a6200b27d539debda658e7854b4b15c1e6bab9a680d591575c0"
+    },
+    {
+      "path": "source/index.js",
+      "size": 575,
+      "sha256": "7a4d35afe55e59c4750e67396a5538f302fb31d2a6bbe9cdf2b041527f3a0411"
+    },
+    {
+      "path": "tests/normal/approval-route-resolver.test.cjs",
+      "size": 293,
+      "sha256": "e0adc52a7d70a31ebb7764fa1bc1335796245e7e74b8a06494f9396dc98a5f0b"
+    },
+    {
+      "path": "tests/user/approval-route-resolver.test.cjs",
+      "size": 256,
+      "sha256": "a07c26f77a63aa9c32665cbbc4cab69c1aaf3a7d7ea75f78fbb7f9833b7bc837"
+    }
+  ]
+}

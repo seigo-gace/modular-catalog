@@ -1,14 +1,52 @@
 {
-  "schemaVersion":1,"algorithm":"sha256","assetHash":"be3ed070bcf23f05b98c85dd07a1bd193eb12a26b21c20ea49a6747487bff24b",
-  "files":[
-    {"path":"README.md","size":132,"sha256":"43a85b354aea4a1a27eb734fdc56168d4f621473c6ed279cb5cbc8cadd6a151e"},
-    {"path":"architecture.md","size":122,"sha256":"8376a3eb11242fd5f75bc77714ee4a32706e37f2f67d2e596ddc836f2b2e6bca"},
-    {"path":"design.md","size":203,"sha256":"44aec8e1675466d71429ca599834245f1c68110f32a323bb186416e5e58b1dd9"},
-    {"path":"evidence.json","size":427,"sha256":"4e1dccc22f2e9ed7f15155663679c56bc499971b0b1b2ca8ca595019c4ced417"},
-    {"path":"logic.md","size":140,"sha256":"a22b1ff24c9ba5545e5ec337a953a3ac6a735c357629676a29c27426d18bd4cd"},
-    {"path":"meta.json","size":990,"sha256":"642ae11de4444699dffa174cfee9ba53298165f668ccbb7b6ddea5ba836acd71"},
-    {"path":"source/index.js","size":524,"sha256":"76b12c6c717c41301dc740d35a453a8dc88bb086da81024e44c447373eb8367b"},
-    {"path":"tests/normal/traceable-implementation-contract.test.cjs","size":317,"sha256":"1eb02c22d4e9463c232f0b35e0a2c14fe06521f00e6afdc8cf62faa01c3064f8"},
-    {"path":"tests/user/traceable-implementation-contract.test.cjs","size":253,"sha256":"a8ff78f7bbf0d523c05661b1d58445a97b46e42870a56bfc9e502ec5922b32bb"}
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "f0f803ece4e14ccb3d1446c655e4c290c1ac0d10afcda994a8b9c0b580cc39de",
+  "files": [
+    {
+      "path": "architecture.md",
+      "size": 122,
+      "sha256": "8376a3eb11242fd5f75bc77714ee4a32706e37f2f67d2e596ddc836f2b2e6bca"
+    },
+    {
+      "path": "design.md",
+      "size": 203,
+      "sha256": "44aec8e1675466d71429ca599834245f1c68110f32a323bb186416e5e58b1dd9"
+    },
+    {
+      "path": "evidence.json",
+      "size": 335,
+      "sha256": "eb94d6ac886d993a500c98681241eb6f16dcee312b87c0b90349df4e764eca0a"
+    },
+    {
+      "path": "logic.md",
+      "size": 140,
+      "sha256": "a22b1ff24c9ba5545e5ec337a953a3ac6a735c357629676a29c27426d18bd4cd"
+    },
+    {
+      "path": "meta.json",
+      "size": 882,
+      "sha256": "245d9a8a64c1a8d76a00b4451e7512a5943c6426c14c81de3e28b9e2d7689495"
+    },
+    {
+      "path": "README.md",
+      "size": 132,
+      "sha256": "43a85b354aea4a1a27eb734fdc56168d4f621473c6ed279cb5cbc8cadd6a151e"
+    },
+    {
+      "path": "source/index.js",
+      "size": 524,
+      "sha256": "76b12c6c717c41301dc740d35a453a8dc88bb086da81024e44c447373eb8367b"
+    },
+    {
+      "path": "tests/normal/traceable-implementation-contract.test.cjs",
+      "size": 317,
+      "sha256": "1eb02c22d4e9463c232f0b35e0a2c14fe06521f00e6afdc8cf62faa01c3064f8"
+    },
+    {
+      "path": "tests/user/traceable-implementation-contract.test.cjs",
+      "size": 253,
+      "sha256": "a8ff78f7bbf0d523c05661b1d58445a97b46e42870a56bfc9e502ec5922b32bb"
+    }
   ]
 }

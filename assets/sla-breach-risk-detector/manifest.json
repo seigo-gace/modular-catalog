@@ -1,1 +1,52 @@
-{"schemaVersion":1,"algorithm":"sha256","assetHash":"9b1ff1f64e60ac2e5f92cd031f83430d4abb0e0dbb0c1e3a23a91c964eea86d9","files":[{"path":"README.md","size":111,"sha256":"3798958b70118888ab1c85a9ccb443e7fa651d27b4e9c9f85945a514818b8557"},{"path":"architecture.md","size":166,"sha256":"6b17500d7063f02a0496d64ac3f5a5c3a7a8e9d0385c2bdf01794d89db574787"},{"path":"design.md","size":213,"sha256":"f1abe07287e4508fd780b9db69ce8939152ac453a4360fd58d38e8fcaddaea39"},{"path":"evidence.json","size":441,"sha256":"1b97ed03101275c01180e1bd18ab47089ab956db655c8b8d8889efc8e6c21577"},{"path":"logic.md","size":144,"sha256":"6f87980c12cd929261e070e442461dfd961d927305d0258d2ba713add325123c"},{"path":"meta.json","size":976,"sha256":"9326a2bb1688dd129480b778d9f50654c76a0781c9bd9793322f739d8d55a618"},{"path":"source/index.js","size":683,"sha256":"ea4fe8209de4d18a2eb04d473db47416aef34dec25e25196725e2a39619a3a04"},{"path":"tests/normal/sla-breach-risk-detector.test.cjs","size":230,"sha256":"ccfcf4f658c1127acfaf0a5f341c5f76a967348c33711c34fc97039dcc39ee65"},{"path":"tests/user/sla-breach-risk-detector.test.cjs","size":230,"sha256":"351df51a2f23d476bc362b74c67e1ac247df74515337c2b079b2ea71f8cf5202"}]}
+{
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "bdf9495a5473afd3f0bc04a8fd73ad7a0fee52046e8331760b65f29927127eed",
+  "files": [
+    {
+      "path": "architecture.md",
+      "size": 166,
+      "sha256": "6b17500d7063f02a0496d64ac3f5a5c3a7a8e9d0385c2bdf01794d89db574787"
+    },
+    {
+      "path": "design.md",
+      "size": 213,
+      "sha256": "f1abe07287e4508fd780b9db69ce8939152ac453a4360fd58d38e8fcaddaea39"
+    },
+    {
+      "path": "evidence.json",
+      "size": 441,
+      "sha256": "1b97ed03101275c01180e1bd18ab47089ab956db655c8b8d8889efc8e6c21577"
+    },
+    {
+      "path": "logic.md",
+      "size": 144,
+      "sha256": "6f87980c12cd929261e070e442461dfd961d927305d0258d2ba713add325123c"
+    },
+    {
+      "path": "meta.json",
+      "size": 976,
+      "sha256": "9326a2bb1688dd129480b778d9f50654c76a0781c9bd9793322f739d8d55a618"
+    },
+    {
+      "path": "README.md",
+      "size": 111,
+      "sha256": "3798958b70118888ab1c85a9ccb443e7fa651d27b4e9c9f85945a514818b8557"
+    },
+    {
+      "path": "source/index.js",
+      "size": 683,
+      "sha256": "ea4fe8209de4d18a2eb04d473db47416aef34dec25e25196725e2a39619a3a04"
+    },
+    {
+      "path": "tests/normal/sla-breach-risk-detector.test.cjs",
+      "size": 230,
+      "sha256": "ccfcf4f658c1127acfaf0a5f341c5f76a967348c33711c34fc97039dcc39ee65"
+    },
+    {
+      "path": "tests/user/sla-breach-risk-detector.test.cjs",
+      "size": 230,
+      "sha256": "351df51a2f23d476bc362b74c67e1ac247df74515337c2b079b2ea71f8cf5202"
+    }
+  ]
+}

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "algorithm": "sha256",
-  "assetHash": "52fa4aef644ea9b20b490724627da0160de1596931f40bce98467656b8eaf295",
+  "assetHash": "db0fc5f2a1b94df27b03b4fa632ec8adbee1513abfbb77c29c5e6146e8b69d8b",
   "files": [
     {
-      "path": "README.md",
-      "size": 85,
-      "sha256": "6465dfbd54945967ff7b56882546a9eafe000b89f382da3bc7d34218b643925a"
+      "path": "architecture.md",
+      "size": 83,
+      "sha256": "f674579397c1084b00d05e66fc2225b47330c12bf2067bac07a59bccaab6bf25"
     },
     {
       "path": "design.md",
@@ -14,24 +14,24 @@
       "sha256": "e692bee621a4acbad0879cd7132dc2b9c84c622634aa0aad0dd0af5e4ebee974"
     },
     {
-      "path": "logic.md",
-      "size": 68,
-      "sha256": "e0d95547ab1478cac9ee02f18f3d80de5e036c0226ac5143eb4979e3093c6410"
-    },
-    {
-      "path": "architecture.md",
-      "size": 83,
-      "sha256": "f674579397c1084b00d05e66fc2225b47330c12bf2067bac07a59bccaab6bf25"
-    },
-    {
       "path": "evidence.json",
       "size": 377,
       "sha256": "3768876d6f621951b738c0ac3349ca2a22570b8176295f6c45e34658d7e65e48"
     },
     {
+      "path": "logic.md",
+      "size": 68,
+      "sha256": "e0d95547ab1478cac9ee02f18f3d80de5e036c0226ac5143eb4979e3093c6410"
+    },
+    {
       "path": "meta.json",
       "size": 790,
       "sha256": "2731b81aef3c2650334fceab0a2cb81985cb2847ff89d46f7cfb8b15e28e4c18"
+    },
+    {
+      "path": "README.md",
+      "size": 85,
+      "sha256": "6465dfbd54945967ff7b56882546a9eafe000b89f382da3bc7d34218b643925a"
     },
     {
       "path": "source/index.js",

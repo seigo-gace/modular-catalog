@@ -1,14 +1,52 @@
 {
-  "schemaVersion":1,"algorithm":"sha256","assetHash":"96d600884e1b9b5e56035a7b1c44ec0ef55e2f8380914f691233abb3d9d0773a",
-  "files":[
-    {"path":"README.md","size":153,"sha256":"a7dd6e2dbda48a577a4839ca89907b09d3fc07ddb71c9e8a30a3b07c866c6736"},
-    {"path":"architecture.md","size":122,"sha256":"8376a3eb11242fd5f75bc77714ee4a32706e37f2f67d2e596ddc836f2b2e6bca"},
-    {"path":"design.md","size":226,"sha256":"f615a60f4266df3ef08c1947d7a8cda002302861eb80eb73152747738c57d737"},
-    {"path":"evidence.json","size":423,"sha256":"2e5fcfc0b8dddb7fd1aa6f224d943f6be2337ee9c7b83b74475ce2994c318f35"},
-    {"path":"logic.md","size":140,"sha256":"a22b1ff24c9ba5545e5ec337a953a3ac6a735c357629676a29c27426d18bd4cd"},
-    {"path":"meta.json","size":1053,"sha256":"22fdcdbe35c0a3c421d80ba13c9fd76d0eedad9af273fe403bbf22bd06a84789"},
-    {"path":"source/index.js","size":494,"sha256":"501fdf5872f38ec4ddcf21e39ae94e19c7bd3fb6519b40aa795fca9549436bd5"},
-    {"path":"tests/normal/module-api-data-contract-design.test.cjs","size":360,"sha256":"b1860e09e0ba94b5bb75bae871d0903c7246cf307013d70c3d453e028b838ad9"},
-    {"path":"tests/user/module-api-data-contract-design.test.cjs","size":287,"sha256":"a56ffd21403ccc235a22e1813510512b5632b5ada5eb98a83125fdac63385451"}
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "2ad50b5c379035aeda14a59ca8a6a8bf65a416993b9c96776bf31cd868067c44",
+  "files": [
+    {
+      "path": "architecture.md",
+      "size": 122,
+      "sha256": "8376a3eb11242fd5f75bc77714ee4a32706e37f2f67d2e596ddc836f2b2e6bca"
+    },
+    {
+      "path": "design.md",
+      "size": 226,
+      "sha256": "f615a60f4266df3ef08c1947d7a8cda002302861eb80eb73152747738c57d737"
+    },
+    {
+      "path": "evidence.json",
+      "size": 331,
+      "sha256": "c7cf138176f51d845e6311589268ca098d4a1db409e8f27f41a7915423cdcfbe"
+    },
+    {
+      "path": "logic.md",
+      "size": 140,
+      "sha256": "a22b1ff24c9ba5545e5ec337a953a3ac6a735c357629676a29c27426d18bd4cd"
+    },
+    {
+      "path": "meta.json",
+      "size": 945,
+      "sha256": "555d5e2ecc8c60263b7eb8061ff928a2faa24c51c9c4a39f5ef109c5b8e3bcc9"
+    },
+    {
+      "path": "README.md",
+      "size": 153,
+      "sha256": "a7dd6e2dbda48a577a4839ca89907b09d3fc07ddb71c9e8a30a3b07c866c6736"
+    },
+    {
+      "path": "source/index.js",
+      "size": 494,
+      "sha256": "501fdf5872f38ec4ddcf21e39ae94e19c7bd3fb6519b40aa795fca9549436bd5"
+    },
+    {
+      "path": "tests/normal/module-api-data-contract-design.test.cjs",
+      "size": 360,
+      "sha256": "b1860e09e0ba94b5bb75bae871d0903c7246cf307013d70c3d453e028b838ad9"
+    },
+    {
+      "path": "tests/user/module-api-data-contract-design.test.cjs",
+      "size": 287,
+      "sha256": "a56ffd21403ccc235a22e1813510512b5632b5ada5eb98a83125fdac63385451"
+    }
   ]
 }

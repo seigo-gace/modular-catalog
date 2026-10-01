@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "algorithm": "sha256",
-  "assetHash": "ae3c4a6fdc90b0fc5023d7508c6c836663330986a70fca07cc504204db0c7ba0",
+  "assetHash": "72ca3885959f2b6ada41508f8646668929265eb261373274d3f34cc56d697531",
   "files": [
     {
       "path": "architecture.md",
@@ -16,7 +16,7 @@
     {
       "path": "evidence.json",
       "size": 379,
-      "sha256": ""
+      "sha256": "3a6a6aa3f4f95a8d8b0c532c844fb81e63e33225a66007dc624437ca86414f93"
     },
     {
       "path": "logic.md",
@@ -26,7 +26,7 @@
     {
       "path": "meta.json",
       "size": 810,
-      "sha256": ""
+      "sha256": "1d9c5d601bfbe02ba549267e5a95f0368f82b807fecbc795c288d33d340e5c20"
     },
     {
       "path": "README.md",

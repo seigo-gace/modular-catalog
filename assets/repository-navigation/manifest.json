@@ -1,14 +1,52 @@
 {
-  "schemaVersion":1,"algorithm":"sha256","assetHash":"2660ba6bd5c0a5e661c2e789b3252fb1640223318c235e08e58a118998d54b95",
-  "files":[
-    {"path":"README.md","size":106,"sha256":"b484d2057dde43dc4b4d4a6f8f08387b2e91fa6791d254d554931e665ab75028"},
-    {"path":"architecture.md","size":122,"sha256":"8376a3eb11242fd5f75bc77714ee4a32706e37f2f67d2e596ddc836f2b2e6bca"},
-    {"path":"design.md","size":189,"sha256":"03a6a2ffee737b9c48a6efc33402eb5cf67ab03b5fa7d1f09ab090aacd691409"},
-    {"path":"evidence.json","size":403,"sha256":"3e530f2c29047dbd06d84f48ec79f80eb6c3dda230e7e7b5471c06de02bc0c41"},
-    {"path":"logic.md","size":140,"sha256":"a22b1ff24c9ba5545e5ec337a953a3ac6a735c357629676a29c27426d18bd4cd"},
-    {"path":"meta.json","size":912,"sha256":"f544194948f9dfbfd4a4462a003859ac94633d3c6426692b4576f6413cfd1ad7"},
-    {"path":"source/index.js","size":674,"sha256":"001f3f814d49c2bbd4ca13901feef7085ce02626b5522c141f94ed6717820a30"},
-    {"path":"tests/normal/repository-navigation.test.cjs","size":343,"sha256":"49be8fd99307f6fd049effa1cd05aa74da2d785e273ce894f97d721c016a5321"},
-    {"path":"tests/user/repository-navigation.test.cjs","size":268,"sha256":"b591e45724560eade646f908d831fec3c78239de5e05e895de6d291bd1b57cc1"}
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "6aa7fb3eda89548505adbebbb69968e36b93d3b1fce3fc93f888f626038586f9",
+  "files": [
+    {
+      "path": "architecture.md",
+      "size": 122,
+      "sha256": "8376a3eb11242fd5f75bc77714ee4a32706e37f2f67d2e596ddc836f2b2e6bca"
+    },
+    {
+      "path": "design.md",
+      "size": 189,
+      "sha256": "03a6a2ffee737b9c48a6efc33402eb5cf67ab03b5fa7d1f09ab090aacd691409"
+    },
+    {
+      "path": "evidence.json",
+      "size": 311,
+      "sha256": "5ef33510573cdbacafd480ebc61c941f71064d5316ba4eb64cb3c076329fc77c"
+    },
+    {
+      "path": "logic.md",
+      "size": 140,
+      "sha256": "a22b1ff24c9ba5545e5ec337a953a3ac6a735c357629676a29c27426d18bd4cd"
+    },
+    {
+      "path": "meta.json",
+      "size": 804,
+      "sha256": "ebb415d34408da9264cf5fa934cbb9cc2816c29f8fe44bf530d8b1801acf551f"
+    },
+    {
+      "path": "README.md",
+      "size": 106,
+      "sha256": "b484d2057dde43dc4b4d4a6f8f08387b2e91fa6791d254d554931e665ab75028"
+    },
+    {
+      "path": "source/index.js",
+      "size": 674,
+      "sha256": "001f3f814d49c2bbd4ca13901feef7085ce02626b5522c141f94ed6717820a30"
+    },
+    {
+      "path": "tests/normal/repository-navigation.test.cjs",
+      "size": 343,
+      "sha256": "49be8fd99307f6fd049effa1cd05aa74da2d785e273ce894f97d721c016a5321"
+    },
+    {
+      "path": "tests/user/repository-navigation.test.cjs",
+      "size": 268,
+      "sha256": "b591e45724560eade646f908d831fec3c78239de5e05e895de6d291bd1b57cc1"
+    }
   ]
 }
