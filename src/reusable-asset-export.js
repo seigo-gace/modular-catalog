@@ -222,7 +222,7 @@ export async function exportReusableAssets(rootDir, outputDir, { assetId = null,
     const manifest = await writeBundleManifest(dir, id, commit, built.asset.integrity.asset_hash);
     exported.push({ id, assetHash: built.asset.integrity.asset_hash, bundleHash: manifest.bundle_hash, knowledgeUnits: built.knowledgeUnits.length, relationships: built.relationships.length, cases: built.cases.length });
   }
-  const topLevel = { schema_version: 1, format: BUNDLE_FORMAT, catalog: { repository: CATALOG_REPOSITORY, commit }, generatedAt: new Date().toISOString(), assetCount: exported.length, assets: exported };
+  const topLevel = { schema_version: 1, format: BUNDLE_FORMAT, catalog: { repository: CATALOG_REPOSITORY, commit }, assetCount: exported.length, assets: exported };
   await writeJson(path.join(output, 'manifest.json'), topLevel);
   return topLevel;
 }
