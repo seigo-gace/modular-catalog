@@ -1,0 +1,477 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gace:modular-catalog:reusable-asset:v1",
+  "title": "G-ACE Reusable Asset Schema v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "identity",
+    "classification",
+    "discovery",
+    "applicability",
+    "contract",
+    "composition",
+    "implementation",
+    "verification",
+    "provenance",
+    "lifecycle",
+    "integrity",
+    "derivation"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "identity": {
+      "$ref": "#/$defs/identity"
+    },
+    "classification": {
+      "$ref": "#/$defs/classification"
+    },
+    "discovery": {
+      "$ref": "#/$defs/discovery"
+    },
+    "applicability": {
+      "$ref": "#/$defs/applicability"
+    },
+    "contract": {
+      "$ref": "#/$defs/contract"
+    },
+    "composition": {
+      "$ref": "#/$defs/composition"
+    },
+    "implementation": {
+      "$ref": "#/$defs/implementation"
+    },
+    "verification": {
+      "$ref": "#/$defs/verification"
+    },
+    "provenance": {
+      "$ref": "#/$defs/provenance"
+    },
+    "lifecycle": {
+      "$ref": "#/$defs/lifecycle"
+    },
+    "integrity": {
+      "$ref": "#/$defs/integrity"
+    },
+    "derivation": {
+      "$ref": "#/$defs/derivation"
+    }
+  },
+  "$defs": {
+    "stringArray": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "identity": {
+      "type": "object",
+      "required": [
+        "asset_id",
+        "name",
+        "version",
+        "asset_kind"
+      ],
+      "properties": {
+        "asset_id": {
+          "type": "string",
+          "minLength": 3
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "asset_kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "symbol": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "classification": {
+      "type": "object",
+      "required": [
+        "domains",
+        "layers",
+        "languages",
+        "runtimes",
+        "tags"
+      ],
+      "properties": {
+        "domains": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "layers": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "languages": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "runtimes": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "tags": {
+          "$ref": "#/$defs/stringArray"
+        }
+      },
+      "additionalProperties": false
+    },
+    "discovery": {
+      "type": "object",
+      "required": [
+        "summary",
+        "purpose",
+        "responsibility",
+        "capabilities",
+        "keywords",
+        "semantic_terms"
+      ],
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "purpose": {
+          "type": "string"
+        },
+        "responsibility": {
+          "type": "string"
+        },
+        "capabilities": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "keywords": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "semantic_terms": {
+          "$ref": "#/$defs/stringArray"
+        }
+      },
+      "additionalProperties": false
+    },
+    "applicability": {
+      "type": "object",
+      "required": [
+        "use_when",
+        "do_not_use_when",
+        "preconditions",
+        "required_context",
+        "failure_conditions"
+      ],
+      "properties": {
+        "use_when": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "do_not_use_when": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "preconditions": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "required_context": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "failure_conditions": {
+          "$ref": "#/$defs/stringArray"
+        }
+      },
+      "additionalProperties": false
+    },
+    "contract": {
+      "type": "object",
+      "required": [
+        "status",
+        "inputs",
+        "outputs",
+        "required_fields",
+        "optional_fields",
+        "error_behavior",
+        "side_effects",
+        "mutation_authority"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "known",
+            "unknown",
+            "not_recorded"
+          ]
+        },
+        "inputs": {
+          "type": "array"
+        },
+        "outputs": {
+          "type": "array"
+        },
+        "required_fields": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "optional_fields": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "error_behavior": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "side_effects": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "mutation_authority": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "composition": {
+      "type": "object",
+      "required": [
+        "depends_on",
+        "requires",
+        "recommended_before",
+        "recommended_after",
+        "complements",
+        "alternative_to",
+        "conflicts_with",
+        "supersedes"
+      ],
+      "properties": {
+        "depends_on": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "requires": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "recommended_before": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "recommended_after": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "complements": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "alternative_to": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "conflicts_with": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "supersedes": {
+          "$ref": "#/$defs/stringArray"
+        }
+      },
+      "additionalProperties": false
+    },
+    "implementation": {
+      "type": "object",
+      "required": [
+        "languages",
+        "runtimes",
+        "entrypoints",
+        "source_files",
+        "dependencies"
+      ],
+      "properties": {
+        "languages": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "runtimes": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "entrypoints": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "source_files": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "dependencies": {
+          "$ref": "#/$defs/stringArray"
+        }
+      },
+      "additionalProperties": false
+    },
+    "verification": {
+      "type": "object",
+      "required": [
+        "status",
+        "normal_test",
+        "user_test",
+        "verified_at",
+        "validation_boundary",
+        "known_unverified"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "verified",
+            "unverified",
+            "unknown"
+          ]
+        },
+        "normal_test": {
+          "type": "object"
+        },
+        "user_test": {
+          "type": "object"
+        },
+        "verified_at": {
+          "type": "string"
+        },
+        "validation_boundary": {
+          "type": "string"
+        },
+        "known_unverified": {
+          "$ref": "#/$defs/stringArray"
+        }
+      },
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "origin",
+        "catalog"
+      ],
+      "properties": {
+        "origin": {
+          "type": "object",
+          "required": [
+            "repository",
+            "commit"
+          ],
+          "properties": {
+            "repository": {
+              "type": "string"
+            },
+            "commit": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "catalog": {
+          "type": "object",
+          "required": [
+            "repository",
+            "commit",
+            "asset_path",
+            "asset_id"
+          ],
+          "properties": {
+            "repository": {
+              "type": "string"
+            },
+            "commit": {
+              "type": "string"
+            },
+            "asset_path": {
+              "type": "string"
+            },
+            "asset_id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "lifecycle": {
+      "type": "object",
+      "required": [
+        "status",
+        "introduced_version",
+        "deprecated_at",
+        "superseded_by"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "experimental",
+            "verified",
+            "active",
+            "deprecated",
+            "superseded",
+            "retired"
+          ]
+        },
+        "introduced_version": {
+          "type": "string"
+        },
+        "deprecated_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "superseded_by": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "integrity": {
+      "type": "object",
+      "required": [
+        "asset_hash",
+        "meta_hash",
+        "manifest_algorithm",
+        "files"
+      ],
+      "properties": {
+        "asset_hash": {
+          "type": "string"
+        },
+        "meta_hash": {
+          "type": "string"
+        },
+        "manifest_algorithm": {
+          "const": "sha256"
+        },
+        "files": {
+          "type": "array"
+        }
+      },
+      "additionalProperties": false
+    },
+    "derivation": {
+      "type": "object",
+      "required": [
+        "canonical_sources",
+        "derived_fields"
+      ],
+      "properties": {
+        "canonical_sources": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "derived_fields": {
+          "type": "array"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
