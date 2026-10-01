@@ -15,6 +15,7 @@ test('exports the full current catalog as reusable asset bundles without inventi
   assert.deepEqual(schema.required, ['schema_version', 'identity', 'classification', 'discovery', 'applicability', 'contract', 'composition', 'implementation', 'verification', 'provenance', 'lifecycle', 'integrity', 'derivation']);
 
   const output = await fs.mkdtemp(path.join(os.tmpdir(), 'modular-catalog-export-'));
+  const repeatOutput = await fs.mkdtemp(path.join(os.tmpdir(), 'modular-catalog-repeat-'));
   try {
     const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
     const result = await exportReusableAssets(root, output, { catalogCommit: commit });
@@ -65,7 +66,17 @@ test('exports the full current catalog as reusable asset bundles without inventi
     const topManifest = JSON.parse(await fs.readFile(path.join(output, 'manifest.json'), 'utf8'));
     assert.equal(topManifest.assetCount, 80);
     assert.equal(topManifest.assets.length, 80);
+    assert.equal(Object.hasOwn(topManifest, 'generatedAt'), false);
+
+    const repeatAssetId = result.assets[0].id;
+    const firstRepeat = await exportReusableAssets(root, repeatOutput, { assetId: repeatAssetId, catalogCommit: commit });
+    const firstRepeatManifest = await fs.readFile(path.join(repeatOutput, 'manifest.json'), 'utf8');
+    const secondRepeat = await exportReusableAssets(root, repeatOutput, { assetId: repeatAssetId, catalogCommit: commit });
+    const secondRepeatManifest = await fs.readFile(path.join(repeatOutput, 'manifest.json'), 'utf8');
+    assert.deepEqual(secondRepeat, firstRepeat);
+    assert.equal(secondRepeatManifest, firstRepeatManifest);
   } finally {
     await fs.rm(output, { recursive: true, force: true });
+    await fs.rm(repeatOutput, { recursive: true, force: true });
   }
 });
