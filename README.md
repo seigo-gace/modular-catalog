@@ -1,6 +1,6 @@
 # Modular Catalog
 
-完成・検証済みの再利用資産を、必要なときに必要な情報だけ読むPrivate Repositoryです。
+完成・検証済みの個別Skill Assetを、必要なときに必要な情報だけ読むためのCatalogです。現行Catalogは80 Assetを対象とし、未検証・撤回済みAssetは掲載しません。
 
 ## ChatGPTアプリ
 
@@ -39,6 +39,6 @@ npm run check
 
 検索対象はMeta情報だけではなく、各Assetの`design.md`、`logic.md`、`architecture.md`本文を含みます。検索結果の`matchedSections`で一致した文書種別を確認し、`show <asset-id> --section all`でSourceと3文書を一括取得できます。
 
-Astera v8は、検証済みSourceを`Part → Feature → Component → System → Application System`の責務境界へ分解した27 Assetとして登録しています。各Assetは`source/`、通常Test、ユーザー利用Test、Astera判定結果、設計、Logic、Architectureを一体で保持します。
+現行Catalogの80 Assetは、Git履歴とNotionで確定した個別Skill集合を現行Catalog契約へ正規化したものです。各Assetは`source/`、通常Test、ユーザー利用Test、検証結果、設計、Logic、Architecture、出所、Manifestを一体で保持します。撤回済みの旧27 Assetは現行Catalogから除外し、Git履歴だけに保持します。
 
 `assets/`には完成・検証・Astera判定済みの実資産だけを置きます。空Directoryや未完成資産は置きません。
