@@ -1,10 +1,20 @@
 {
   "normal": {
     "passed": true,
-    "command": "node --test tests/normal/model-tool-separation-adapter.test.cjs"
+    "commands": [
+      "node --test tests/normal/model-tool-separation-adapter.test.cjs"
+    ],
+    "expectedResults": [
+      "Recorded test result: passed=true."
+    ]
   },
   "user": {
     "passed": true,
-    "command": "node --test tests/user/model-tool-separation-adapter.test.cjs"
+    "commands": [
+      "node --test tests/user/model-tool-separation-adapter.test.cjs"
+    ],
+    "expectedResults": [
+      "Recorded test result: passed=true."
+    ]
   }
 }

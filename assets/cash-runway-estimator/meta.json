@@ -7,7 +7,7 @@
   "purpose": "Estimate runway from cash and monthly net burn without making financing decisions.",
   "responsibility": "Estimate runway from cash and monthly net burn without making financing decisions.",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

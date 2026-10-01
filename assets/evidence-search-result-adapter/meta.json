@@ -7,7 +7,7 @@
   "purpose": "Normalize multiple search results into traceable source and evidence records.",
   "responsibility": "Normalize multiple search results into traceable source and evidence records.",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

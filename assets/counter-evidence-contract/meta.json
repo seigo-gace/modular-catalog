@@ -7,7 +7,7 @@
   "purpose": "Build bounded counter-evidence search requests for a claim without asserting contradiction exists.",
   "responsibility": "Build bounded counter-evidence search requests for a claim without asserting contradiction exists.",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

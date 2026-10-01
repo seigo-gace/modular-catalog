@@ -3,6 +3,9 @@
   "id": "failure-mode-explorer",
   "name": "Failure Mode Explorer",
   "version": "0.1.0",
+  "summary": "Failure Mode Explorerを1責務の独立Skillとして提供する。",
+  "purpose": "Failure Mode Explorerを1責務の独立Skillとして提供する。",
+  "responsibility": "Failure Mode Explorerを1責務の独立Skillとして提供する。",
   "layers": [
     "Component"
   ],
@@ -12,12 +15,20 @@
   "runtimes": [
     "Node.js 22+"
   ],
+  "tags": [
+    "gace",
+    "skill",
+    "minimal-module"
+  ],
+  "dependencies": [],
   "constraints": [
     "single responsibility",
     "fail closed",
     "no mutation authority"
   ],
   "source": {
-    "repository": "local-lab://chatgpt/skill-wave3"
-  }
+    "repository": "local-lab://chatgpt/skill-wave3",
+    "commit": "local-verified-2026-09-29-wave3"
+  },
+  "verifiedAt": "2026-09-29T11:50:00+09:00"
 }

@@ -1,10 +1,4 @@
 {
-  "normal": {
-    "passed": true,
-    "command": "node --test tests/normal/provider-model-cost-tracking.test.cjs"
-  },
-  "user": {
-    "passed": true,
-    "command": "node --test tests/user/provider-model-cost-tracking.test.cjs"
-  }
+  "normal":{"passed":true,"commands":["node --test tests/normal/provider-model-cost-tracking.test.cjs"],"expectedResults":["Recorded test result: passed=true."]},
+  "user":{"passed":true,"commands":["node --test tests/user/provider-model-cost-tracking.test.cjs"],"expectedResults":["Recorded test result: passed=true."]}
 }

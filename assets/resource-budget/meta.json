@@ -7,7 +7,7 @@
   "purpose": "Validate runtime resource, sleep and restart budgets before execution.",
   "responsibility": "Validate runtime resource, sleep and restart budgets before execution.",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

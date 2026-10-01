@@ -7,7 +7,7 @@
   "purpose": "Classify incident severity from explicit impact, urgency and policy thresholds.",
   "responsibility": "Classify incident severity from explicit impact, urgency and policy thresholds.",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

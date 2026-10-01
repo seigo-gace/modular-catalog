@@ -7,7 +7,7 @@
   "purpose": "Classify evidence gaps without converting not-found or failed search into evidence of absence.",
   "responsibility": "Classify evidence gaps without converting not-found or failed search into evidence of absence.",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

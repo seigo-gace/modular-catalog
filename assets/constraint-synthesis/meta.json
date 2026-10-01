@@ -7,7 +7,7 @@
   "purpose": "Normalize requirements into must, must-not, and unknown constraints without inventing values.",
   "responsibility": "Normalize requirements into must, must-not, and unknown constraints without inventing values.",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

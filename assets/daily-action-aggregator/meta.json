@@ -7,7 +7,7 @@
   "purpose": "Aggregate actionable items across domains using explicit action state, due time and priority.",
   "responsibility": "Aggregate actionable items across domains using explicit action state, due time and priority.",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

@@ -7,7 +7,7 @@
   "purpose": "Task Capability Graph Binding",
   "responsibility": "Task Capability Graph Binding",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

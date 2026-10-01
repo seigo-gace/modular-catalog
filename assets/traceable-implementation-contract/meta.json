@@ -1,27 +1,11 @@
 {
-  "schemaVersion": 1,
-  "id": "traceable-implementation-contract",
-  "name": "Traceable Implementation Contract",
-  "version": "0.1.0",
-  "summary": "Requirement/Architecture authorityを変更せず実装TaskへTrace ID付きで写像する。",
-  "layers": [
-    "Component"
-  ],
-  "languages": [
-    "JavaScript"
-  ],
-  "runtimes": [
-    "Node.js 22+"
-  ],
-  "tags": [
-    "g-ace",
-    "skill",
-    "traceable-implementation-contract"
-  ],
-  "dependencies": [],
-  "constraints": [
-    "pure deterministic",
-    "fail-closed where required",
-    "no external mutation authority"
-  ]
+  "schemaVersion":1,"id":"traceable-implementation-contract","name":"Traceable Implementation Contract","version":"0.1.0",
+  "summary":"Requirement/Architecture authorityを変更せず実装TaskへTrace ID付きで写像する。",
+  "purpose":"Requirement/Architecture authorityを変更せず実装TaskへTrace ID付きで写像する。",
+  "responsibility":"Requirement/Architecture authorityを変更せず実装TaskへTrace ID付きで写像する。",
+  "layers":["Component"],"languages":["JavaScript"],"runtimes":["Node.js 22+"],
+  "tags":["g-ace","skill","traceable-implementation-contract"],"dependencies":[],
+  "constraints":["pure deterministic","fail-closed where required","no external mutation authority"],
+  "source":{"repository":"local-lab://chatgpt/individual-skill-modules","commit":"local-verified-2026-09-29"},
+  "verifiedAt":"2026-09-29T23:39:00+09:00"
 }

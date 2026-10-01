@@ -7,7 +7,7 @@
   "purpose": "Enforce model call, token, latency and quality-floor policy without lowering quality requirements.",
   "responsibility": "Enforce model call, token, latency and quality-floor policy without lowering quality requirements.",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

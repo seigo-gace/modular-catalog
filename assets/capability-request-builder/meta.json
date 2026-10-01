@@ -7,7 +7,7 @@
   "purpose": "Capability Request Builder",
   "responsibility": "Capability Request Builder",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

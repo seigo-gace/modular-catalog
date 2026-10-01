@@ -7,7 +7,7 @@
   "purpose": "Skill Binding Resolver",
   "responsibility": "Skill Binding Resolver",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

@@ -1,16 +1,52 @@
 {
   "schemaVersion": 1,
   "algorithm": "sha256",
-  "assetHash": "0dce357e0bc53a294a38a9324a01ee4ed63547e4fdb531dec8e6408817bfafdd",
+  "assetHash": "e8b71f1b499d4bd09349a23140f5cfb72f4987e7b94d9673baee5649346834dd",
   "files": [
-    {"path":"README.md","size":58,"sha256":"3c3d29eaae23b9692d9555fbaa7c29e3562fbe8904c135c2b9204fe7c28a5ccd"},
-    {"path":"architecture.md","size":83,"sha256":"2fc40d62d5a6776a5617ee6e09f0ce2902cf23470980b790759f5d90a3223b08"},
-    {"path":"design.md","size":69,"sha256":"b24bbaed1949d44795db67c0a344fecfde18c8b0bcf2248ab2e177e82e70e52d"},
-    {"path":"evidence.json","size":197,"sha256":"de03fbf8ec4ac20a5438168ab4466245af8028aef64559f53a9b46e4e6cfb0d5"},
-    {"path":"logic.md","size":71,"sha256":"ea44502d6ea621b8dd04c897f1d0f82a95395cf2930eb760de2ca35048b7a1ba"},
-    {"path":"meta.json","size":377,"sha256":"70339f084e23ced4275b10d2dbcc7eaa7f306f646e33838e2c1aacb1ed5b6705"},
-    {"path":"source/index.js","size":431,"sha256":"f13d5a2f983654c87656d6fe3d12c14506f71810ea966c2fb7a577857e231429"},
-    {"path":"tests/normal/skill.test.cjs","size":193,"sha256":"bcc97755df1daedb1b3ddd0266c63edeadd47a8f44a0a355032394170364d011"},
-    {"path":"tests/user/integration.test.cjs","size":236,"sha256":"a7e4c3bb15348016e7be7e91cc491b695d656c167b04bfaea8b6aeb48dd1e8b1"}
+    {
+      "path": "architecture.md",
+      "size": 83,
+      "sha256": "2fc40d62d5a6776a5617ee6e09f0ce2902cf23470980b790759f5d90a3223b08"
+    },
+    {
+      "path": "design.md",
+      "size": 69,
+      "sha256": "b24bbaed1949d44795db67c0a344fecfde18c8b0bcf2248ab2e177e82e70e52d"
+    },
+    {
+      "path": "evidence.json",
+      "size": 377,
+      "sha256": "3768876d6f621951b738c0ac3349ca2a22570b8176295f6c45e34658d7e65e48"
+    },
+    {
+      "path": "logic.md",
+      "size": 71,
+      "sha256": "ea44502d6ea621b8dd04c897f1d0f82a95395cf2930eb760de2ca35048b7a1ba"
+    },
+    {
+      "path": "meta.json",
+      "size": 788,
+      "sha256": "cddb52f9fe49b342ce4020bea505de000ea4e27f2779c1292288a73586003018"
+    },
+    {
+      "path": "README.md",
+      "size": 58,
+      "sha256": "3c3d29eaae23b9692d9555fbaa7c29e3562fbe8904c135c2b9204fe7c28a5ccd"
+    },
+    {
+      "path": "source/index.js",
+      "size": 431,
+      "sha256": "f13d5a2f983654c87656d6fe3d12c14506f71810ea966c2fb7a577857e231429"
+    },
+    {
+      "path": "tests/normal/skill.test.cjs",
+      "size": 193,
+      "sha256": "bcc97755df1daedb1b3ddd0266c63edeadd47a8f44a0a355032394170364d011"
+    },
+    {
+      "path": "tests/user/integration.test.cjs",
+      "size": 236,
+      "sha256": "a7e4c3bb15348016e7be7e91cc491b695d656c167b04bfaea8b6aeb48dd1e8b1"
+    }
   ]
 }

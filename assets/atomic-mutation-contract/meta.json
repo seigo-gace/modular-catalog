@@ -7,7 +7,7 @@
   "purpose": "Represent one approved mutation with before/after/rollback boundaries.",
   "responsibility": "Represent one approved mutation with before/after/rollback boundaries.",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

@@ -7,7 +7,7 @@
   "purpose": "Observability Cost Latency Capture",
   "responsibility": "Observability Cost Latency Capture",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

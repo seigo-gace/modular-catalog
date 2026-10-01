@@ -7,7 +7,7 @@
   "purpose": "Detect SLA breach risk from explicit deadline, current time and policy thresholds.",
   "responsibility": "Detect SLA breach risk from explicit deadline, current time and policy thresholds.",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

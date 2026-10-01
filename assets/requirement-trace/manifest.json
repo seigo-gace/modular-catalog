@@ -1,16 +1,1 @@
-{
-  "schemaVersion": 1,
-  "algorithm": "sha256",
-  "assetHash": "30898ecf24ef72fd30b0d5e0d252f224a6bfc55f82e6c4d6a3c697f3d9435255",
-  "files": [
-    {"path":"README.md","size":76,"sha256":"f2bdbd3f6368c1d9fd1bb08463639f883fcb741bbf33258a72093af449d14a19"},
-    {"path":"design.md","size":61,"sha256":"a7952e5cbe8b9b57c06a7d11110206ca6c290c23f1a7ba1c86b13228049fa47e"},
-    {"path":"logic.md","size":68,"sha256":"e0d95547ab1478cac9ee02f18f3d80de5e036c0226ac5143eb4979e3093c6410"},
-    {"path":"architecture.md","size":83,"sha256":"f674579397c1084b00d05e66fc2225b47330c12bf2067bac07a59bccaab6bf25"},
-    {"path":"evidence.json","size":197,"sha256":"de03fbf8ec4ac20a5438168ab4466245af8028aef64559f53a9b46e4e6cfb0d5"},
-    {"path":"meta.json","size":740,"sha256":"751bd7159a00ae47063de50a91ce3d45e0b456a14a76af58db091e45339a734a"},
-    {"path":"source/index.js","size":370,"sha256":"522af2d23ffc337990c7c478b0519ed896053b2c5f766d73121a496e5c5501fa"},
-    {"path":"tests/normal/skill.test.cjs","size":374,"sha256":"0a2e0c2a37639561c332ecce8922cb4a42fb719351495917868ef62cfc4daa2c"},
-    {"path":"tests/user/integration.test.cjs","size":324,"sha256":"3d7ddb21347dd891a39066e5fde8b3ef8abffb5bb0f7e6c74c0adb1dd115b29a"}
-  ]
-}
+{"schemaVersion":1,"algorithm":"sha256","assetHash":"659f512f349254de9b235a2f819f7a31fffc32688977969cd2929a16070a9856","files":[{"path":"README.md","size":76,"sha256":"f2bdbd3f6368c1d9fd1bb08463639f883fcb741bbf33258a72093af449d14a19"},{"path":"architecture.md","size":83,"sha256":"f674579397c1084b00d05e66fc2225b47330c12bf2067bac07a59bccaab6bf25"},{"path":"design.md","size":61,"sha256":"a7952e5cbe8b9b57c06a7d11110206ca6c290c23f1a7ba1c86b13228049fa47e"},{"path":"evidence.json","size":278,"sha256":"8710a247bfd71e89301722ef9beeccb8ee686dbbf8cf9b134d8a70df8e2bf6eb"},{"path":"logic.md","size":68,"sha256":"e0d95547ab1478cac9ee02f18f3d80de5e036c0226ac5143eb4979e3093c6410"},{"path":"meta.json","size":603,"sha256":"472cfea7e252892ed1bd678e0566816ba8edd18f618df77a3c1b1daa5637d7d7"},{"path":"source/index.js","size":370,"sha256":"522af2d23ffc337990c7c478b0519ed896053b2c5f766d73121a496e5c5501fa"},{"path":"tests/normal/skill.test.cjs","size":374,"sha256":"0a2e0c2a37639561c332ecce8922cb4a42fb719351495917868ef62cfc4daa2c"},{"path":"tests/user/integration.test.cjs","size":324,"sha256":"3d7ddb21347dd891a39066e5fde8b3ef8abffb5bb0f7e6c74c0adb1dd115b29a"}]}

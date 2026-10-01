@@ -7,7 +7,7 @@
   "purpose": "Keep model output proposal-only and require matching approval before executable tool intent is released.",
   "responsibility": "Keep model output proposal-only and require matching approval before executable tool intent is released.",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

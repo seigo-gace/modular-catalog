@@ -7,7 +7,7 @@
   "purpose": "Research Question Builder",
   "responsibility": "Research Question Builder",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"
@@ -31,5 +31,5 @@
     "repository": "local-lab://chatgpt/individual-skill-modules",
     "commit": "local-verified-2026-09-29-wave5"
   },
-  "verifiedAt": "2026-09-29T21:16:00+09:00"
+  "verifiedAt": "2026-09-29T22:20:00+09:00"
 }

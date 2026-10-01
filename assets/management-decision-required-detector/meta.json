@@ -7,7 +7,7 @@
   "purpose": "Detect records that explicitly require management decision without inventing business judgment.",
   "responsibility": "Detect records that explicitly require management decision without inventing business judgment.",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

@@ -7,7 +7,7 @@
   "purpose": "Evaluation Regression Hook",
   "responsibility": "Evaluation Regression Hook",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

@@ -7,7 +7,7 @@
   "purpose": "Classify deadline urgency from explicit current time and policy thresholds.",
   "responsibility": "Classify deadline urgency from explicit current time and policy thresholds.",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

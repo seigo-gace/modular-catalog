@@ -1,14 +1,12 @@
 {
-  "schemaVersion": 1,
-  "algorithm": "sha256",
-  "assetHash": "bb2d90bee512d4dafedf844890bda13aef69afdf04cbfd0dace7f2f014168237",
-  "files": [
+  "schemaVersion":1,"algorithm":"sha256","assetHash":"e65e5972fc10cea4ca21e7e3f32d7bda497a4eb14deda0c875c62f5125cfbf88",
+  "files":[
     {"path":"README.md","size":105,"sha256":"ae8f8025128ba7fe123d1fe03b9d6478895b085bda842958101a5f39c99bc9aa"},
     {"path":"architecture.md","size":122,"sha256":"8376a3eb11242fd5f75bc77714ee4a32706e37f2f67d2e596ddc836f2b2e6bca"},
     {"path":"design.md","size":192,"sha256":"1f97aa6de24eedb334658d5b7560c2daf68d1ed6aaa997d58e007214efd263dc"},
-    {"path":"evidence.json","size":215,"sha256":"2b835ed33288f45f214c480729e0947ebebf40e69546fb624b026b789280c10b"},
+    {"path":"evidence.json","size":395,"sha256":"76f0662b7e3f36b9e0626eccdbbef150e6eecdf2896807b17a0d6081e6485351"},
     {"path":"logic.md","size":140,"sha256":"a22b1ff24c9ba5545e5ec337a953a3ac6a735c357629676a29c27426d18bd4cd"},
-    {"path":"meta.json","size":530,"sha256":"ef9d2bdd179345d243888fe857db1da10c53a450c4096f0ae957e910ea905b3a"},
+    {"path":"meta.json","size":909,"sha256":"1589f27633d51418fed00a14a04c01963f8d6751933824efdedd49d282c0a586"},
     {"path":"source/index.js","size":562,"sha256":"23b7f0b5c88fb5245524b951589a3f63b822dff7e716c227d966f033dbc57b9a"},
     {"path":"tests/normal/code-localization.test.cjs","size":283,"sha256":"519f518fdb64968c550921a0b5380ac05bd79d549582e362e5df1a3cc58ae999"},
     {"path":"tests/user/code-localization.test.cjs","size":200,"sha256":"bc23cc1d9911b281b06304e56a86af0dc62c76c942c2db1525aa169c3149798e"}

@@ -1,10 +1,20 @@
 {
   "normal": {
     "passed": true,
-    "command": "node --test tests/normal/atomic-mutation-contract.test.cjs"
+    "commands": [
+      "node --test tests/normal/atomic-mutation-contract.test.cjs"
+    ],
+    "expectedResults": [
+      "Recorded test result: passed=true."
+    ]
   },
   "user": {
     "passed": true,
-    "command": "node --test tests/user/atomic-mutation-contract.test.cjs"
+    "commands": [
+      "node --test tests/user/atomic-mutation-contract.test.cjs"
+    ],
+    "expectedResults": [
+      "Recorded test result: passed=true."
+    ]
   }
 }

@@ -7,7 +7,7 @@
   "purpose": "Calculate deterministic budget-versus-actual amount and percentage variance.",
   "responsibility": "Calculate deterministic budget-versus-actual amount and percentage variance.",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

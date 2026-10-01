@@ -7,7 +7,7 @@
   "purpose": "Tool Request Contract",
   "responsibility": "Tool Request Contract",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

@@ -7,7 +7,7 @@
   "purpose": "Detect deterministic mismatches between canonical and provider records on explicitly selected fields.",
   "responsibility": "Detect deterministic mismatches between canonical and provider records on explicitly selected fields.",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

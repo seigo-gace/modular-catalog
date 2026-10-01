@@ -7,7 +7,7 @@
   "purpose": "Claim Extractor",
   "responsibility": "Claim Extractor",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

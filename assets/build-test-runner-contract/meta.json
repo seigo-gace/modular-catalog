@@ -3,6 +3,9 @@
   "id": "build-test-runner-contract",
   "name": "Build Test Runner Contract",
   "version": "0.1.0",
+  "summary": "Build Test Runner Contractを1責務の独立Skillとして提供する。",
+  "purpose": "Build Test Runner Contractを1責務の独立Skillとして提供する。",
+  "responsibility": "Build Test Runner Contractを1責務の独立Skillとして提供する。",
   "layers": [
     "Component"
   ],
@@ -12,12 +15,20 @@
   "runtimes": [
     "Node.js 22+"
   ],
+  "tags": [
+    "gace",
+    "skill",
+    "minimal-module"
+  ],
+  "dependencies": [],
   "constraints": [
     "single responsibility",
     "fail closed",
     "no direct mutation authority"
   ],
   "source": {
-    "repository": "local-lab://chatgpt/skill-wave4"
-  }
+    "repository": "local-lab://chatgpt/skill-wave4",
+    "commit": "local-verified-2026-09-29-wave4"
+  },
+  "verifiedAt": "2026-09-29T19:09:00+09:00"
 }

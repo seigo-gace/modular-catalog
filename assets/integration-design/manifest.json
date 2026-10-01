@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "algorithm": "sha256",
-  "assetHash": "f998d08fa8d1c98fbf7a963faa83ec1fb8479f4c77345fe0d84f4c61d3b14cbb",
+  "assetHash": "a2fc1200d7548a02d98a7d38ca2e65cebe48fdf56b1d2c16cded586259918562",
   "files": [
     {"path":"README.md","size":132,"sha256":"ece28800c279a3839216af4f67fb2022d855f013d15334fa7788848db4925e90"},
     {"path":"architecture.md","size":122,"sha256":"8376a3eb11242fd5f75bc77714ee4a32706e37f2f67d2e596ddc836f2b2e6bca"},
     {"path":"design.md","size":218,"sha256":"ce3a3c4f9e3d0706a522637c51947eb20ffe9242cf004e555f9d587b959f4dd5"},
-    {"path":"evidence.json","size":217,"sha256":"f7e806cc0bcdae87c56602dc41bf4472f89470092397a34a5da0f6a9f7b253ff"},
+    {"path":"evidence.json","size":397,"sha256":"5745b2b0158d03487391cac645b0e3250792930c59786edbd57efcb0a2f5eddc"},
     {"path":"logic.md","size":140,"sha256":"a22b1ff24c9ba5545e5ec337a953a3ac6a735c357629676a29c27426d18bd4cd"},
-    {"path":"meta.json","size":559,"sha256":"ac348c9ed1312bd379cf0a2c0d3bb1657f93ce7866bfd02c883f6e73b93b14b6"},
+    {"path":"meta.json","size":990,"sha256":"37e8eb751bced419969896b6794ed3e030d00cd7e9c4ef2184cea7a2761d6975"},
     {"path":"source/index.js","size":527,"sha256":"f9588e8f5f6c6bdbb45ae0b1a31877c4402e0d0f9355f948f031af613047dc07"},
     {"path":"tests/normal/integration-design.test.cjs","size":374,"sha256":"176c69f4a977234370f4d4176fe41ecb3c20b0154630b40c37b13cf907772768"},
     {"path":"tests/user/integration-design.test.cjs","size":268,"sha256":"81e2cc119cde522fa984d4203f8928753fac5ec96d6a8011a4d9e7c93c7ca7df"}

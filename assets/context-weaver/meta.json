@@ -7,7 +7,7 @@
   "purpose": "Context Weaver",
   "responsibility": "Context Weaver",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

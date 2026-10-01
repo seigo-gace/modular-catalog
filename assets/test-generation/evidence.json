@@ -1,10 +1,4 @@
 {
-  "normal": {
-    "passed": true,
-    "command": "node --test tests/normal/test-generation.test.cjs"
-  },
-  "user": {
-    "passed": true,
-    "command": "node --test tests/user/test-generation.test.cjs"
-  }
+  "normal":{"passed":true,"commands":["node --test tests/normal/test-generation.test.cjs"],"expectedResults":["Recorded test result: passed=true."]},
+  "user":{"passed":true,"commands":["node --test tests/user/test-generation.test.cjs"],"expectedResults":["Recorded test result: passed=true."]}
 }

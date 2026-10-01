@@ -7,7 +7,7 @@
   "purpose": "Integrate worker results while preserving claim/source trace and conflicts instead of flattening them.",
   "responsibility": "Integrate worker results while preserving claim/source trace and conflicts instead of flattening them.",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

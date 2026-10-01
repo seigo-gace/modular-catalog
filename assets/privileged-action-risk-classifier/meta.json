@@ -7,7 +7,7 @@
   "purpose": "Classify privileged action risk using explicit policy flags, without granting execution authority.",
   "responsibility": "Classify privileged action risk using explicit policy flags, without granting execution authority.",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"

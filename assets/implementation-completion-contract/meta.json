@@ -1,27 +1,11 @@
 {
-  "schemaVersion": 1,
-  "id": "implementation-completion-contract",
-  "name": "Implementation Completion Contract",
-  "version": "0.1.0",
-  "summary": "必要Source/Test/Runtime/Provider evidenceの未実行をPASSへ昇格させない完成判定Contract。",
-  "layers": [
-    "Component"
-  ],
-  "languages": [
-    "JavaScript"
-  ],
-  "runtimes": [
-    "Node.js 22+"
-  ],
-  "tags": [
-    "g-ace",
-    "skill",
-    "implementation-completion-contract"
-  ],
-  "dependencies": [],
-  "constraints": [
-    "pure deterministic",
-    "fail-closed where required",
-    "no external mutation authority"
-  ]
+  "schemaVersion":1,"id":"implementation-completion-contract","name":"Implementation Completion Contract","version":"0.1.0",
+  "summary":"必要Source/Test/Runtime/Provider evidenceの未実行をPASSへ昇格させない完成判定Contract。",
+  "purpose":"必要Source/Test/Runtime/Provider evidenceの未実行をPASSへ昇格させない完成判定Contract。",
+  "responsibility":"必要Source/Test/Runtime/Provider evidenceの未実行をPASSへ昇格させない完成判定Contract。",
+  "layers":["Component"],"languages":["JavaScript"],"runtimes":["Node.js 22+"],
+  "tags":["g-ace","skill","implementation-completion-contract"],"dependencies":[],
+  "constraints":["pure deterministic","fail-closed where required","no external mutation authority"],
+  "source":{"repository":"local-lab://chatgpt/individual-skill-modules","commit":"local-verified-2026-09-29"},
+  "verifiedAt":"2026-09-29T23:39:00+09:00"
 }

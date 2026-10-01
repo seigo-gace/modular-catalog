@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "algorithm": "sha256",
-  "assetHash": "5c29c114e79e2a89cdd756659a76f0a9e6735f04298afa3d2d862ffb9c627f97",
+  "assetHash": "52fa4aef644ea9b20b490724627da0160de1596931f40bce98467656b8eaf295",
   "files": [
     {
       "path": "README.md",
@@ -25,13 +25,13 @@
     },
     {
       "path": "evidence.json",
-      "size": 197,
-      "sha256": "de03fbf8ec4ac20a5438168ab4466245af8028aef64559f53a9b46e4e6cfb0d5"
+      "size": 377,
+      "sha256": "3768876d6f621951b738c0ac3349ca2a22570b8176295f6c45e34658d7e65e48"
     },
     {
       "path": "meta.json",
-      "size": 791,
-      "sha256": "1208dc6dfdeca645009a5317b75735eec146fdd3d7e6bf861ccc54f13e87fd83"
+      "size": 790,
+      "sha256": "2731b81aef3c2650334fceab0a2cb81985cb2847ff89d46f7cfb8b15e28e4c18"
     },
     {
       "path": "source/index.js",

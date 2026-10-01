@@ -7,7 +7,7 @@
   "purpose": "Evaluate candidate architecture against required capabilities and forbidden traits.",
   "responsibility": "Evaluate candidate architecture against required capabilities and forbidden traits.",
   "layers": [
-    "Skill"
+    "Part"
   ],
   "languages": [
     "JavaScript"
