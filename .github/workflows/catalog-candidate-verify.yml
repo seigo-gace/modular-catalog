@@ -32,12 +32,11 @@ jobs:
           for file in "${files[@]}"; do
             asset="${file%%/tests/normal/*}"
             echo "[NORMAL] $file"
-            printf '%s\n' '{"type":"commonjs"}' > "$asset/package.json"
-            cleanup() { rm -f "$asset/package.json"; }
-            trap cleanup RETURN
-            node --test "$file"
-            cleanup
-            trap - RETURN
+            (
+              trap 'rm -f "$asset/package.json"' EXIT
+              printf '%s\n' '{"type":"commonjs"}' > "$asset/package.json"
+              node --test "$file"
+            )
           done
 
       - name: Execute all asset user tests with CommonJS asset boundary
@@ -49,13 +48,39 @@ jobs:
           for file in "${files[@]}"; do
             asset="${file%%/tests/user/*}"
             echo "[USER] $file"
-            printf '%s\n' '{"type":"commonjs"}' > "$asset/package.json"
-            cleanup() { rm -f "$asset/package.json"; }
-            trap cleanup RETURN
-            node --test "$file"
-            cleanup
-            trap - RETURN
+            (
+              trap 'rm -f "$asset/package.json"' EXIT
+              printf '%s\n' '{"type":"commonjs"}' > "$asset/package.json"
+              node --test "$file"
+            )
           done
+
+      - name: Regenerate every asset manifest from actual bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module - <<'NODE'
+          import fs from 'node:fs/promises';
+          import path from 'node:path';
+          import { createManifest } from './src/catalog.js';
+
+          const entries = (await fs.readdir('assets', { withFileTypes: true }))
+            .filter((entry) => entry.isDirectory() && !entry.name.startsWith('.'))
+            .sort((a, b) => a.name.localeCompare(b.name));
+
+          if (entries.length !== 80) throw new Error(`asset directories=${entries.length}, expected 80`);
+
+          for (const entry of entries) {
+            const dir = path.join('assets', entry.name);
+            const manifest = await createManifest(dir);
+            await fs.writeFile(
+              path.join(dir, 'manifest.json'),
+              JSON.stringify(manifest, null, 2) + '\n',
+              'utf8'
+            );
+          }
+          console.log(`MANIFEST_REGENERATED=${entries.length}`);
+          NODE
 
       - name: Rebuild catalog index
         run: npm run index
@@ -74,16 +99,16 @@ jobs:
           console.log(`CATALOG_80_PASS entries=${index.entries.length}`);
           NODE
 
-      - name: Commit generated verified index to temporary verification branch
+      - name: Commit generated manifests and verified index to temporary verification branch
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add catalog/index.json
+          git add assets/*/manifest.json catalog/index.json
           if git diff --cached --quiet; then
-            echo "INDEX_CHANGE=NONE"
+            echo "CATALOG_GENERATED_CHANGE=NONE"
             exit 0
           fi
-          git commit -m "chore: materialize verified catalog index [skip ci]"
+          git commit -m "chore: materialize verified catalog manifests and index [skip ci]"
           git push origin HEAD:verify/catalog-migration-20261001
