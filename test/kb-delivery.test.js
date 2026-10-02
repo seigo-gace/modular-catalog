@@ -6,6 +6,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { sha256 } from '../src/catalog.js';
 import { exportReusableAssets } from '../src/reusable-asset-export.js';
+import { prepareKbOutbox } from '../src/kb-outbox.js';
 import { preflightDelivery, publishDelivery, verifyKbActive } from '../src/kb-delivery.js';
 
 const root = process.cwd();
@@ -130,6 +131,48 @@ test('preflights and atomically publishes exactly one complete full snapshot', a
     await fs.rm(work, { recursive: true, force: true });
     await fs.rm(kbRoot, { recursive: true, force: true });
   }
+});
+
+test('seals one complete full snapshot into a revision-named KB outbox idempotently', async () => {
+  const outbox = await fs.mkdtemp(path.join(os.tmpdir(), 'modulecatalog-outbox-'));
+  try {
+    const first = await prepareKbOutbox(root, outbox);
+    assert.equal(first.status, 'SEALED');
+    assert.equal(first.idempotent, false);
+    assert.equal(first.summary.catalogCommit, COMMIT_A);
+    assert.equal(first.summary.assetCount, 80);
+    assert.equal(path.basename(first.outboxPath), COMMIT_A);
+    assert.equal(await fs.stat(path.join(first.outboxPath, 'manifest.json')).then(() => true), true);
+
+    const second = await prepareKbOutbox(root, outbox);
+    assert.equal(second.status, 'SEALED');
+    assert.equal(second.idempotent, true);
+    assert.equal(second.summary.manifestSha256, first.summary.manifestSha256);
+    assert.deepEqual((await fs.readdir(outbox)).filter((name) => !name.startsWith('.')), [COMMIT_A]);
+
+    const manifestFile = path.join(first.outboxPath, 'manifest.json');
+    const changed = JSON.parse(await fs.readFile(manifestFile, 'utf8'));
+    changed.transport_test_conflict = true;
+    await writeJson(manifestFile, changed);
+    await assert.rejects(
+      () => prepareKbOutbox(root, outbox),
+      (error) => error?.code === 'KB_OUTBOX_IDENTITY_CONFLICT'
+    );
+  } finally {
+    await fs.rm(outbox, { recursive: true, force: true });
+  }
+});
+
+test('Windows pull transport reuses the existing KB inbox processor and does not open a PC inbound service', async () => {
+  const script = await fs.readFile(path.join(root, 'scripts', 'pull-modulecatalog-kb-delivery-windows.ps1'), 'utf8');
+  assert.match(script, /scp\.exe/);
+  assert.match(script, /process-modulecatalog-inbox-windows\.ps1/);
+  assert.match(script, /check-modulecatalog-kb-runtime-windows\.ps1/);
+  assert.match(script, /-Deep/);
+  assert.match(script, /BatchMode=yes/);
+  assert.match(script, /Move-Item -Path \$localDelivery -Destination \$FinalReady/);
+  assert.doesNotMatch(script, /New-NetFirewallRule|Set-NetFirewallRule|New-SmbShare|Enable-WindowsOptionalFeature|Start-Service\s+sshd|Set-Service\s+sshd/i);
+  assert.doesNotMatch(script, /receive-modulecatalog-kbdata-windows\.ps1/);
 });
 
 test('does not queue another activation candidate while KB processing is occupied', async () => {
