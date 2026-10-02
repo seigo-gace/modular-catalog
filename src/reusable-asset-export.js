@@ -18,6 +18,21 @@ function canonicalJson(value) {
 
 async function exists(target) { try { await fs.access(target); return true; } catch { return false; } }
 
+function assertCatalogWorktreeClean(rootDir) {
+  let status;
+  try {
+    status = execFileSync('git', ['status', '--porcelain=v1', '--untracked-files=all'], { cwd: rootDir, encoding: 'utf8' });
+  } catch {
+    throw new CatalogError('Catalog working tree status could not be resolved.', 'CATALOG_WORKTREE_STATUS_UNAVAILABLE');
+  }
+  const entries = status.split(/\r?\n/).map((line) => line.trimEnd()).filter(Boolean);
+  if (entries.length) {
+    const error = new CatalogError('Catalog working tree must be clean before a revision-bound export.', 'CATALOG_WORKTREE_DIRTY');
+    error.details = { entries: entries.slice(0, 20), truncated: entries.length > 20 };
+    throw error;
+  }
+}
+
 function getCatalogCommit(rootDir, explicitCommit) {
   let head;
   try {
@@ -33,6 +48,7 @@ function getCatalogCommit(rootDir, explicitCommit) {
       throw new CatalogError(`Requested Catalog commit ${requested} does not match checked-out HEAD ${head}.`, 'CATALOG_REVISION_MISMATCH');
     }
   }
+  assertCatalogWorktreeClean(rootDir);
   return head;
 }
 
