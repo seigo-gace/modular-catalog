@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { CatalogError } from './catalog.js';
+import { buildAdmissionTicket } from './chat-control-plane.js';
 import { prepareKbOutbox } from './kb-outbox.js';
 
 const TICKET_SCHEMA = 'modulecatalog.kb-admission-ticket.v1';
@@ -21,6 +22,12 @@ function requiredString(value, field) {
   const normalized = String(value ?? '').trim();
   if (!normalized) fail(`Admission ticket ${field} is required.`, 'RUNTIME_ADMISSION_TICKET_INVALID');
   return normalized;
+}
+
+function canonicalJson(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
+  if (value && typeof value === 'object') return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(',')}}`;
+  return JSON.stringify(value);
 }
 
 export function validateRuntimeAdmissionTicket(input) {
@@ -55,6 +62,21 @@ export function validateRuntimeAdmissionTicket(input) {
   });
 }
 
+export function validateRuntimeAdmissionBundle({ ticket: ticketInput, review, result }) {
+  const ticket = validateRuntimeAdmissionTicket(ticketInput);
+  let rebuilt;
+  try {
+    rebuilt = buildAdmissionTicket(review, result, { queuedAt: review?.reviewed_at });
+  } catch (error) {
+    fail('Runtime admission bundle failed the source machine/GPT admission gates.', 'RUNTIME_ADMISSION_CONTROL_EVIDENCE_INVALID', { cause: error?.code ?? error?.message ?? String(error) });
+  }
+  if (!rebuilt) fail('Runtime admission bundle does not rebuild to an approved ticket.', 'RUNTIME_ADMISSION_CONTROL_EVIDENCE_INVALID');
+  if (canonicalJson(rebuilt) !== canonicalJson(ticket)) {
+    fail('Runtime admission ticket does not match the ticket rebuilt from Factory result and GPT review.', 'RUNTIME_ADMISSION_TICKET_REBUILD_MISMATCH');
+  }
+  return ticket;
+}
+
 function currentGitState(rootDir) {
   let head;
   let status;
@@ -67,9 +89,9 @@ function currentGitState(rootDir) {
   return { head, dirty: status.split(/\r?\n/).filter(Boolean) };
 }
 
-export async function executeRuntimeAdmission(rootDir, ticketInput) {
+export async function executeRuntimeAdmission(rootDir, bundleInput) {
   const root = path.resolve(rootDir);
-  const ticket = validateRuntimeAdmissionTicket(ticketInput);
+  const ticket = validateRuntimeAdmissionBundle(bundleInput);
   const git = currentGitState(root);
   if (git.head !== ticket.catalog_commit) {
     fail('Runtime checkout does not match the approved Catalog commit.', 'RUNTIME_ADMISSION_COMMIT_MISMATCH', { expected: ticket.catalog_commit, actual: git.head });
@@ -98,12 +120,18 @@ export async function executeRuntimeAdmission(rootDir, ticketInput) {
   });
 }
 
-export async function executeRuntimeAdmissionFile(rootDir, ticketFile) {
-  let parsed;
+async function readJson(file, label) {
   try {
-    parsed = JSON.parse(await fs.readFile(path.resolve(ticketFile), 'utf8'));
+    return JSON.parse(await fs.readFile(path.resolve(file), 'utf8'));
   } catch (error) {
-    fail('Admission ticket file could not be read as JSON.', 'RUNTIME_ADMISSION_TICKET_FILE_INVALID', { cause: error?.message ?? String(error) });
+    fail(`${label} could not be read as JSON.`, 'RUNTIME_ADMISSION_CONTROL_FILE_INVALID', { cause: error?.message ?? String(error) });
   }
-  return executeRuntimeAdmission(rootDir, parsed);
+}
+
+export async function executeRuntimeAdmissionFiles(rootDir, { ticketFile, reviewFile, resultFile }) {
+  return executeRuntimeAdmission(rootDir, {
+    ticket: await readJson(ticketFile, 'Admission ticket file'),
+    review: await readJson(reviewFile, 'GPT review file'),
+    result: await readJson(resultFile, 'Factory result file')
+  });
 }
