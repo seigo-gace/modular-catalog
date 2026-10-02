@@ -5,6 +5,8 @@ import process from 'node:process';
 import { preflightDelivery } from '../src/kb-delivery.js';
 import { validateFactoryRequest } from '../src/chat-control-plane.js';
 
+const MODULE_LAYERS = new Set(['Part', 'Feature', 'Component', 'System', 'Application System']);
+
 function parseArgs(argv) {
   const flags = {};
   for (let i = 0; i < argv.length; i += 1) {
@@ -22,7 +24,7 @@ async function readJson(file) {
 }
 
 const flags = parseArgs(process.argv.slice(2));
-for (const key of ['request', 'source-root', 'snapshot', 'output']) {
+for (const key of ['request', 'source-root', 'snapshot', 'portable-reuse', 'output']) {
   if (!flags[key]) throw new Error(`Missing --${key}`);
 }
 
@@ -30,6 +32,7 @@ const request = validateFactoryRequest(await readJson(flags.request));
 const sourceRoot = path.resolve(flags['source-root']);
 const snapshot = path.resolve(flags.snapshot);
 const output = path.resolve(flags.output);
+const portableReuse = await readJson(path.resolve(flags['portable-reuse']));
 const preflight = await preflightDelivery(sourceRoot, snapshot);
 
 if (preflight.catalogCommit !== request.catalog_commit) {
@@ -37,11 +40,22 @@ if (preflight.catalogCommit !== request.catalog_commit) {
   error.code = 'CHAT_FACTORY_RESULT_COMMIT_MISMATCH';
   throw error;
 }
+if (portableReuse.schema_version !== 'modulecatalog.portable-reuse-smoke.v1' || portableReuse.status !== 'PASS') {
+  const error = new Error('Portable reuse report is not PASS.');
+  error.code = 'CHAT_FACTORY_PORTABLE_REUSE_INVALID';
+  throw error;
+}
+if (portableReuse.asset_count !== preflight.assetCount || portableReuse.passed_asset_count !== preflight.assetCount) {
+  const error = new Error('Portable reuse asset count does not match the Factory snapshot.');
+  error.code = 'CHAT_FACTORY_PORTABLE_REUSE_COUNT_MISMATCH';
+  throw error;
+}
 
 let contractUnknownCount = 0;
 let applicabilityEmptyCount = 0;
 let knownUnverifiedCount = 0;
 const layerValues = new Set();
+const invalidLayerValues = new Set();
 
 for (const item of preflight.manifest.assets) {
   const asset = await readJson(path.join(snapshot, 'assets', item.id, 'asset.json'));
@@ -51,7 +65,10 @@ for (const item of preflight.manifest.assets) {
   if (applicabilityFields.every((field) => Array.isArray(applicability[field]) && applicability[field].length === 0)) applicabilityEmptyCount += 1;
   knownUnverifiedCount += Array.isArray(asset.verification?.known_unverified) ? asset.verification.known_unverified.length : 0;
   for (const layer of Array.isArray(asset.classification?.layers) ? asset.classification.layers : []) {
-    if (String(layer).trim()) layerValues.add(String(layer).trim());
+    const normalized = String(layer).trim();
+    if (!normalized) continue;
+    layerValues.add(normalized);
+    if (!MODULE_LAYERS.has(normalized)) invalidLayerValues.add(normalized);
   }
 }
 
@@ -70,7 +87,13 @@ const result = {
   applicability_empty_count: applicabilityEmptyCount,
   known_unverified_count: knownUnverifiedCount,
   layer_values: [...layerValues].sort(),
+  invalid_layer_values: [...invalidLayerValues].sort(),
+  module_architecture_layer_gate_pass: invalidLayerValues.size === 0 && layerValues.size > 0,
   architecture_review_required: true,
+  portable_reuse_smoke_proven: true,
+  portable_reuse_asset_count: portableReuse.passed_asset_count,
+  portable_reuse_command_count: portableReuse.command_count,
+  portable_reuse_boundary: portableReuse.boundary,
   real_cross_project_reuse_proven: false,
   factory_status: 'FACTORY_READY_FOR_GPT_REVIEW'
 };
