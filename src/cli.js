@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import path from 'node:path';
 import process from 'node:process';
 import {
   CatalogError,
@@ -9,6 +10,7 @@ import {
   validateAssetDirectory,
   verifyIndex
 } from './catalog.js';
+import { preflightDelivery, publishDelivery, verifyKbActive } from './kb-delivery.js';
 import { exportReusableAssets } from './reusable-asset-export.js';
 
 function parseArgs(argv) {
@@ -29,13 +31,24 @@ function parseArgs(argv) {
 }
 
 function help() {
-  console.log(`ModuleCatalog CLI\n\nCommands:\n  search --query <text> [--language <name>] [--runtime <name>] [--layer <layer>] [--tag <tag>] [--limit <n>] [--json]\n  show <asset-id> [--section meta|design|logic|architecture|evidence|manifest|code|tests|all] [--json]\n  validate [asset-id|path]\n  register <candidate-directory>\n  build-index\n  verify-index\n  export-reusable-assets [asset-id] --output <directory> [--catalog-commit <sha>] [--json]\n\nGlobal:\n  --root <catalog-root>   Default: current directory`);
+  console.log(`ModuleCatalog CLI\n\nCommands:\n  search --query <text> [--language <name>] [--runtime <name>] [--layer <layer>] [--tag <tag>] [--limit <n>] [--json]\n  show <asset-id> [--section meta|design|logic|architecture|evidence|manifest|code|tests|all] [--json]\n  validate [asset-id|path]\n  register <candidate-directory>\n  build-index\n  verify-index\n  export-reusable-assets [asset-id] --output <directory> [--catalog-commit <sha>] [--json]\n  preflight-kb-delivery <delivery-directory> [--json]\n  publish-kb-delivery <delivery-directory> --kb-root <directory> [--json]\n  verify-kb-active <delivery-directory> --kb-root <directory> [--json]\n\nGlobal:\n  --root <catalog-root>   Default: current directory`);
 }
 
 function output(value, json) {
   if (json) console.log(JSON.stringify(value, null, 2));
   else if (typeof value === 'string') console.log(value);
   else console.log(JSON.stringify(value, null, 2));
+}
+
+function requirePositional(positionals, command, label) {
+  if (!positionals[0]) throw new CatalogError(`${command} requires ${label}.`, 'MISSING_ARGUMENT');
+  return positionals[0];
+}
+
+function requireFlag(flags, command, key) {
+  const value = flags[key];
+  if (!value || value === true) throw new CatalogError(`${command} requires --${key} <directory>.`, 'MISSING_ARGUMENT');
+  return value;
 }
 
 async function main() {
@@ -71,8 +84,8 @@ async function main() {
 
   if (command === 'validate') {
     const target = positionals[0];
-    const path = target && !target.includes('/') && !target.includes('\\') ? `${root}/assets/${target}` : (target ?? root);
-    const result = await validateAssetDirectory(path, { verifyManifest: Boolean(target && !target.includes('/') && !target.includes('\\')) });
+    const assetPath = target && !target.includes('/') && !target.includes('\\') ? `${root}/assets/${target}` : (target ?? root);
+    const result = await validateAssetDirectory(assetPath, { verifyManifest: Boolean(target && !target.includes('/') && !target.includes('\\')) });
     output({ valid: true, id: result.meta.id, assetHash: result.manifest.assetHash }, flags.json);
     return;
   }
@@ -95,14 +108,38 @@ async function main() {
   }
 
   if (command === 'export-reusable-assets') {
-    if (!flags.output || flags.output === true) {
-      throw new CatalogError('export-reusable-assets requires --output <directory>.', 'MISSING_ARGUMENT');
-    }
-    const result = await exportReusableAssets(root, flags.output, {
+    const outputDirectory = requireFlag(flags, command, 'output');
+    const result = await exportReusableAssets(root, outputDirectory, {
       assetId: positionals[0] ?? null,
       catalogCommit: typeof flags['catalog-commit'] === 'string' ? flags['catalog-commit'] : null
     });
     output(result, flags.json);
+    return;
+  }
+
+  if (command === 'preflight-kb-delivery') {
+    const delivery = requirePositional(positionals, command, 'a delivery directory');
+    output(await preflightDelivery(root, delivery), flags.json);
+    return;
+  }
+
+  if (command === 'publish-kb-delivery') {
+    const delivery = requirePositional(positionals, command, 'a delivery directory');
+    const kbRoot = requireFlag(flags, command, 'kb-root');
+    const current = await verifyKbActive(root, delivery, kbRoot);
+    if (current.status === 'COMPLETE' || current.status === 'ACCEPTED') {
+      output(current, flags.json);
+      return;
+    }
+    const inboxBase = path.join(kbRoot, 'data', 'knowledge-inbox', 'modulecatalog');
+    output(await publishDelivery(root, delivery, inboxBase), flags.json);
+    return;
+  }
+
+  if (command === 'verify-kb-active') {
+    const delivery = requirePositional(positionals, command, 'a delivery directory');
+    const kbRoot = requireFlag(flags, command, 'kb-root');
+    output(await verifyKbActive(root, delivery, kbRoot), flags.json);
     return;
   }
 
@@ -111,7 +148,7 @@ async function main() {
 
 main().catch((error) => {
   if (error instanceof CatalogError) {
-    console.error(JSON.stringify({ ok: false, code: error.code, error: error.message }));
+    console.error(JSON.stringify({ ok: false, code: error.code, error: error.message, details: error.details ?? null }));
     process.exitCode = 1;
     return;
   }
