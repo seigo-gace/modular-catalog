@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import path from 'node:path';
 import process from 'node:process';
 import {
   CatalogError,
@@ -127,12 +126,11 @@ async function main() {
     const delivery = requirePositional(positionals, command, 'a delivery directory');
     const kbRoot = requireFlag(flags, command, 'kb-root');
     const current = await verifyKbActive(root, delivery, kbRoot);
-    if (current.status === 'COMPLETE' || current.status === 'ACCEPTED') {
+    if (current.status === 'COMPLETE' || current.status === 'ACCEPTED' || current.status === 'PROCESSING' || current.status === 'PUBLISHED') {
       output(current, flags.json);
       return;
     }
-    const inboxBase = path.join(kbRoot, 'data', 'knowledge-inbox', 'modulecatalog');
-    output(await publishDelivery(root, delivery, inboxBase), flags.json);
+    output(await publishDelivery(root, delivery, kbRoot), flags.json);
     return;
   }
 
