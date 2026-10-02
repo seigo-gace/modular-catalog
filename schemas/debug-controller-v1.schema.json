@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gace:modulecatalog:debug-controller:v1",
+  "title": "ModuleCatalog Debug Controller v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "action",
+    "reason_codes",
+    "request",
+    "repo",
+    "paths",
+    "change_scope",
+    "task",
+    "evidence_refs"
+  ],
+  "properties": {
+    "schema_version": { "const": "modulecatalog.debug-controller.v1" },
+    "action": { "enum": ["SKIP", "ANALYZE", "VERIFY"] },
+    "reason_codes": {
+      "type": "array",
+      "maxItems": 16,
+      "items": { "type": "string", "minLength": 1, "maxLength": 80 },
+      "uniqueItems": true
+    },
+    "request": { "type": ["string", "null"], "maxLength": 4000 },
+    "repo": { "type": "string", "minLength": 1, "maxLength": 1024 },
+    "paths": {
+      "type": "array",
+      "maxItems": 100,
+      "items": { "type": "string", "minLength": 1, "maxLength": 1024 },
+      "uniqueItems": true
+    },
+    "change_scope": {
+      "type": "array",
+      "maxItems": 100,
+      "items": { "type": "string", "minLength": 1, "maxLength": 1024 },
+      "uniqueItems": true
+    },
+    "task": { "type": ["string", "null"], "maxLength": 2000 },
+    "evidence_refs": {
+      "type": "array",
+      "maxItems": 100,
+      "items": { "type": "string", "minLength": 1, "maxLength": 1024 },
+      "uniqueItems": true
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": { "properties": { "action": { "const": "ANALYZE" } }, "required": ["action"] },
+      "then": { "properties": { "request": { "type": "string", "minLength": 1 } } }
+    },
+    {
+      "if": { "properties": { "action": { "const": "SKIP" } }, "required": ["action"] },
+      "then": {
+        "properties": {
+          "request": { "type": "null" },
+          "task": { "type": "null" },
+          "paths": { "maxItems": 0 },
+          "change_scope": { "maxItems": 0 }
+        }
+      }
+    }
+  ]
+}
