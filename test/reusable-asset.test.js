@@ -33,6 +33,7 @@ test('exports the full current catalog as reusable asset bundles without inventi
     let totalCases = 0;
     let knownContractCount = 0;
     let nonEmptyApplicabilityCount = 0;
+    let interfaceDerivedApplicabilityCount = 0;
 
     for (const item of result.assets) {
       const dir = path.join(output, 'assets', item.id);
@@ -49,7 +50,17 @@ test('exports the full current catalog as reusable asset bundles without inventi
       assert.equal(asset.classification.layers.length > 0, true);
       assert.equal(asset.classification.layers.every((layer) => VALID_LAYERS.has(layer)), true);
       assert.equal(asset.applicability.use_when.length, 1);
-      assert.equal(asset.applicability.use_when[0], asset.discovery.purpose);
+      const applicabilityDerivation = asset.derivation.derived_fields.find((entry) => entry.field === 'applicability.use_when');
+      assert.ok(applicabilityDerivation);
+      if (applicabilityDerivation.source === 'meta.purpose') {
+        assert.equal(asset.applicability.use_when[0], asset.discovery.purpose);
+      } else {
+        assert.equal(applicabilityDerivation.source.includes('meta.purpose is generic'), true);
+        assert.equal(asset.applicability.use_when[0].startsWith('Use when the required call contract matches '), true);
+        assert.equal(asset.contract.inputs.length > 0, true);
+        assert.equal(asset.contract.outputs.length > 0, true);
+        interfaceDerivedApplicabilityCount += 1;
+      }
       if (asset.contract.status === 'known') knownContractCount += 1;
       if (['use_when', 'do_not_use_when', 'preconditions', 'required_context', 'failure_conditions'].some((field) => asset.applicability[field].length > 0)) nonEmptyApplicabilityCount += 1;
       assert.equal(bundleManifest.source_asset_hash, item.assetHash);
@@ -67,7 +78,8 @@ test('exports the full current catalog as reusable asset bundles without inventi
     assert.equal(totalKnowledgeUnits, 720);
     assert.equal(totalCases, 160);
     assert.equal(nonEmptyApplicabilityCount, 80);
-    assert.equal(knownContractCount > 0, true);
+    assert.equal(knownContractCount, 80);
+    assert.equal(interfaceDerivedApplicabilityCount > 0, true);
 
     const approvalAsset = JSON.parse(await fs.readFile(path.join(output, 'assets', 'approval-route-resolver', 'asset.json'), 'utf8'));
     assert.equal(approvalAsset.identity.symbol, 'run');
@@ -90,6 +102,12 @@ test('exports the full current catalog as reusable asset bundles without inventi
     assert.equal(approvalAsset.derivation.derived_fields.some((entry) => entry.field === 'contract.status' && entry.type === 'deterministic-derived'), true);
     assert.equal(approvalAsset.derivation.derived_fields.some((entry) => entry.field === 'applicability.use_when' && entry.source === 'meta.purpose'), true);
     assert.equal(approvalAsset.derivation.derived_fields.some((entry) => entry.field === 'discovery.capabilities'), false);
+
+    const claimAsset = JSON.parse(await fs.readFile(path.join(output, 'assets', 'claim-extractor', 'asset.json'), 'utf8'));
+    assert.equal(claimAsset.discovery.purpose, 'Claim Extractor');
+    assert.equal(claimAsset.applicability.use_when[0].startsWith('Use when the required call contract matches run({items})'), true);
+    assert.equal(claimAsset.applicability.use_when[0].includes('Claim Extractor reusable minimal skill'), false);
+    assert.equal(claimAsset.derivation.derived_fields.some((entry) => entry.field === 'applicability.use_when' && entry.source.includes('meta.purpose is generic')), true);
 
     const topManifest = JSON.parse(await fs.readFile(path.join(output, 'manifest.json'), 'utf8'));
     assert.equal(topManifest.assetCount, 80);
