@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { exportReusableAssets } from '../src/reusable-asset-export.js';
+import { assertReusableAssetSchema, createReusableAssetValidator } from '../src/reusable-asset-schema.js';
 
 const root = process.cwd();
 
@@ -75,8 +76,51 @@ test('exports the full current catalog as reusable asset bundles without inventi
     const secondRepeatManifest = await fs.readFile(path.join(repeatOutput, 'manifest.json'), 'utf8');
     assert.deepEqual(secondRepeat, firstRepeat);
     assert.equal(secondRepeatManifest, firstRepeatManifest);
+
+    const validator = await createReusableAssetValidator(root);
+    const validAsset = JSON.parse(await fs.readFile(path.join(output, 'assets', repeatAssetId, 'asset.json'), 'utf8'));
+    assert.equal(validator.validate(validAsset).valid, true);
+    const invalidAsset = structuredClone(validAsset);
+    invalidAsset.identity.asset_id = '';
+    assert.throws(
+      () => assertReusableAssetSchema(validator, invalidAsset, repeatAssetId),
+      (error) => error?.code === 'REUSABLE_ASSET_SCHEMA_INVALID'
+    );
   } finally {
     await fs.rm(output, { recursive: true, force: true });
     await fs.rm(repeatOutput, { recursive: true, force: true });
+  }
+});
+
+test('export-reusable-assets CLI is wired and requires an explicit output directory', async () => {
+  const output = await fs.mkdtemp(path.join(os.tmpdir(), 'modular-catalog-cli-'));
+  try {
+    const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+    const cli = spawnSync(process.execPath, [
+      'src/cli.js',
+      'export-reusable-assets',
+      'approval-route-resolver',
+      '--output', output,
+      '--catalog-commit', commit,
+      '--json'
+    ], { cwd: root, encoding: 'utf8' });
+    assert.equal(cli.status, 0, cli.stderr);
+    const result = JSON.parse(cli.stdout);
+    assert.equal(result.assetCount, 1);
+    assert.equal(result.assets[0].id, 'approval-route-resolver');
+    assert.equal(result.catalog.commit, commit);
+    assert.equal(await fs.stat(path.join(output, 'manifest.json')).then(() => true), true);
+
+    const missingOutput = spawnSync(process.execPath, [
+      'src/cli.js',
+      'export-reusable-assets',
+      'approval-route-resolver',
+      '--catalog-commit', commit
+    ], { cwd: root, encoding: 'utf8' });
+    assert.equal(missingOutput.status, 1);
+    const error = JSON.parse(missingOutput.stderr.trim());
+    assert.equal(error.code, 'MISSING_ARGUMENT');
+  } finally {
+    await fs.rm(output, { recursive: true, force: true });
   }
 });
