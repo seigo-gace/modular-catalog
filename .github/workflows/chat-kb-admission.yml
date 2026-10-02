@@ -37,13 +37,27 @@ jobs:
           export REVIEW_FILE="${files[0]}"
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
+          import { validateFactoryResult } from './src/chat-control-plane.js';
           const review = JSON.parse(fs.readFileSync(process.env.REVIEW_FILE, 'utf8'));
           const requestId = String(review.request_id ?? '').trim();
           if (!/^[A-Za-z0-9][A-Za-z0-9._-]{7,127}$/.test(requestId)) throw new Error('Invalid review request_id.');
           const resultFile = `.gace-control/results/${requestId}.json`;
           if (!fs.existsSync(resultFile)) throw new Error(`Factory result missing: ${resultFile}`);
-          fs.appendFileSync(process.env.GITHUB_OUTPUT, `review_file=${process.env.REVIEW_FILE}\nrequest_id=${requestId}\nresult_file=${resultFile}\n`);
+          const result = validateFactoryResult(JSON.parse(fs.readFileSync(resultFile, 'utf8')));
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `review_file=${process.env.REVIEW_FILE}\nrequest_id=${requestId}\nresult_file=${resultFile}\ncatalog_commit=${result.catalog_commit}\n`);
           NODE
+
+      - name: Require reviewed result to equal current finalization HEAD
+        shell: bash
+        run: |
+          current="$(git ls-remote --exit-code origin refs/heads/feat/reusable-knowledge-factory-v1-20261002 | awk '{print $1}')"
+          test "$current" =~ ^[0-9a-f]{40}$
+          reviewed='${{ steps.review.outputs.catalog_commit }}'
+          if [ "$reviewed" != "$current" ]; then
+            echo "CHAT_KB_ADMISSION_STALE_COMMIT reviewed=$reviewed current=$current" >&2
+            exit 1
+          fi
+          echo "CHAT_KB_ADMISSION_CURRENT_HEAD=PASS COMMIT=$current"
 
       - name: Evaluate exact GPT decision
         id: admission
