@@ -17,25 +17,54 @@ The Factory v1 design is the current implementation baseline on the factory feat
 
 ## Fixed boundaries
 
-Factory input:
+Factory evidence inputs are kept separate:
 
 ```text
-Git repository
+pinned Git repository / exact revision
 +
 TGserver logs through TGserver HTTP API
 ```
 
-Optional existing capabilities are consumed through their established boundaries only:
+Implemented optional adapters use established boundaries only:
 
 ```text
-AI Core Router API -> Granite Debug Controller
-DebugAI MCP        -> analyze / verify
-Astera APIs        -> Evidence Search / Quality Completion evaluation
+AI Core Router API -> Granite Debug Controller -> SKIP / ANALYZE / VERIFY
+DebugAI MCP        -> analyze / verify only
+Astera QCE API     -> POST /v1/evaluate with X-API-Key
 ```
 
-ModuleCatalog does not modify AI Core, DebugAI, Astera v8, TGserver, or the KB runtime.
+Direct Astera Evidence Search is **not currently connected from ModuleCatalog**. The current Evidence Search transport is an Astera-internal route that authenticates the caller as `service=astera-main`; there is no sanctioned ModuleCatalog caller identity in that contract. ModuleCatalog therefore reports `ASTERA_EVIDENCE_CONTRACT_NOT_AVAILABLE` instead of impersonating `astera-main` or guessing another route.
 
-Factory responsibility covers generation of immediately consumable KB data, atomic transport through the agreed inbox boundary, and producer-side verification of the matching KB `ACTIVE` receipt/current authority. KB-side BM25 / Vector / Knowledge Graph / MCP/search runtime and continuing health checks remain outside ModuleCatalog.
+ModuleCatalog does not modify AI Core, DebugAI, Astera v8, TGserver, source repositories, or the KB runtime.
+
+Factory responsibility covers deterministic extraction, reusable bundle generation, producer-side delivery validation, atomic transport through the agreed KB inbox boundary, and producer-side verification of the matching KB `ACTIVE` receipt/current authority. KB-side BM25 / Vector / Knowledge Graph / MCP/search runtime and continuing health checks remain outside ModuleCatalog.
+
+## Current implemented Factory path
+
+```text
+Catalog Asset / source
+  -> integrity + existing evidence validation
+  -> ast-grep deterministic JS/TS structural extraction
+  -> exact source-derived symbol / signature / return / import-require projection
+  -> Reusable Asset Schema v1 (Ajv Draft 2020-12)
+  -> deterministic bundle + hash/count preflight
+  -> target-local temporary copy
+  -> atomic ready/<catalog-commit> publish
+  -> KB ACCEPTED / ACTIVE / Current readback
+```
+
+The diagnostic/verification coordination path is separately bounded:
+
+```text
+exact repo + revision + optional TGserver observations
+  -> explicit/deterministic failure signals
+  -> Granite Debug Controller when a signal exists
+  -> DebugAI MCP analyze/verify when selected
+  -> optional Astera QCE evaluation when an explicit QCE request is supplied
+  -> INSPECTION_COMPLETE
+```
+
+`INSPECTION_COMPLETE` is not KB `COMPLETE` and does not claim that an arbitrary external repository has already been converted into a canonical Catalog Asset. Generic repository-to-new-Asset construction remains a separate Factory implementation boundary.
 
 ## Five-level Module Architecture
 
@@ -59,6 +88,16 @@ schemas/reusable-asset-v1.schema.json
 
 It preserves Canonical data separately from deterministic/derived data and keeps unavailable information explicit rather than inventing values.
 
+Deterministic structural projection may populate exact source facts such as:
+
+- one unambiguous exported symbol;
+- exported function signatures;
+- exact return expressions;
+- exact import/require sources;
+- source-derived semantic search terms.
+
+It does **not** convert an exported function name into a semantic capability, does not invent `use_when` / `do_not_use_when`, and does not promote partial structural facts into a fully known contract.
+
 Per-asset bundle:
 
 ```text
@@ -79,9 +118,12 @@ node src/cli.js register /path/to/completed-asset
 node src/cli.js build-index
 node src/cli.js verify-index
 node src/cli.js export-reusable-assets --output <directory>
+node src/cli.js preflight-kb-delivery <delivery-directory>
+node src/cli.js publish-kb-delivery <delivery-directory> --kb-root <directory>
+node src/cli.js verify-kb-active <delivery-directory> --kb-root <directory>
 ```
 
-The factory branch verifies and repairs CLI/runtime gaps as implementation proceeds. A command being documented does not by itself prove its implementation or runtime success.
+A command being documented does not by itself prove real Server/PC transport or KB runtime success. Cross-host transport remains unproven until a concrete bridge is configured and verified.
 
 ## Verification
 
@@ -91,11 +133,13 @@ npm run verify
 npm run check
 ```
 
+Current automated regression covers existing Catalog behavior plus Reusable Asset schema/export determinism, KB delivery preflight/idempotency/ACTIVE authority, TGserver adapter boundaries, structural analysis, Granite controller constraints, DebugAI MCP mapping, Astera QCE transport, and Factory inspection orchestration.
+
 Acceptance is based on expected output/state, regression, important failure cases, schema/integrity checks, and runtime/provider readback where relevant. Build or CI success alone is not a production/runtime PASS.
 
 ## Existing assets
 
-The current branch is based on the 80-asset reusable export work from PR #4. Existing Asset identity, Source, tests, Evidence, Manifest, hashes, and provenance remain canonical inputs to Factory v1.
+The current branch is stacked on the 80-asset reusable export work from PR #4. Existing Asset identity, Source, tests, Evidence, Manifest, hashes, and provenance remain canonical inputs to Factory v1.
 
 Generated KB data is not committed as canonical source merely because it was exported. The Catalog remains the reproducible source of truth.
 
