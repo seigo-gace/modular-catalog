@@ -29,7 +29,7 @@ function parseArgs(argv) {
 }
 
 function help() {
-  console.log(`Modular Catalog CLI\n\nCommands:\n  search --query <text> [--language <name>] [--runtime <name>] [--layer <layer>] [--tag <tag>] [--limit <n>] [--json]\n  show <asset-id> [--section meta|design|logic|architecture|evidence|manifest|code|tests|all] [--json]\n  validate [asset-id|path]\n  register <candidate-directory>\n  build-index\n  verify-index\n  export-reusable-assets [asset-id] --output <directory> [--catalog-commit <sha>]\n\nGlobal:\n  --root <catalog-root>   Default: current directory`);
+  console.log(`ModuleCatalog CLI\n\nCommands:\n  search --query <text> [--language <name>] [--runtime <name>] [--layer <layer>] [--tag <tag>] [--limit <n>] [--json]\n  show <asset-id> [--section meta|design|logic|architecture|evidence|manifest|code|tests|all] [--json]\n  validate [asset-id|path]\n  register <candidate-directory>\n  build-index\n  verify-index\n  export-reusable-assets [asset-id] --output <directory> [--catalog-commit <sha>] [--json]\n\nGlobal:\n  --root <catalog-root>   Default: current directory`);
 }
 
 function output(value, json) {
@@ -91,6 +91,18 @@ async function main() {
 
   if (command === 'verify-index') {
     output({ valid: true, ...await verifyIndex(root) }, flags.json);
+    return;
+  }
+
+  if (command === 'export-reusable-assets') {
+    if (!flags.output || flags.output === true) {
+      throw new CatalogError('export-reusable-assets requires --output <directory>.', 'MISSING_ARGUMENT');
+    }
+    const result = await exportReusableAssets(root, flags.output, {
+      assetId: positionals[0] ?? null,
+      catalogCommit: typeof flags['catalog-commit'] === 'string' ? flags['catalog-commit'] : null
+    });
+    output(result, flags.json);
     return;
   }
 
