@@ -1,0 +1,10 @@
+{
+  "schema_version": "modulecatalog.chat-factory-request.v1",
+  "request_id": "req-20261002-control-e2e-001",
+  "repository": "seigo-gace/modular-catalog",
+  "catalog_commit": "b2f8e4612c450249d7b3f5e0405937b1ea9127f0",
+  "scope": "full_snapshot",
+  "review_rule_version": "gpt-final-review-v1",
+  "requested_by": "gpt-chat",
+  "purpose": "Run the first Chat-driven GitHub Factory processing E2E for the exact current ModuleCatalog source snapshot."
+}
