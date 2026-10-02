@@ -48,7 +48,7 @@ jobs:
         shell: bash
         run: |
           current="$(git ls-remote --exit-code origin refs/heads/feat/reusable-knowledge-factory-v1-20261002 | awk '{print $1}')"
-          test "$current" =~ ^[0-9a-f]{40}$
+          [[ "$current" =~ ^[0-9a-f]{40}$ ]]
           requested='${{ steps.request.outputs.catalog_commit }}'
           if [ "$requested" != "$current" ]; then
             echo "CHAT_FACTORY_STALE_COMMIT requested=$requested current=$current" >&2
