@@ -172,3 +172,37 @@ DEEP_HEALTH=PASS
 ```
 
 Anything less remains incomplete and must not be reported as a completed periodic KB admission.
+
+## 10. Five-level Module Architecture interpretation
+
+The five allowed layer values are exactly:
+
+```text
+Part
+Feature
+Component
+System
+Application System
+```
+
+Each Asset must declare at least one valid value and invalid layer names must fail mechanically.
+
+A snapshot is **not** invalid merely because no retained Asset currently occupies one or more of the five layer levels. The Factory must not invent Feature/System/Application-System parent Assets or relationships only to make all five levels appear in a snapshot.
+
+GPT final review evaluates whether the declared layer for each Asset is supported by its recorded responsibility/design and whether recorded dependencies contradict the architecture. Absence of a synthetic full Part -> Feature -> Component -> System -> Application System chain is not by itself a HOLD or REJECT reason.
+
+## 11. Portable reuse smoke boundary
+
+ModuleCatalog may prove an intermediate reuse boundary by copying every registered Asset outside the Catalog working tree and executing that copied Asset's recorded Normal/User Node test commands from the copied Asset root.
+
+A PASS proves that the tested Asset package does not require its original Catalog filesystem location for those recorded behaviors. This evidence is recorded as `portable_reuse_smoke_proven=true`.
+
+It does **not** prove integration into an unrelated real Project. Therefore:
+
+```text
+portable_reuse_smoke_proven=true
+!=
+real_cross_project_reuse_proven=true
+```
+
+The final GPT review must use both facts without promoting the portable smoke result into a stronger cross-project claim.
