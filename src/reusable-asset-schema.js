@@ -25,7 +25,7 @@ export async function createReusableAssetValidator(rootDir) {
   }
 
   try {
-    const ajv = new Ajv2020({ allErrors: true, strict: true });
+    const ajv = new Ajv2020({ allErrors: true, strict: true, allowUnionTypes: true });
     const validate = ajv.compile(schema);
     return Object.freeze({
       schema,
