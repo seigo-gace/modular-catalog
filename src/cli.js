@@ -11,6 +11,7 @@ import {
   verifyIndex
 } from './catalog.js';
 import { preflightDelivery, publishDelivery, verifyKbActive } from './kb-delivery.js';
+import { prepareKbOutbox } from './kb-outbox.js';
 import { exportReusableAssets } from './reusable-asset-export.js';
 import { assessRepositoryAssetCandidate, materializeRepositoryAssetCandidate } from './repository-asset-candidate.js';
 
@@ -32,7 +33,7 @@ function parseArgs(argv) {
 }
 
 function help() {
-  console.log(`ModuleCatalog CLI\n\nCommands:\n  search --query <text> [--language <name>] [--runtime <name>] [--layer <layer>] [--tag <tag>] [--limit <n>] [--json]\n  show <asset-id> [--section meta|design|logic|architecture|evidence|manifest|code|tests|all] [--json]\n  validate [asset-id|path]\n  register <candidate-directory>\n  build-index\n  verify-index\n  repository-candidate --repo <git-directory> --revision <sha> --spec <json-file> [--asset-root <path>] [--output <directory>] [--json]\n  export-reusable-assets [asset-id] --output <directory> [--catalog-commit <sha>] [--json]\n  preflight-kb-delivery <delivery-directory> [--json]\n  publish-kb-delivery <delivery-directory> --kb-root <directory> [--json]\n  verify-kb-active <delivery-directory> --kb-root <directory> [--json]\n\nGlobal:\n  --root <catalog-root>   Default: current directory`);
+  console.log(`ModuleCatalog CLI\n\nCommands:\n  search --query <text> [--language <name>] [--runtime <name>] [--layer <layer>] [--tag <tag>] [--limit <n>] [--json]\n  show <asset-id> [--section meta|design|logic|architecture|evidence|manifest|code|tests|all] [--json]\n  validate [asset-id|path]\n  register <candidate-directory>\n  build-index\n  verify-index\n  repository-candidate --repo <git-directory> --revision <sha> --spec <json-file> [--asset-root <path>] [--output <directory>] [--json]\n  export-reusable-assets [asset-id] --output <directory> [--catalog-commit <sha>] [--json]\n  prepare-kb-outbox --outbox <directory> [--json]\n  preflight-kb-delivery <delivery-directory> [--json]\n  publish-kb-delivery <delivery-directory> --kb-root <directory> [--json]\n  verify-kb-active <delivery-directory> --kb-root <directory> [--json]\n\nGlobal:\n  --root <catalog-root>   Default: current directory`);
 }
 
 function output(value, json) {
@@ -154,6 +155,12 @@ async function main() {
       catalogCommit: typeof flags['catalog-commit'] === 'string' ? flags['catalog-commit'] : null
     });
     output(result, flags.json);
+    return;
+  }
+
+  if (command === 'prepare-kb-outbox') {
+    const outbox = requireFlag(flags, command, 'outbox');
+    output(await prepareKbOutbox(root, outbox), flags.json);
     return;
   }
 
