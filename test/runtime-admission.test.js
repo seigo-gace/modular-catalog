@@ -89,7 +89,7 @@ test('runtime rebuilds the approved ticket from Factory result and GPT review', 
     (error) => error?.code === 'RUNTIME_ADMISSION_TICKET_REBUILD_MISMATCH'
   );
   assert.throws(
-    () => validateRuntimeAdmissionBundle(approvedBundle({ resultOverrides: { contract_unknown_count: 1 } })),
+    () => validateRuntimeAdmissionBundle({ ...bundle, result: { ...bundle.result, contract_unknown_count: 1 } }),
     (error) => error?.code === 'RUNTIME_ADMISSION_CONTROL_EVIDENCE_INVALID'
   );
 });
