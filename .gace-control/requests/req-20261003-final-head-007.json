@@ -1,0 +1,10 @@
+{
+  "schema_version": "modulecatalog.chat-factory-request.v1",
+  "request_id": "req-20261003-final-head-007",
+  "repository": "seigo-gace/modular-catalog",
+  "catalog_commit": "0e52521b7954ce943c7582a2122d8cfe834d41ef",
+  "scope": "full_snapshot",
+  "review_rule_version": "gpt-final-review-v2",
+  "requested_by": "gpt-chat",
+  "purpose": "Generate the fresh final reusable-data snapshot from the current completed ModuleCatalog finalization HEAD after freshness-gate correction. Historical snapshots and failed request 006 are regression evidence only and must not be reused as final data."
+}
