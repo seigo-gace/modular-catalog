@@ -207,6 +207,27 @@ test('rejects declaration provenance that does not match the inspected exact rev
   }
 });
 
+test('rejects mapped Git symlinks before candidate materialization', async () => {
+  const fixture = await makeRepository();
+  try {
+    await fs.symlink('index.js', path.join(fixture.repo, 'module', 'src', 'linked.js'));
+    git(fixture.repo, ['add', '-A']);
+    git(fixture.repo, ['commit', '-m', 'add symlink fixture']);
+    const revision = git(fixture.repo, ['rev-parse', 'HEAD']);
+    await assert.rejects(
+      () => assessRepositoryAssetCandidate({
+        repoPath: fixture.repo,
+        revision,
+        assetRoot: 'module',
+        spec: specFor(revision, { files: { source: ['src/linked.js'] } })
+      }),
+      (error) => error?.code === 'SYMLINK_REJECTED'
+    );
+  } finally {
+    await fs.rm(fixture.repo, { recursive: true, force: true });
+  }
+});
+
 test('refuses to materialize generated candidates inside the ModuleCatalog working tree', async () => {
   const fixture = await makeRepository();
   try {
