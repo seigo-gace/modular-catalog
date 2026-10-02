@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { createAsteraQceClient, asteraEvidenceSearchBoundary } from '../src/astera-qce-client.js';
 import { createTgserverClient } from '../src/tgserver-client.js';
 import { createDebugController, GRANITE_DEBUG_MODEL } from '../src/debug-controller.js';
 import { executeDebugDecision, mapDebugDecisionToMcp } from '../src/debugai-mcp-client.js';
@@ -194,4 +195,54 @@ test('DebugAI MCP adapter maps only ANALYZE/VERIFY and never creates an apply pa
 
   const skipped = await executeDebugDecision({ ...analyze, action: 'SKIP', request: null });
   assert.equal(skipped.status, 'SKIPPED');
+});
+
+test('Astera QCE adapter uses only the sanctioned /v1/evaluate API and preserves evaluator status', async () => {
+  let captured = null;
+  const client = createAsteraQceClient({
+    baseUrl: 'http://127.0.0.1:7374',
+    apiKey: 'test-key',
+    fetchImpl: async (url, options) => {
+      captured = { url, headers: options.headers, body: JSON.parse(options.body) };
+      return jsonResponse({
+        schema_version: 'astera.quality-completion.result.v1',
+        status: 'REVISION_REQUIRED',
+        evaluation_complete: true,
+        scores: { quality: 91, completion: 88 },
+        criteria: {},
+        blocking: [],
+        judgment: { passed: false }
+      });
+    }
+  });
+  const request = {
+    schema_version: 'astera.quality-completion.request.v1',
+    evaluation_id: 'modulecatalog-fixture-1',
+    project_id: 'ModuleCatalog',
+    target: {
+      candidate_id: 'asset-fixture',
+      artifact_type: 'knowledge_document',
+      content: 'fixture content',
+      content_hash: `sha256:${'a'.repeat(64)}`
+    },
+    requirements: [{ requirement_id: 'r1', text: 'Preserve explicit evidence boundaries.', mandatory: true }],
+    evaluation_config: {
+      rubric_version: 'quality-completion-rubric.v1',
+      blocking_rule_version: 'blocking-rules.v1'
+    }
+  };
+  const result = await client.evaluate(request);
+  assert.equal(captured.url, 'http://127.0.0.1:7374/v1/evaluate');
+  assert.equal(captured.headers['x-api-key'], 'test-key');
+  assert.deepEqual(captured.body, request);
+  assert.equal(result.status, 'REVISION_REQUIRED');
+  assert.equal(result.judgment.passed, false);
+});
+
+test('ModuleCatalog does not impersonate astera-main for direct Evidence Search', () => {
+  assert.deepEqual(asteraEvidenceSearchBoundary(), {
+    status: 'NOT_AUTHORIZED',
+    code: 'ASTERA_EVIDENCE_CONTRACT_NOT_AVAILABLE',
+    reason: 'The current direct Evidence Search route is an Astera-internal endpoint authenticated as service=astera-main; ModuleCatalog has no distinct sanctioned caller identity in that contract.'
+  });
 });
