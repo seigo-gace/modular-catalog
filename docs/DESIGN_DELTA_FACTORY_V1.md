@@ -5,6 +5,7 @@ Baseline preserved: `docs/ARCHITECTURE.md`
 New design authority: `docs/REUSABLE_KNOWLEDGE_FACTORY_V1.md`
 Repository candidate authority: `docs/REPOSITORY_ASSET_CANDIDATE_V1.md`
 Delivery authority: `docs/KB_DELIVERY_CONTRACT_V1.md`
+Cross-host transport authority: `docs/KB_PULL_TRANSPORT_V1.md`
 
 ## 1. Why this delta exists
 
@@ -69,7 +70,7 @@ Generic repository intake does not authorize Canonical invention. An external re
 
 KB internal indexing/search/runtime remains outside ModuleCatalog. `ACTIVE` readback is completion evidence for the delivery; it does not make ModuleCatalog the owner of KB indexing, Current cutover, rollback, or continuing health checks.
 
-Exact producer/consumer transport/readback behavior is defined only in `docs/KB_DELIVERY_CONTRACT_V1.md` and must follow the current executable KB contract rather than inferred directory or timestamp ordering.
+Exact producer/consumer delivery/readback behavior is defined in `docs/KB_DELIVERY_CONTRACT_V1.md`. The v1 cross-host implementation uses the narrower `docs/KB_PULL_TRANSPORT_V1.md` contract: the Server seals a complete revision-named outbox bundle and the Master PC pulls that exact bundle with its existing SSH/SCP client into a target-local temporary directory before atomic `ready` publish. ModuleCatalog does not create a PC inbound service and does not assume direct VPS access to `F:`.
 
 ## 5. Technology delta
 
@@ -90,9 +91,13 @@ The same minimality decision applies to an internal analytical database and a se
 - existing AI Core Router API = Granite controller inference;
 - existing DebugAI MCP = debugging execution;
 - existing Astera APIs = optional evidence/evaluation only through supported caller contracts;
-- existing TGserver HTTP API = runtime log retrieval.
+- existing TGserver HTTP API = runtime log retrieval;
+- existing Windows OpenSSH client (`ssh.exe` / `scp.exe`) = cross-host delivery pull after live verification;
+- existing G-ACE KB inbox processor and Deep health script = consumer-owned activation/archive/runtime gate.
 
 SCIP remains an extension point for cross-file semantic indexing when a concrete language/source requires more than the deterministic v1 analyzer can provide. It is not a mandatory v1 dependency.
+
+No Windows OpenSSH Server, SMB share, Syncthing, new upload API, new VPN dependency, or new transport daemon is introduced by Factory v1.
 
 ## 6. Compatibility
 
@@ -118,6 +123,10 @@ A materialized Repository Candidate remains outside ModuleCatalog and has no Man
 
 The KB consumer remains a single-current-snapshot runtime. Factory v1 therefore emits one complete activation candidate at a time and does not invent producer sequence/generation authority merely to queue multiple snapshots.
 
+The pull transport keeps the same consumer contract: transfer occurs outside `ready`, final publish is a same-filesystem rename, and the existing KB processor remains responsible for `ready -> processing -> ACTIVE -> processed`.
+
 ## 7. Rollback boundary
 
 The Factory is developed on a branch based on the current reusable-asset export branch. No main merge, deploy, production switch, source repository mutation, Astera modification, AI Core modification, DebugAI modification, TGserver modification, or KB runtime modification is part of this design delta.
+
+Source implementation of the pull bridge is not runtime deployment. Real Server SSH availability, exact Server outbox, Master-PC pull, KB activation and Deep health remain separate runtime gates until executed on the intended systems.
