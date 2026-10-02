@@ -41,8 +41,11 @@ Factory responsibility covers deterministic extraction, reusable bundle generati
 
 ## Current implemented Factory path
 
+Repository intake now resolves the supplied 40-character revision against the actual Git object database before optional external adapters can run. An optional exact `previous_revision` yields an incremental `git diff`; without it, intake reports a full snapshot; equal revisions return `UNCHANGED`. Changes under existing `assets/<asset-id>/...` paths are projected to affected Catalog Asset IDs, while non-Asset paths remain explicit as `unmapped_paths` instead of being silently discarded.
+
 ```text
 Catalog Asset / source
+  -> exact Git revision intake / optional incremental diff
   -> integrity + existing evidence validation
   -> ast-grep deterministic JS/TS structural extraction
   -> exact source-derived symbol / signature / return / import-require projection
@@ -53,10 +56,13 @@ Catalog Asset / source
   -> KB ACCEPTED / ACTIVE / Current readback
 ```
 
+Exporter provenance is fail-closed: an explicit `--catalog-commit` must equal the checked-out Catalog `HEAD`. A caller cannot label current Working Tree content with another revision.
+
 The diagnostic/verification coordination path is separately bounded:
 
 ```text
 exact repo + revision + optional TGserver observations
+  -> repository revision resolution before external calls
   -> explicit/deterministic failure signals
   -> Granite Debug Controller when a signal exists
   -> DebugAI MCP analyze/verify when selected
@@ -133,7 +139,7 @@ npm run verify
 npm run check
 ```
 
-Current automated regression covers existing Catalog behavior plus Reusable Asset schema/export determinism, KB delivery preflight/idempotency/ACTIVE authority, TGserver adapter boundaries, structural analysis, Granite controller constraints, DebugAI MCP mapping, Astera QCE transport, and Factory inspection orchestration.
+Current automated regression covers existing Catalog behavior plus Reusable Asset schema/export determinism and exact-checkout provenance, exact-revision full/incremental/unchanged repository intake, KB delivery preflight/idempotency/ACTIVE authority, TGserver adapter boundaries, structural analysis, Granite controller constraints, DebugAI MCP mapping, Astera QCE transport, and Factory inspection orchestration.
 
 Acceptance is based on expected output/state, regression, important failure cases, schema/integrity checks, and runtime/provider readback where relevant. Build or CI success alone is not a production/runtime PASS.
 
