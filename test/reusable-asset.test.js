@@ -64,6 +64,18 @@ test('exports the full current catalog as reusable asset bundles without inventi
     assert.equal(totalKnowledgeUnits, 720);
     assert.equal(totalCases, 160);
 
+    const approvalAsset = JSON.parse(await fs.readFile(path.join(output, 'assets', 'approval-route-resolver', 'asset.json'), 'utf8'));
+    assert.equal(approvalAsset.identity.symbol, 'run');
+    assert.deepEqual(approvalAsset.discovery.capabilities, []);
+    assert.equal(approvalAsset.contract.inputs.some((value) => typeof value === 'string' && value.startsWith('run(') && value.includes('action') && value.includes('risk') && value.includes('capability')), true);
+    assert.equal(approvalAsset.contract.outputs.some((value) => typeof value === 'string' && value.startsWith('run -> ') && value.includes('status')), true);
+    assert.equal(approvalAsset.contract.mutation_authority, false);
+    assert.deepEqual(approvalAsset.composition.requires, []);
+    assert.equal(approvalAsset.derivation.derived_fields.some((entry) => entry.field === 'identity.symbol' && entry.type === 'deterministic-derived'), true);
+    assert.equal(approvalAsset.derivation.derived_fields.some((entry) => entry.field === 'contract.inputs' && entry.type === 'deterministic-derived'), true);
+    assert.equal(approvalAsset.derivation.derived_fields.some((entry) => entry.field === 'contract.outputs' && entry.type === 'deterministic-derived'), true);
+    assert.equal(approvalAsset.derivation.derived_fields.some((entry) => entry.field === 'discovery.capabilities'), false);
+
     const topManifest = JSON.parse(await fs.readFile(path.join(output, 'manifest.json'), 'utf8'));
     assert.equal(topManifest.assetCount, 80);
     assert.equal(topManifest.assets.length, 80);
