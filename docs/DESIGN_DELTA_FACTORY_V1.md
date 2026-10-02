@@ -3,6 +3,7 @@
 Status: Active design delta
 Baseline preserved: `docs/ARCHITECTURE.md`
 New design authority: `docs/REUSABLE_KNOWLEDGE_FACTORY_V1.md`
+Repository candidate authority: `docs/REPOSITORY_ASSET_CANDIDATE_V1.md`
 Delivery authority: `docs/KB_DELIVERY_CONTRACT_V1.md`
 
 ## 1. Why this delta exists
@@ -49,18 +50,22 @@ Their physical removal is an implementation cleanup and must not be mixed with F
 
 ModuleCatalog now owns the processing boundary from source evidence to KB delivery:
 
-- Git repository intake;
+- exact Git repository/revision intake;
+- explicit generic-repository Candidate assessment/materialization without source mutation;
+- preservation of the existing explicit Asset admission boundary (`register`) after Candidate validation;
 - TGserver HTTP log retrieval;
 - deterministic structural extraction;
 - Knowledge Unit / Case / Relationship / metadata construction;
 - source-vs-runtime consistency checks;
 - Granite-based DebugAI invocation decision;
 - DebugAI MCP analyze/verify calls only;
-- Astera Evidence/QCE API integration where required;
+- Astera API integration only where a sanctioned caller contract exists;
 - executable schema/integrity gates;
 - KB-ready bundle generation;
 - atomic KB transport;
 - producer-side readback of KB `ACCEPTED` / `ACTIVE` state and final matching Current authority.
+
+Generic repository intake does not authorize Canonical invention. An external repository becomes a registration Candidate only from an exact commit plus an explicit Canonical declaration and explicit file-role mapping. Missing Design, Logic, Architecture, Evidence, Source, Normal Test, or User Test material remains incomplete; ModuleCatalog does not manufacture it.
 
 KB internal indexing/search/runtime remains outside ModuleCatalog. `ACTIVE` readback is completion evidence for the delivery; it does not make ModuleCatalog the owner of KB indexing, Current cutover, rollback, or continuing health checks.
 
@@ -79,11 +84,12 @@ The same minimality decision applies to an internal analytical database and a se
 ### Adopted/reused
 
 - existing Node.js 22 ModuleCatalog = Factory foundation;
+- native Git object/tree commands = exact-revision repository Candidate bytes and symlink/type checks;
 - Ajv = executable JSON Schema Draft 2020-12 validation;
 - ast-grep = structural source analysis using its existing Tree-sitter foundation;
 - existing AI Core Router API = Granite controller inference;
 - existing DebugAI MCP = debugging execution;
-- existing Astera APIs = optional evidence/evaluation;
+- existing Astera APIs = optional evidence/evaluation only through supported caller contracts;
 - existing TGserver HTTP API = runtime log retrieval.
 
 SCIP remains an extension point for cross-file semantic indexing when a concrete language/source requires more than the deterministic v1 analyzer can provide. It is not a mandatory v1 dependency.
@@ -105,6 +111,10 @@ It must preserve:
 - no fabricated canonical fields.
 
 The Factory may enrich these records only when the derivation class and source evidence are retained.
+
+The existing Asset admission contract does not require `README.md`. Factory export therefore treats README as optional and emits its Knowledge Unit only when a non-empty README is actually present; current 80-Asset behavior remains unchanged because those Assets already contain README files.
+
+A materialized Repository Candidate remains outside ModuleCatalog and has no Manifest until the existing explicit registration operation succeeds. `READY_FOR_ADMISSION` must not be reported as `REGISTERED`, exported, or KB-active.
 
 The KB consumer remains a single-current-snapshot runtime. Factory v1 therefore emits one complete activation candidate at a time and does not invent producer sequence/generation authority merely to queue multiple snapshots.
 
