@@ -1,72 +1,103 @@
-# Modular Catalog
+# ModuleCatalog
 
-完成・検証済みの個別Skill Assetを、必要なときに必要な情報だけ読むためのCatalogです。現行Catalogは80 Assetを対象とし、未検証・撤回済みAssetは掲載しません。
+ModuleCatalog is the canonical repository and processing factory for reusable development assets.
 
-## ChatGPTアプリ
+It keeps verified Source / Design / Logic / Architecture / Contract / Test / Evidence / Provenance together, converts them into reusable Knowledge Units and related metadata, and delivers KB-ready data without fabricating missing facts.
 
-パーソナルのカスタムプロンプトには `prompts/PERSONAL_CUSTOM_PROMPT.md` を使用します。
+## Current design authority
 
-開発時は次の順序で読みます。
+- Factory v1: [`docs/REUSABLE_KNOWLEDGE_FACTORY_V1.md`](docs/REUSABLE_KNOWLEDGE_FACTORY_V1.md)
+- Factory design delta: [`docs/DESIGN_DELTA_FACTORY_V1.md`](docs/DESIGN_DELTA_FACTORY_V1.md)
+- Previous Catalog architecture baseline: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- Asset format: [`docs/ASSET_FORMAT.md`](docs/ASSET_FORMAT.md)
+- Reusable-data audit: [`docs/REUSABLE_ASSET_DATA_AUDIT_20261001.md`](docs/REUSABLE_ASSET_DATA_AUDIT_20261001.md)
 
-1. `CHATGPT_WORK_CONTROL.md`
-2. `control/index.json`
-3. 作業に必要な `control/sections/` だけ
-4. `catalog/index.json`
-5. 候補Assetの `meta.json`
-6. 採用候補の必要Sectionだけ
+The Factory v1 design is the current implementation baseline on the factory feature branch. GitHub source completion, Server runtime, and KB delivery are separate states and must not be conflated.
 
-Work ControlとAssetの全ファイル一括読込は通常行いません。
+## Fixed boundaries
 
-## Work Control
+Factory input:
 
-- `CHATGPT_WORK_CONTROL.md`: 短い入口
-- `control/index.json`: 作業種別から必要Sectionを選ぶIndex
-- `control/sections/`: 大元の7責務を分解した正本
-- `control/manifest.json`: SHA-256整合性情報
-- `src/control.js`: 選択とHash検証
-- `test/control.test.js`: 選択・改変検知Test
+```text
+Git repository
++
+TGserver logs through TGserver HTTP API
+```
 
-## 再利用Asset
+Optional existing capabilities are consumed through their established boundaries only:
 
-AssetはCode単体ではなく、設計・Logic・Architecture・通常Test・ユーザー利用Test・検証結果・依存・制約・出所を一体で保存します。
+```text
+AI Core Router API -> Granite Debug Controller
+DebugAI MCP        -> analyze / verify
+Astera APIs        -> Evidence Search / Quality Completion evaluation
+```
+
+ModuleCatalog does not modify AI Core, DebugAI, Astera v8, TGserver, or the KB runtime.
+
+Factory responsibility ends after a KB-ready bundle is sent through the agreed KB receiving contract and its receipt/hash/count are verified. KB-side BM25 / Vector / Knowledge Graph / MCP/search runtime remains outside ModuleCatalog.
+
+## Five-level Module Architecture
+
+```text
+Part
+  -> Feature
+    -> Component
+      -> System
+        -> Application System
+```
+
+This is a logical architecture. It does not require one directory per level.
+
+## Reusable Asset Schema v1
+
+Current reusable asset output is defined by:
+
+```text
+schemas/reusable-asset-v1.schema.json
+```
+
+It preserves Canonical data separately from deterministic/derived data and keeps unavailable information explicit rather than inventing values.
+
+Per-asset bundle:
+
+```text
+asset.json
+knowledge-units.jsonl
+relationships.jsonl
+cases.jsonl
+manifest.json
+```
+
+## Current CLI
 
 ```bash
 node src/cli.js search --query "http retry" --language JavaScript --layer Feature
-node src/cli.js show verified-http-retry --section architecture
+node src/cli.js show <asset-id> --section architecture
+node src/cli.js validate <asset-id>
 node src/cli.js register /path/to/completed-asset
-npm run check
-```
-
-検索対象はMeta情報だけではなく、各Assetの`design.md`、`logic.md`、`architecture.md`本文を含みます。検索結果の`matchedSections`で一致した文書種別を確認し、`show <asset-id> --section all`でSourceと3文書を一括取得できます。
-
-現行Catalogの80 Assetは、Git履歴とNotionで確定した個別Skill集合を現行Catalog契約へ正規化したものです。各Assetは`source/`、通常Test、ユーザー利用Test、検証結果、設計、Logic、Architecture、出所、Manifestを一体で保持します。撤回済みの旧27 Assetは現行Catalogから除外し、Git履歴だけに保持します。
-
-`assets/`には完成・検証・Astera判定済みの実資産だけを置きます。空Directoryや未完成資産は置きません。
-
-## Reusable Asset Schema v1 / Export
-
-ModuleCatalog is the canonical repository for reusable development assets. The KB is a derived runtime representation and must be reproducible from the catalog.
-
-The current export contract is defined by `schemas/reusable-asset-v1.schema.json`. It keeps Canonical data separate from deterministic Derived data and does not fabricate missing applicability or contract fields; unavailable information remains `unknown` / `not_recorded`.
-
-Export a complete catalog bundle:
-
-```bash
+node src/cli.js build-index
+node src/cli.js verify-index
 node src/cli.js export-reusable-assets --output <directory>
 ```
 
-Export one asset only:
+The factory branch verifies and repairs CLI/runtime gaps as implementation proceeds. A command being documented does not by itself prove its implementation or runtime success.
+
+## Verification
 
 ```bash
-node src/cli.js export-reusable-assets approval-route-resolver --output <directory>
+npm test
+npm run verify
+npm run check
 ```
 
-Each exported asset contains:
+Acceptance is based on expected output/state, regression, important failure cases, schema/integrity checks, and runtime/provider readback where relevant. Build or CI success alone is not a production/runtime PASS.
 
-- `asset.json`: Reusable Asset Schema v1 projection
-- `knowledge-units.jsonl`: searchable Knowledge Units with `parent_asset_id`
-- `relationships.jsonl`: asset-to-unit containment and only explicitly resolvable dependency relations
-- `cases.jsonl`: Normal/User test cases with PASS evidence; unextractable scenario/input/actual fields remain null
-- `manifest.json`: SHA-256 bundle integrity and exact catalog provenance
+## Existing assets
 
-The export is deliberately kept outside the catalog working tree so generated KB data cannot be accidentally committed as canonical source.
+The current branch is based on the 80-asset reusable export work from PR #4. Existing Asset identity, Source, tests, Evidence, Manifest, hashes, and provenance remain canonical inputs to Factory v1.
+
+Generated KB data is not committed as canonical source merely because it was exported. The Catalog remains the reproducible source of truth.
+
+## Legacy GPT work-control material
+
+The old ChatGPT-specific Work Control files are not Factory v1 design authority. Workspace/development control now comes from server-core and current project instructions. Legacy files are retained temporarily only until implementation cleanup can remove them without mixing cleanup with Factory correctness.
