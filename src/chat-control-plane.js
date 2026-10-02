@@ -98,7 +98,13 @@ export function validateFactoryResult(input) {
     applicability_empty_count: integer(value.applicability_empty_count, 'applicability_empty_count', 'CHAT_FACTORY_RESULT_INVALID'),
     known_unverified_count: integer(value.known_unverified_count, 'known_unverified_count', 'CHAT_FACTORY_RESULT_INVALID'),
     layer_values: strings(value.layer_values, 'layer_values', 'CHAT_FACTORY_RESULT_INVALID'),
+    invalid_layer_values: strings(value.invalid_layer_values, 'invalid_layer_values', 'CHAT_FACTORY_RESULT_INVALID'),
+    module_architecture_layer_gate_pass: value.module_architecture_layer_gate_pass === true,
     architecture_review_required: value.architecture_review_required === true,
+    portable_reuse_smoke_proven: value.portable_reuse_smoke_proven === true,
+    portable_reuse_asset_count: integer(value.portable_reuse_asset_count, 'portable_reuse_asset_count', 'CHAT_FACTORY_RESULT_INVALID'),
+    portable_reuse_command_count: integer(value.portable_reuse_command_count, 'portable_reuse_command_count', 'CHAT_FACTORY_RESULT_INVALID'),
+    portable_reuse_boundary: string(value.portable_reuse_boundary, 'portable_reuse_boundary', 'CHAT_FACTORY_RESULT_INVALID'),
     real_cross_project_reuse_proven: value.real_cross_project_reuse_proven === true,
     factory_status: 'FACTORY_READY_FOR_GPT_REVIEW'
   });
@@ -132,10 +138,24 @@ export function validateGptReview(input, factoryResult) {
   return review;
 }
 
+function assertMachineAdmissionGates(result) {
+  const failures = [];
+  if (result.contract_unknown_count !== 0) failures.push(`contract_unknown_count=${result.contract_unknown_count}`);
+  if (result.applicability_empty_count !== 0) failures.push(`applicability_empty_count=${result.applicability_empty_count}`);
+  if (result.known_unverified_count !== 0) failures.push(`known_unverified_count=${result.known_unverified_count}`);
+  if (!result.module_architecture_layer_gate_pass) failures.push('module_architecture_layer_gate_pass=false');
+  if (result.invalid_layer_values.length) failures.push(`invalid_layer_values=${result.invalid_layer_values.join(',')}`);
+  if (!result.portable_reuse_smoke_proven) failures.push('portable_reuse_smoke_proven=false');
+  if (result.portable_reuse_asset_count !== result.asset_count) failures.push(`portable_reuse_asset_count=${result.portable_reuse_asset_count}/${result.asset_count}`);
+  if (result.portable_reuse_command_count < result.asset_count * 2) failures.push(`portable_reuse_command_count=${result.portable_reuse_command_count}`);
+  if (failures.length) fail('Factory result does not satisfy mandatory machine admission gates.', 'KB_ADMISSION_MACHINE_GATES_FAILED', { failures });
+}
+
 export function buildAdmissionTicket(reviewInput, factoryResult, { queuedAt } = {}) {
   const result = validateFactoryResult(factoryResult);
   const review = validateGptReview(reviewInput, result);
   if (review.decision !== 'GPT_APPROVED') return null;
+  assertMachineAdmissionGates(result);
   return Object.freeze({
     schema_version: TICKET_SCHEMA,
     request_id: review.request_id,
