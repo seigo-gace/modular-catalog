@@ -51,7 +51,7 @@ jobs:
         shell: bash
         run: |
           current="$(git ls-remote --exit-code origin refs/heads/feat/reusable-knowledge-factory-v1-20261002 | awk '{print $1}')"
-          test "$current" =~ ^[0-9a-f]{40}$
+          [[ "$current" =~ ^[0-9a-f]{40}$ ]]
           reviewed='${{ steps.review.outputs.catalog_commit }}'
           if [ "$reviewed" != "$current" ]; then
             echo "CHAT_KB_ADMISSION_STALE_COMMIT reviewed=$reviewed current=$current" >&2

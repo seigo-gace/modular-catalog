@@ -37,6 +37,8 @@ test('Factory and GPT admission workflows fail closed unless data commit equals 
   const admission = await fs.readFile(path.join(root, '.github', 'workflows', 'chat-kb-admission.yml'), 'utf8');
   for (const workflow of [factory, admission]) {
     assert.match(workflow, /git ls-remote --exit-code origin refs\/heads\/feat\/reusable-knowledge-factory-v1-20261002/);
+    assert.match(workflow, /\[\[ "\$current" =~ \^\[0-9a-f\]\{40\}\$ \]\]/);
+    assert.doesNotMatch(workflow, /test "\$current" =~/);
   }
   assert.match(factory, /CHAT_FACTORY_STALE_COMMIT/);
   assert.match(factory, /steps\.request\.outputs\.catalog_commit/);
