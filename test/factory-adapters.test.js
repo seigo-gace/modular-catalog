@@ -25,8 +25,8 @@ test('TGserver adapter sends only the supported search contract and normalizes o
         hits: [
           { id: '1', project_id: 'P006', severity: 'error', message: 'first failure', timestamp: '2026-10-02T00:00:00Z', hash: 'h1' },
           { id: '2', project_id: 'OTHER', severity: 'error', message: 'wrong project', timestamp: '2026-10-02T00:01:00Z', hash: 'h2' },
-          { id: '3', project_id: 'P006', severity: 'warn', message: 'second observation', timestamp: '2026-10-02T00:02:00Z', hash: 'h3' },
-          { id: '4', project_id: 'P006', severity: 'error', message: 'third observation', timestamp: '2026-10-02T00:03:00Z', hash: 'h4' }
+          { id: '3', project_id: 'P006', severity: 'warn', message: 'wrong severity', timestamp: '2026-10-02T00:02:00Z', hash: 'h3' },
+          { id: '4', project_id: 'P006', severity: 'error', message: 'second matching failure', timestamp: '2026-10-02T00:03:00Z', hash: 'h4' }
         ]
       });
     }
@@ -49,7 +49,8 @@ test('TGserver adapter sends only the supported search contract and normalizes o
     to: '2026-10-03T00:00:00Z'
   });
   assert.equal(result.returned, 2);
-  assert.deepEqual(result.hits.map((hit) => hit.id), ['1', '3']);
+  assert.deepEqual(result.hits.map((hit) => hit.id), ['1', '4']);
+  assert.equal(result.hits.every((hit) => hit.project_id === 'P006' && hit.severity === 'error'), true);
   assert.equal(result.estimatedTotalHits, 4);
 
   await assert.rejects(
