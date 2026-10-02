@@ -26,6 +26,7 @@ function result(overrides = {}) {
     repository: 'seigo-gace/modular-catalog',
     catalog_commit: commit,
     manifest_sha256: manifest,
+    review_rule_version: 'gpt-final-review-v1',
     asset_count: 80,
     knowledge_unit_count: 720,
     relationship_count: 80,
@@ -70,15 +71,20 @@ test('rejects mutable or non-exact request revisions', () => {
 test('validates a Factory result only when it is ready for GPT review', () => {
   const value = validateFactoryResult(result());
   assert.equal(value.asset_count, 80);
+  assert.equal(value.review_rule_version, 'gpt-final-review-v1');
   assert.equal(value.factory_status, 'FACTORY_READY_FOR_GPT_REVIEW');
   assert.equal(value.real_cross_project_reuse_proven, false);
 });
 
-test('binds GPT review to the exact Factory result identity', () => {
+test('binds GPT review to exact Factory result identity and review-rule version', () => {
   const value = validateGptReview(review(), result());
   assert.equal(value.decision, 'GPT_APPROVED');
   assert.throws(
     () => validateGptReview(review('GPT_APPROVED', { manifest_sha256: 'c'.repeat(64) }), result()),
+    (error) => error?.code === 'GPT_FINAL_REVIEW_IDENTITY_MISMATCH'
+  );
+  assert.throws(
+    () => validateGptReview(review('GPT_APPROVED', { review_rule_version: 'other-rule' }), result()),
     (error) => error?.code === 'GPT_FINAL_REVIEW_IDENTITY_MISMATCH'
   );
 });
@@ -93,7 +99,8 @@ test('only GPT_APPROVED produces an admission ticket', () => {
   assert.equal(buildAdmissionTicket(review('GPT_HOLD'), result()), null);
 });
 
-test('rejects non-GPT review actors and unsupported decisions', () => {
+test('rejects non-GPT review actors, empty findings and unsupported decisions', () => {
   assert.throws(() => validateGptReview(review('GPT_APPROVED', { reviewed_by: 'workflow' }), result()), (error) => error?.code === 'GPT_FINAL_REVIEW_ACTOR_INVALID');
+  assert.throws(() => validateGptReview(review('GPT_APPROVED', { findings: [] }), result()), (error) => error?.code === 'GPT_FINAL_REVIEW_FINDINGS_REQUIRED');
   assert.throws(() => validateGptReview(review('PASS'), result()), (error) => error?.code === 'GPT_FINAL_REVIEW_DECISION_INVALID');
 });
