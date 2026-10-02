@@ -3,7 +3,7 @@ import path from 'node:path';
 import Ajv2020 from 'ajv/dist/2020.js';
 import { CatalogError } from './catalog.js';
 
-export const GRANITE_DEBUG_MODEL = 'granite//models/granite-4.2-8b-Q4_K_M.gguf';
+export const GRANITE_DEBUG_MODEL = 'granite';
 export const DEBUG_CONTROLLER_SCHEMA = 'modulecatalog.debug-controller.v1';
 
 const ACTIONABLE_SIGNALS = new Set([
@@ -54,11 +54,7 @@ function normalizeSignal(signal) {
   if (!signal || typeof signal !== 'object' || Array.isArray(signal)) return null;
   const type = String(signal.type ?? '').trim();
   if (!ACTIONABLE_SIGNALS.has(type)) return null;
-  return Object.freeze({
-    type,
-    summary: boundedString(signal.summary, 1000).trim(),
-    evidence_refs: uniqueStrings(signal.evidence_refs, 20)
-  });
+  return Object.freeze({ type, summary: boundedString(signal.summary, 1000).trim(), evidence_refs: uniqueStrings(signal.evidence_refs, 20) });
 }
 
 function normalizeLog(log) {
@@ -91,9 +87,7 @@ export function buildDebugEvidencePackage({ repo, revision, paths = [], signals 
     signals: normalizedSignals,
     logs: (Array.isArray(logs) ? logs : []).map(normalizeLog).filter(Boolean).slice(0, 20),
     test_evidence: (Array.isArray(testEvidence) ? testEvidence : []).slice(0, 20).map((item) => ({
-      source: boundedString(item?.source, 1024).trim(),
-      status: boundedString(item?.status, 80).trim(),
-      summary: boundedString(item?.summary, 1200).trim()
+      source: boundedString(item?.source, 1024).trim(), status: boundedString(item?.status, 80).trim(), summary: boundedString(item?.summary, 1200).trim()
     })).filter((item) => item.source || item.summary),
     evidence_refs: uniqueStrings(evidenceRefs, 100)
   });
@@ -121,11 +115,8 @@ function deterministicSkip(evidencePackage) {
 async function compileValidator(rootDir) {
   const schemaFile = path.join(path.resolve(rootDir), 'schemas', 'debug-controller-v1.schema.json');
   let schema;
-  try {
-    schema = JSON.parse(await fs.readFile(schemaFile, 'utf8'));
-  } catch (error) {
-    throw new CatalogError(`Debug Controller schema could not be loaded: ${error.message}`, 'DEBUG_CONTROLLER_SCHEMA_LOAD_FAILED');
-  }
+  try { schema = JSON.parse(await fs.readFile(schemaFile, 'utf8')); }
+  catch (error) { throw new CatalogError(`Debug Controller schema could not be loaded: ${error.message}`, 'DEBUG_CONTROLLER_SCHEMA_LOAD_FAILED'); }
   try {
     const ajv = new Ajv2020({ allErrors: true, strict: true, allowUnionTypes: true });
     return ajv.compile(schema);
@@ -151,26 +142,21 @@ function validateDecision(validate, decision, evidencePackage) {
   if (decision.repo !== evidencePackage.repo) throw new CatalogError('Debug Controller changed the repository target.', 'DEBUG_CONTROLLER_CONTEXT_ESCAPE');
   assertSubset(decision.paths, evidencePackage.paths, 'paths');
   assertSubset(decision.change_scope, evidencePackage.paths, 'change_scope');
-  const allowedRefs = new Set([
-    ...evidencePackage.evidence_refs,
-    ...evidencePackage.signals.flatMap((signal) => signal.evidence_refs)
-  ]);
+  const allowedRefs = new Set([...evidencePackage.evidence_refs, ...evidencePackage.signals.flatMap((signal) => signal.evidence_refs)]);
   for (const ref of decision.evidence_refs) {
     if (!allowedRefs.has(ref)) throw new CatalogError(`Debug Controller invented evidence reference: ${ref}`, 'DEBUG_CONTROLLER_CONTEXT_ESCAPE');
   }
-  if (decision.action === 'VERIFY' && !decision.task && decision.paths.length === 0 && decision.change_scope.length === 0) {
-    throw new CatalogError('VERIFY requires a task, path, or change scope.', 'DEBUG_CONTROLLER_INVALID_OUTPUT');
-  }
+  if (decision.action === 'VERIFY' && !decision.task && decision.paths.length === 0 && decision.change_scope.length === 0) throw new CatalogError('VERIFY requires a task, path, or change scope.', 'DEBUG_CONTROLLER_INVALID_OUTPUT');
   return Object.freeze({ ...decision, decision_source: 'granite' });
 }
 
 export async function createDebugController({
   rootDir,
-  baseUrl = process.env.MODULECATALOG_AI_CORE_URL || process.env.DEBUG_AI_CORE_URL,
+  baseUrl = process.env.MODULECATALOG_AI_CORE_URL || process.env.AI_CORE_BASE_URL || process.env.DEBUG_AI_CORE_URL,
   apiKey = process.env.AI_CORE_API_KEY,
   fetchImpl = globalThis.fetch,
   timeoutMs = positiveInteger(process.env.MODULECATALOG_AI_CORE_TIMEOUT_MS, 600000),
-  model = GRANITE_DEBUG_MODEL
+  model = process.env.MODULECATALOG_DEBUG_MODEL || GRANITE_DEBUG_MODEL
 } = {}) {
   if (!rootDir) throw new CatalogError('Debug Controller rootDir is required.', 'DEBUG_CONTROLLER_NOT_CONFIGURED');
   const validate = await compileValidator(rootDir);
@@ -179,7 +165,7 @@ export async function createDebugController({
   async function decide(input) {
     const evidencePackage = buildDebugEvidencePackage(input);
     if (!requiresGraniteDebugDecision(evidencePackage)) return deterministicSkip(evidencePackage);
-    if (!endpoint) throw new CatalogError('MODULECATALOG_AI_CORE_URL or DEBUG_AI_CORE_URL is required for debug escalation.', 'DEBUG_CONTROLLER_NOT_CONFIGURED');
+    if (!endpoint) throw new CatalogError('AI_CORE_BASE_URL (or MODULECATALOG_AI_CORE_URL) is required for debug escalation.', 'DEBUG_CONTROLLER_NOT_CONFIGURED');
     if (!apiKey) throw new CatalogError('AI_CORE_API_KEY is required for debug escalation.', 'DEBUG_CONTROLLER_NOT_CONFIGURED');
     if (typeof fetchImpl !== 'function') throw new CatalogError('Debug Controller requires fetch for debug escalation.', 'DEBUG_CONTROLLER_NOT_CONFIGURED');
 
@@ -188,10 +174,7 @@ export async function createDebugController({
     try {
       const response = await fetchImpl(endpoint, {
         method: 'POST',
-        headers: {
-          authorization: `Bearer ${apiKey}`,
-          'content-type': 'application/json'
-        },
+        headers: { authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },
         body: JSON.stringify({
           model,
           messages: [
@@ -208,20 +191,14 @@ export async function createDebugController({
       });
       const text = await response.text();
       let envelope;
-      try {
-        envelope = JSON.parse(text);
-      } catch {
-        throw new CatalogError('AI Core returned a non-JSON envelope.', 'DEBUG_CONTROLLER_AI_INVALID_RESPONSE');
-      }
+      try { envelope = JSON.parse(text); }
+      catch { throw new CatalogError('AI Core returned a non-JSON envelope.', 'DEBUG_CONTROLLER_AI_INVALID_RESPONSE'); }
       if (!response.ok) throw new CatalogError(`AI Core Debug Controller request failed with HTTP ${response.status}.`, 'DEBUG_CONTROLLER_AI_UNAVAILABLE');
       const content = envelope?.choices?.[0]?.message?.content;
       if (typeof content !== 'string' || !content.trim()) throw new CatalogError('AI Core returned empty Debug Controller content.', 'DEBUG_CONTROLLER_AI_INVALID_RESPONSE');
       let decision;
-      try {
-        decision = JSON.parse(content);
-      } catch {
-        throw new CatalogError('Granite Debug Controller content is not valid JSON.', 'DEBUG_CONTROLLER_INVALID_OUTPUT');
-      }
+      try { decision = JSON.parse(content); }
+      catch { throw new CatalogError('Granite Debug Controller content is not valid JSON.', 'DEBUG_CONTROLLER_INVALID_OUTPUT'); }
       return validateDecision(validate, decision, evidencePackage);
     } catch (error) {
       if (error?.name === 'AbortError') throw new CatalogError(`Granite Debug Controller timed out after ${timeoutMs}ms.`, 'DEBUG_CONTROLLER_AI_UNAVAILABLE');
