@@ -85,6 +85,9 @@ jobs:
             )
           done
 
+      - name: Verify portable reuse outside Catalog tree
+        run: node scripts/verify-portable-reuse.mjs --root . --json-output "$RUNNER_TEMP/portable-reuse.json"
+
       - name: Confirm catalog index cardinality
         shell: bash
         run: |
