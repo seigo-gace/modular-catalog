@@ -12,7 +12,7 @@ function request(overrides = {}) {
     repository: 'seigo-gace/modular-catalog',
     catalog_commit: commit,
     scope: 'full_snapshot',
-    review_rule_version: 'gpt-final-review-v1',
+    review_rule_version: 'gpt-final-review-v2',
     requested_by: 'gpt-chat',
     purpose: 'Prepare the exact snapshot for GPT final review.',
     ...overrides
@@ -26,13 +26,16 @@ function result(overrides = {}) {
     repository: 'seigo-gace/modular-catalog',
     catalog_commit: commit,
     manifest_sha256: manifest,
-    review_rule_version: 'gpt-final-review-v1',
+    review_rule_version: 'gpt-final-review-v2',
     asset_count: 80,
     knowledge_unit_count: 720,
     relationship_count: 720,
     case_count: 160,
     contract_unknown_count: 0,
     applicability_empty_count: 0,
+    applicability_from_canonical_purpose_count: 30,
+    applicability_from_interface_count: 50,
+    applicability_unknown_derivation_count: 0,
     known_unverified_count: 0,
     layer_values: ['Component', 'Part'],
     invalid_layer_values: [],
@@ -55,7 +58,7 @@ function review(decision = 'GPT_APPROVED', overrides = {}) {
     repository: 'seigo-gace/modular-catalog',
     catalog_commit: commit,
     manifest_sha256: manifest,
-    review_rule_version: 'gpt-final-review-v1',
+    review_rule_version: 'gpt-final-review-v2',
     decision,
     findings: ['Exact snapshot reviewed against current authority.'],
     reviewed_by: 'gpt-chat',
@@ -77,8 +80,11 @@ test('rejects mutable or non-exact request revisions', () => {
 test('validates a Factory result only when it is ready for GPT review', () => {
   const value = validateFactoryResult(result());
   assert.equal(value.asset_count, 80);
-  assert.equal(value.review_rule_version, 'gpt-final-review-v1');
+  assert.equal(value.review_rule_version, 'gpt-final-review-v2');
   assert.equal(value.factory_status, 'FACTORY_READY_FOR_GPT_REVIEW');
+  assert.equal(value.applicability_from_canonical_purpose_count, 30);
+  assert.equal(value.applicability_from_interface_count, 50);
+  assert.equal(value.applicability_unknown_derivation_count, 0);
   assert.equal(value.module_architecture_layer_gate_pass, true);
   assert.equal(value.portable_reuse_smoke_proven, true);
   assert.equal(value.portable_reuse_asset_count, 80);
@@ -112,6 +118,8 @@ test('GPT approval cannot bypass mandatory machine admission gates', () => {
   for (const bad of [
     { contract_unknown_count: 1 },
     { applicability_empty_count: 1 },
+    { applicability_unknown_derivation_count: 1 },
+    { applicability_from_canonical_purpose_count: 29, applicability_from_interface_count: 50 },
     { known_unverified_count: 1 },
     { module_architecture_layer_gate_pass: false },
     { invalid_layer_values: ['LayerX'] },
