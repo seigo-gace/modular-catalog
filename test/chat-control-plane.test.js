@@ -29,13 +29,19 @@ function result(overrides = {}) {
     review_rule_version: 'gpt-final-review-v1',
     asset_count: 80,
     knowledge_unit_count: 720,
-    relationship_count: 80,
+    relationship_count: 720,
     case_count: 160,
-    contract_unknown_count: 80,
-    applicability_empty_count: 80,
+    contract_unknown_count: 0,
+    applicability_empty_count: 0,
     known_unverified_count: 0,
-    layer_values: ['Feature'],
+    layer_values: ['Component', 'Part'],
+    invalid_layer_values: [],
+    module_architecture_layer_gate_pass: true,
     architecture_review_required: true,
+    portable_reuse_smoke_proven: true,
+    portable_reuse_asset_count: 80,
+    portable_reuse_command_count: 160,
+    portable_reuse_boundary: 'Copied assets passed recorded normal/user Node tests outside the Catalog tree; unrelated-project integration remains unproven.',
     real_cross_project_reuse_proven: false,
     factory_status: 'FACTORY_READY_FOR_GPT_REVIEW',
     ...overrides
@@ -73,6 +79,9 @@ test('validates a Factory result only when it is ready for GPT review', () => {
   assert.equal(value.asset_count, 80);
   assert.equal(value.review_rule_version, 'gpt-final-review-v1');
   assert.equal(value.factory_status, 'FACTORY_READY_FOR_GPT_REVIEW');
+  assert.equal(value.module_architecture_layer_gate_pass, true);
+  assert.equal(value.portable_reuse_smoke_proven, true);
+  assert.equal(value.portable_reuse_asset_count, 80);
   assert.equal(value.real_cross_project_reuse_proven, false);
 });
 
@@ -89,7 +98,7 @@ test('binds GPT review to exact Factory result identity and review-rule version'
   );
 });
 
-test('only GPT_APPROVED produces an admission ticket', () => {
+test('only GPT_APPROVED with all machine gates produces an admission ticket', () => {
   const approved = buildAdmissionTicket(review('GPT_APPROVED'), result(), { queuedAt: '2026-10-02T12:05:00.000Z' });
   assert.equal(approved.status, 'READY_FOR_RUNTIME_ADMISSION');
   assert.equal(approved.transport, 'master-pc-initiated-pull');
@@ -97,6 +106,25 @@ test('only GPT_APPROVED produces an admission ticket', () => {
   assert.equal(approved.manifest_sha256, manifest);
   assert.equal(buildAdmissionTicket(review('GPT_REJECTED'), result()), null);
   assert.equal(buildAdmissionTicket(review('GPT_HOLD'), result()), null);
+});
+
+test('GPT approval cannot bypass mandatory machine admission gates', () => {
+  for (const bad of [
+    { contract_unknown_count: 1 },
+    { applicability_empty_count: 1 },
+    { known_unverified_count: 1 },
+    { module_architecture_layer_gate_pass: false },
+    { invalid_layer_values: ['LayerX'] },
+    { portable_reuse_smoke_proven: false },
+    { portable_reuse_asset_count: 79 },
+    { portable_reuse_command_count: 159 }
+  ]) {
+    assert.throws(
+      () => buildAdmissionTicket(review('GPT_APPROVED'), result(bad)),
+      (error) => error?.code === 'KB_ADMISSION_MACHINE_GATES_FAILED'
+    );
+  }
+  assert.equal(buildAdmissionTicket(review('GPT_HOLD'), result({ contract_unknown_count: 80 })), null);
 });
 
 test('rejects non-GPT review actors, empty findings and unsupported decisions', () => {
