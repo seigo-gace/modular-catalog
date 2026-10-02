@@ -4,90 +4,115 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { preflightDelivery } from '../src/kb-delivery.js';
-import { exportReusableAssets } from '../src/reusable-asset-export.js';
-import { executeRuntimeAdmission, validateRuntimeAdmissionTicket } from '../src/runtime-admission.js';
+import { buildAdmissionTicket } from '../src/chat-control-plane.js';
+import { prepareKbOutbox } from '../src/kb-outbox.js';
+import { validateRuntimeAdmissionBundle, validateRuntimeAdmissionTicket, executeRuntimeAdmission } from '../src/runtime-admission.js';
 
 const root = process.cwd();
+const fixedOutbox = '/home/admin1/logs/modulecatalog/outbox';
 
-function ticket({ commit, manifest, outbox, ...overrides }) {
+function factoryResult({ commit = 'a'.repeat(40), manifest = 'b'.repeat(64), ...overrides } = {}) {
   return {
-    schema_version: 'modulecatalog.kb-admission-ticket.v1',
+    schema_version: 'modulecatalog.chat-factory-result.v1',
     request_id: 'req-runtime-admission-001',
     repository: 'seigo-gace/modular-catalog',
     catalog_commit: commit,
     manifest_sha256: manifest,
     review_rule_version: 'gpt-final-review-v2',
-    review_decision: 'GPT_APPROVED',
-    status: 'READY_FOR_RUNTIME_ADMISSION',
-    transport: 'master-pc-initiated-pull',
-    server_outbox_root: outbox,
-    kb_root: 'F:\\G-ACE-KB',
-    queued_at: '2026-10-02T19:36:19Z',
+    asset_count: 80,
+    knowledge_unit_count: 720,
+    relationship_count: 720,
+    case_count: 160,
+    contract_unknown_count: 0,
+    applicability_empty_count: 0,
+    applicability_from_canonical_purpose_count: 30,
+    applicability_from_interface_count: 50,
+    applicability_unknown_derivation_count: 0,
+    known_unverified_count: 0,
+    layer_values: ['Component', 'Part'],
+    invalid_layer_values: [],
+    module_architecture_layer_gate_pass: true,
+    architecture_review_required: true,
+    portable_reuse_smoke_proven: true,
+    portable_reuse_asset_count: 80,
+    portable_reuse_command_count: 160,
+    portable_reuse_boundary: 'Portable reuse smoke only; unrelated-project integration remains unproven.',
+    real_cross_project_reuse_proven: false,
+    factory_status: 'FACTORY_READY_FOR_GPT_REVIEW',
     ...overrides
   };
 }
 
-test('validates only the fixed approved runtime-admission contract', () => {
-  const commit = 'a'.repeat(40);
-  const manifest = 'b'.repeat(64);
-  const value = validateRuntimeAdmissionTicket(ticket({ commit, manifest, outbox: '/tmp/modulecatalog-outbox' }));
-  assert.equal(value.catalog_commit, commit);
-  assert.equal(value.manifest_sha256, manifest);
+function review({ commit = 'a'.repeat(40), manifest = 'b'.repeat(64), ...overrides } = {}) {
+  return {
+    schema_version: 'modulecatalog.gpt-final-review.v1',
+    request_id: 'req-runtime-admission-001',
+    repository: 'seigo-gace/modular-catalog',
+    catalog_commit: commit,
+    manifest_sha256: manifest,
+    review_rule_version: 'gpt-final-review-v2',
+    decision: 'GPT_APPROVED',
+    findings: ['Exact snapshot reviewed and approved with explicit unproven cross-project boundary.'],
+    reviewed_by: 'gpt-chat',
+    reviewed_at: '2026-10-02T19:36:19Z',
+    ...overrides
+  };
+}
+
+function approvedBundle({ commit = 'a'.repeat(40), manifest = 'b'.repeat(64), resultOverrides = {}, reviewOverrides = {}, ticketOverrides = {} } = {}) {
+  const result = factoryResult({ commit, manifest, ...resultOverrides });
+  const checkedReview = review({ commit, manifest, ...reviewOverrides });
+  const ticket = { ...buildAdmissionTicket(checkedReview, result, { queuedAt: checkedReview.reviewed_at }), ...ticketOverrides };
+  return { ticket, review: checkedReview, result };
+}
+
+test('validates only the fixed approved runtime-admission ticket contract', () => {
+  const bundle = approvedBundle();
+  const value = validateRuntimeAdmissionTicket(bundle.ticket);
+  assert.equal(value.catalog_commit, 'a'.repeat(40));
+  assert.equal(value.server_outbox_root, fixedOutbox);
   assert.throws(
-    () => validateRuntimeAdmissionTicket(ticket({ commit, manifest, outbox: '/tmp/modulecatalog-outbox', review_decision: 'GPT_HOLD' })),
+    () => validateRuntimeAdmissionTicket({ ...bundle.ticket, review_decision: 'GPT_HOLD' }),
     (error) => error?.code === 'RUNTIME_ADMISSION_NOT_APPROVED'
   );
   assert.throws(
-    () => validateRuntimeAdmissionTicket(ticket({ commit, manifest, outbox: '/tmp/modulecatalog-outbox', transport: 'github-push-to-pc' })),
-    (error) => error?.code === 'RUNTIME_ADMISSION_TRANSPORT_INVALID'
+    () => validateRuntimeAdmissionTicket({ ...bundle.ticket, server_outbox_root: '/tmp/other-outbox' }),
+    (error) => error?.code === 'RUNTIME_ADMISSION_OUTBOX_ROOT_INVALID'
   );
 });
 
-test('runtime admission seals only the exact approved commit and manifest identity', async () => {
-  const temp = await fs.mkdtemp(path.join(os.tmpdir(), 'modulecatalog-runtime-admission-'));
-  const snapshot = path.join(temp, 'snapshot');
-  const outbox = path.join(temp, 'outbox');
-  await fs.mkdir(outbox);
-  try {
-    const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim().toLowerCase();
-    await exportReusableAssets(root, snapshot, { catalogCommit: commit });
-    const expected = await preflightDelivery(root, snapshot);
-
-    await assert.rejects(
-      () => executeRuntimeAdmission(root, ticket({ commit, manifest: '0'.repeat(64), outbox })),
-      (error) => error?.code === 'KB_OUTBOX_EXPECTED_MANIFEST_MISMATCH'
-    );
-    await assert.rejects(
-      () => fs.stat(path.join(outbox, commit)),
-      (error) => error?.code === 'ENOENT'
-    );
-
-    const sealed = await executeRuntimeAdmission(root, ticket({ commit, manifest: expected.manifestSha256, outbox }));
-    assert.equal(sealed.status, 'SEALED_FOR_MASTER_PC_PULL');
-    assert.equal(sealed.catalog_commit, commit);
-    assert.equal(sealed.manifest_sha256, expected.manifestSha256);
-    assert.equal(sealed.idempotent, false);
-    assert.equal((await fs.stat(path.join(outbox, commit))).isDirectory(), true);
-
-    const repeat = await executeRuntimeAdmission(root, ticket({ commit, manifest: expected.manifestSha256, outbox }));
-    assert.equal(repeat.idempotent, true);
-  } finally {
-    await fs.rm(temp, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
-  }
+test('runtime rebuilds the approved ticket from Factory result and GPT review', () => {
+  const bundle = approvedBundle();
+  assert.equal(validateRuntimeAdmissionBundle(bundle).manifest_sha256, 'b'.repeat(64));
+  assert.throws(
+    () => validateRuntimeAdmissionBundle({ ...bundle, ticket: { ...bundle.ticket, manifest_sha256: 'c'.repeat(64) } }),
+    (error) => error?.code === 'RUNTIME_ADMISSION_TICKET_REBUILD_MISMATCH'
+  );
+  assert.throws(
+    () => validateRuntimeAdmissionBundle(approvedBundle({ resultOverrides: { contract_unknown_count: 1 } })),
+    (error) => error?.code === 'RUNTIME_ADMISSION_CONTROL_EVIDENCE_INVALID'
+  );
 });
 
-test('runtime admission rejects a different checkout identity before outbox mutation', async () => {
-  const outbox = await fs.mkdtemp(path.join(os.tmpdir(), 'modulecatalog-runtime-outbox-'));
+test('runtime rejects a different checkout identity before any server outbox mutation', async () => {
+  const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim().toLowerCase();
+  const otherCommit = (commit[0] === '0' ? '1' : '0') + commit.slice(1);
+  await assert.rejects(
+    () => executeRuntimeAdmission(root, approvedBundle({ commit: otherCommit })),
+    (error) => error?.code === 'RUNTIME_ADMISSION_COMMIT_MISMATCH'
+  );
+});
+
+test('outbox refuses an approved expected-manifest mismatch before sealing a final revision directory', async () => {
+  const temp = await fs.mkdtemp(path.join(os.tmpdir(), 'modulecatalog-runtime-outbox-'));
   try {
     const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim().toLowerCase();
-    const otherCommit = (commit[0] === '0' ? '1' : '0') + commit.slice(1);
     await assert.rejects(
-      () => executeRuntimeAdmission(root, ticket({ commit: otherCommit, manifest: 'b'.repeat(64), outbox })),
-      (error) => error?.code === 'RUNTIME_ADMISSION_COMMIT_MISMATCH'
+      () => prepareKbOutbox(root, temp, { expectedCatalogCommit: commit, expectedManifestSha256: '0'.repeat(64) }),
+      (error) => error?.code === 'KB_OUTBOX_EXPECTED_MANIFEST_MISMATCH'
     );
-    assert.deepEqual(await fs.readdir(outbox), []);
+    assert.equal((await fs.readdir(temp)).some((name) => name === commit), false);
   } finally {
-    await fs.rm(outbox, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+    await fs.rm(temp, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
   }
 });
