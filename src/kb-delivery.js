@@ -6,7 +6,8 @@ import { createReusableAssetValidator, assertReusableAssetSchema } from './reusa
 
 const FORMAT = 'gace.reusable-asset.v1';
 const CATALOG_REPOSITORY = 'seigo-gace/modular-catalog';
-const REQUIRED_ASSET_FILES = ['asset.json', 'knowledge-units.jsonl', 'relationships.jsonl', 'cases.jsonl', 'manifest.json'];
+const BUNDLE_DATA_FILES = ['asset.json', 'knowledge-units.jsonl', 'relationships.jsonl', 'cases.jsonl'];
+const REQUIRED_ASSET_FILES = [...BUNDLE_DATA_FILES, 'manifest.json'];
 
 async function exists(target) {
   try {
@@ -17,12 +18,19 @@ async function exists(target) {
   }
 }
 
+async function assertDirectory(target, code = 'KB_DELIVERY_NOT_CONFIGURED') {
+  try {
+    const stat = await fs.stat(target);
+    if (!stat.isDirectory()) throw new Error('not a directory');
+  } catch {
+    throw new CatalogError(`Required directory is unavailable: ${target}`, code);
+  }
+}
+
 async function readJson(file, code = 'INVALID_JSON') {
   try {
     const parsed = JSON.parse(await fs.readFile(file, 'utf8'));
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-      throw new Error('JSON object required');
-    }
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('JSON object required');
     return parsed;
   } catch (error) {
     throw new CatalogError(`${file}: ${error.message}`, code);
@@ -31,6 +39,10 @@ async function readJson(file, code = 'INVALID_JSON') {
 
 async function fileSha256(file) {
   return sha256(await fs.readFile(file));
+}
+
+function normalizeHash(value) {
+  return String(value ?? '').trim().toLowerCase();
 }
 
 function countJsonl(content, file) {
@@ -58,6 +70,12 @@ function canonicalJson(value) {
   return JSON.stringify(value);
 }
 
+function isInside(parent, target) {
+  const base = path.resolve(parent);
+  const child = path.resolve(target);
+  return child === base || child.startsWith(base + path.sep);
+}
+
 async function verifyAssetBundle(deliveryRoot, item, topManifest, schemaValidator) {
   if (!item || typeof item !== 'object' || Array.isArray(item)) {
     throw new CatalogError('Invalid asset entry in delivery manifest.', 'DELIVERY_ASSET_ENTRY_INVALID');
@@ -75,6 +93,7 @@ async function verifyAssetBundle(deliveryRoot, item, topManifest, schemaValidato
   if (asset.identity?.asset_id !== id) throw new CatalogError(`Asset identity mismatch: ${id}`, 'DELIVERY_ASSET_ID_MISMATCH');
   if (asset.provenance?.catalog?.repository !== CATALOG_REPOSITORY) throw new CatalogError(`Asset Catalog repository mismatch: ${id}`, 'DELIVERY_CATALOG_REPOSITORY_MISMATCH');
   if (asset.provenance?.catalog?.commit !== topManifest.catalog.commit) throw new CatalogError(`Asset Catalog commit mismatch: ${id}`, 'DELIVERY_CATALOG_COMMIT_MISMATCH');
+  if (asset.integrity?.asset_hash !== item.assetHash) throw new CatalogError(`Asset hash mismatch: ${id}`, 'DELIVERY_ASSET_HASH_MISMATCH');
 
   const bundleManifest = await readJson(path.join(assetDir, 'manifest.json'), 'DELIVERY_BUNDLE_MANIFEST_INVALID');
   if (bundleManifest.schema_version !== 1 || bundleManifest.format !== FORMAT) throw new CatalogError(`Unsupported bundle manifest: ${id}`, 'DELIVERY_MANIFEST_FORMAT_UNSUPPORTED');
@@ -85,27 +104,29 @@ async function verifyAssetBundle(deliveryRoot, item, topManifest, schemaValidato
   if (bundleManifest.source_asset_hash !== item.assetHash || bundleManifest.bundle_hash !== item.bundleHash) {
     throw new CatalogError(`Bundle hash declaration mismatch: ${id}`, 'DELIVERY_BUNDLE_HASH_MISMATCH');
   }
-  if (!Array.isArray(bundleManifest.files) || bundleManifest.files.length !== 4) {
+  if (!Array.isArray(bundleManifest.files) || bundleManifest.files.length !== BUNDLE_DATA_FILES.length) {
     throw new CatalogError(`Bundle file manifest invalid: ${id}`, 'DELIVERY_BUNDLE_FILES_INVALID');
   }
+  if (new Set(bundleManifest.files.map((entry) => entry?.path)).size !== BUNDLE_DATA_FILES.length) {
+    throw new CatalogError(`Bundle file manifest contains duplicate paths: ${id}`, 'DELIVERY_BUNDLE_FILES_INVALID');
+  }
+  if (BUNDLE_DATA_FILES.some((name) => !bundleManifest.files.some((entry) => entry?.path === name))) {
+    throw new CatalogError(`Bundle file manifest is incomplete: ${id}`, 'DELIVERY_BUNDLE_FILES_INVALID');
+  }
 
-  const actualFiles = [];
   for (const declared of bundleManifest.files) {
     const name = String(declared?.path ?? '');
-    if (!['asset.json', 'knowledge-units.jsonl', 'relationships.jsonl', 'cases.jsonl'].includes(name)) {
-      throw new CatalogError(`Unexpected bundle file declaration: ${id}/${name}`, 'DELIVERY_BUNDLE_FILES_INVALID');
-    }
+    if (!BUNDLE_DATA_FILES.includes(name)) throw new CatalogError(`Unexpected bundle file declaration: ${id}/${name}`, 'DELIVERY_BUNDLE_FILES_INVALID');
     const file = path.join(assetDir, name);
     const content = await fs.readFile(file);
     const actual = { path: name, size: content.length, sha256: sha256(content) };
-    if (Number(declared.size) !== actual.size || declared.sha256 !== actual.sha256) {
+    if (Number(declared.size) !== actual.size || normalizeHash(declared.sha256) !== actual.sha256) {
       throw new CatalogError(`Bundle file integrity mismatch: ${id}/${name}`, 'DELIVERY_BUNDLE_INTEGRITY_FAILED');
     }
-    actualFiles.push(actual);
   }
-  actualFiles.sort((a, b) => a.path.localeCompare(b.path));
-  const declaredSorted = [...bundleManifest.files].map((entry) => ({ path: entry.path, size: entry.size, sha256: entry.sha256 })).sort((a, b) => a.path.localeCompare(b.path));
-  if (sha256(canonicalJson(declaredSorted)) !== bundleManifest.bundle_hash) {
+
+  const declaredForHash = bundleManifest.files.map((entry) => ({ path: entry.path, size: entry.size, sha256: entry.sha256 }));
+  if (sha256(canonicalJson(declaredForHash)) !== normalizeHash(bundleManifest.bundle_hash)) {
     throw new CatalogError(`Bundle hash verification failed: ${id}`, 'DELIVERY_BUNDLE_INTEGRITY_FAILED');
   }
 
@@ -154,7 +175,6 @@ export async function preflightDelivery(rootDir, deliveryRoot) {
 }
 
 async function listCompleteDeliveries(directory) {
-  if (!await exists(directory)) return [];
   const entries = await fs.readdir(directory, { withFileTypes: true });
   const result = [];
   for (const entry of entries) {
@@ -173,15 +193,18 @@ async function sameDeliveryIdentity(directory, expected) {
 }
 
 export async function publishDelivery(rootDir, deliveryRoot, inboxBase) {
-  const preflight = await preflightDelivery(rootDir, deliveryRoot);
+  const root = path.resolve(rootDir);
+  const preflight = await preflightDelivery(root, deliveryRoot);
   const base = path.resolve(inboxBase);
+  if (isInside(root, base)) throw new CatalogError('KB inbox must be outside the ModuleCatalog working tree.', 'KB_DELIVERY_TARGET_UNSAFE');
+  await assertDirectory(base);
+
   const ready = path.join(base, 'ready');
   const processing = path.join(base, 'processing');
   const processed = path.join(base, 'processed');
+  const failed = path.join(base, 'failed');
+  for (const directory of [ready, processing, processed, failed]) await assertDirectory(directory);
   const producerTemp = path.join(base, '.producer-publish');
-  await fs.mkdir(ready, { recursive: true });
-  await fs.mkdir(processing, { recursive: true });
-  await fs.mkdir(processed, { recursive: true });
   await fs.mkdir(producerTemp, { recursive: true });
 
   const deliveryId = preflight.catalogCommit;
@@ -210,12 +233,12 @@ export async function publishDelivery(rootDir, deliveryRoot, inboxBase) {
   const targetTemp = path.join(producerTemp, tempName);
   try {
     await fs.cp(path.resolve(deliveryRoot), targetTemp, { recursive: true, errorOnExist: true, force: false });
-    const copied = await preflightDelivery(rootDir, targetTemp);
+    const copied = await preflightDelivery(root, targetTemp);
     if (copied.catalogCommit !== preflight.catalogCommit || copied.manifestSha256 !== preflight.manifestSha256 || copied.assetCount !== preflight.assetCount || copied.knowledgeUnitCount !== preflight.knowledgeUnitCount || copied.relationshipCount !== preflight.relationshipCount || copied.caseCount !== preflight.caseCount) {
       throw new CatalogError('Target-side delivery readback does not match producer preflight.', 'KB_DELIVERY_COPY_MISMATCH');
     }
     await fs.rename(targetTemp, finalReady);
-    const published = await preflightDelivery(rootDir, finalReady);
+    const published = await preflightDelivery(root, finalReady);
     if (published.manifestSha256 !== preflight.manifestSha256 || published.catalogCommit !== preflight.catalogCommit) {
       throw new CatalogError('Published delivery readback does not match producer identity.', 'KB_DELIVERY_COPY_MISMATCH');
     }
@@ -225,34 +248,37 @@ export async function publishDelivery(rootDir, deliveryRoot, inboxBase) {
   }
 }
 
-function assertCount(value, expected, field) {
-  if (Number(value) !== Number(expected)) throw new CatalogError(`KB receipt ${field} mismatch: expected=${expected} actual=${value}`, 'KB_RECEIPT_MISMATCH');
+function assertCount(value, expected, field, code = 'KB_RECEIPT_MISMATCH') {
+  if (Number(value) !== Number(expected)) throw new CatalogError(`KB ${field} mismatch: expected=${expected} actual=${value}`, code);
 }
 
 export async function verifyKbActive(rootDir, deliveryRoot, kbRoot) {
   const expected = await preflightDelivery(rootDir, deliveryRoot);
   const root = path.resolve(kbRoot);
+  await assertDirectory(root);
   const receiptFile = path.join(root, 'data', 'knowledge-intake', 'modulecatalog', 'receipts', `${expected.catalogCommit}.json`);
   const currentFile = path.join(root, 'data', 'knowledge-records', 'modulecatalog-reusable-active.json');
   if (!await exists(receiptFile)) return Object.freeze({ status: 'PENDING', code: 'KB_RECEIPT_PENDING', catalogCommit: expected.catalogCommit });
+
   const receipt = await readJson(receiptFile, 'KB_RECEIPT_INVALID');
   if (receipt.catalogCommit !== expected.catalogCommit) throw new CatalogError('KB receipt commit mismatch.', 'KB_RECEIPT_MISMATCH');
-  if (receipt.deliveryManifestSha256 !== expected.manifestSha256) throw new CatalogError('KB receipt delivery manifest hash mismatch.', 'KB_RECEIPT_MISMATCH');
-  assertCount(receipt.assetCount, expected.assetCount, 'assetCount');
-  assertCount(receipt.knowledgeUnitCount, expected.knowledgeUnitCount, 'knowledgeUnitCount');
-  assertCount(receipt.relationshipCount, expected.relationshipCount, 'relationshipCount');
-  assertCount(receipt.caseCount, expected.caseCount, 'caseCount');
+  if (normalizeHash(receipt.deliveryManifestSha256) !== expected.manifestSha256) throw new CatalogError('KB receipt delivery manifest hash mismatch.', 'KB_RECEIPT_MISMATCH');
+  assertCount(receipt.assetCount, expected.assetCount, 'receipt assetCount');
+  assertCount(receipt.knowledgeUnitCount, expected.knowledgeUnitCount, 'receipt knowledgeUnitCount');
+  assertCount(receipt.relationshipCount, expected.relationshipCount, 'receipt relationshipCount');
+  assertCount(receipt.caseCount, expected.caseCount, 'receipt caseCount');
 
   if (receipt.status === 'ACCEPTED') return Object.freeze({ status: 'ACCEPTED', code: 'KB_ACCEPTED_PENDING_ACTIVE', catalogCommit: expected.catalogCommit, receipt });
   if (receipt.status !== 'ACTIVE') throw new CatalogError(`Unexpected KB receipt status: ${receipt.status}`, 'KB_RECEIPT_MISMATCH');
   if (!await exists(currentFile)) throw new CatalogError('KB ACTIVE receipt exists without current authority.', 'KB_CURRENT_MISMATCH');
+
   const current = await readJson(currentFile, 'KB_CURRENT_INVALID');
   if (current.status !== 'ACTIVE' || current.catalogCommit !== expected.catalogCommit) throw new CatalogError('KB current authority does not match delivered commit.', 'KB_CURRENT_MISMATCH');
-  if (current.deliveryManifestSha256 !== expected.manifestSha256) throw new CatalogError('KB current authority manifest hash mismatch.', 'KB_CURRENT_MISMATCH');
-  assertCount(current.assetCount, expected.assetCount, 'current.assetCount');
-  assertCount(current.knowledgeUnitCount, expected.knowledgeUnitCount, 'current.knowledgeUnitCount');
-  assertCount(current.relationshipCount, expected.relationshipCount, 'current.relationshipCount');
-  assertCount(current.caseCount, expected.caseCount, 'current.caseCount');
+  if (normalizeHash(current.deliveryManifestSha256) !== expected.manifestSha256) throw new CatalogError('KB current authority manifest hash mismatch.', 'KB_CURRENT_MISMATCH');
+  assertCount(current.assetCount, expected.assetCount, 'current assetCount', 'KB_CURRENT_MISMATCH');
+  assertCount(current.knowledgeUnitCount, expected.knowledgeUnitCount, 'current knowledgeUnitCount', 'KB_CURRENT_MISMATCH');
+  assertCount(current.relationshipCount, expected.relationshipCount, 'current relationshipCount', 'KB_CURRENT_MISMATCH');
+  assertCount(current.caseCount, expected.caseCount, 'current caseCount', 'KB_CURRENT_MISMATCH');
 
   return Object.freeze({ status: 'COMPLETE', code: 'COMPLETE', catalogCommit: expected.catalogCommit, receipt, current });
 }
