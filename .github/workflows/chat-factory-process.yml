@@ -59,6 +59,10 @@ jobs:
         working-directory: source
         run: npm run check
 
+      - name: Verify portable reuse outside Catalog tree
+        shell: bash
+        run: node source/scripts/verify-portable-reuse.mjs --root source --json-output "$RUNNER_TEMP/portable-reuse.json"
+
       - name: Export and preflight full review snapshot
         shell: bash
         run: |
@@ -72,7 +76,7 @@ jobs:
         shell: bash
         run: |
           result='.gace-control/results/${{ steps.request.outputs.request_id }}.json'
-          node source/scripts/build-chat-factory-result.mjs --request '${{ steps.request.outputs.request_file }}' --source-root source --snapshot "$RUNNER_TEMP/chat-review-snapshot" --output "$result"
+          node source/scripts/build-chat-factory-result.mjs --request '${{ steps.request.outputs.request_file }}' --source-root source --snapshot "$RUNNER_TEMP/chat-review-snapshot" --portable-reuse "$RUNNER_TEMP/portable-reuse.json" --output "$result"
 
       - name: Upload review snapshot evidence
         uses: actions/upload-artifact@v4
@@ -80,6 +84,7 @@ jobs:
           name: chat-factory-${{ steps.request.outputs.request_id }}
           path: |
             ${{ runner.temp }}/chat-review-snapshot
+            ${{ runner.temp }}/portable-reuse.json
             .gace-control/results/${{ steps.request.outputs.request_id }}.json
           if-no-files-found: error
           retention-days: 30
