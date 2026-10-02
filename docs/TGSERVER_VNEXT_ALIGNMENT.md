@@ -1,59 +1,26 @@
-# ModuleCatalog ↔ TGserver vNext Alignment
+# ModuleCatalog ↔ TGserver Boundary
 
 Status: Current integration boundary
 Date: 2026-10-03 JST
 ModuleCatalog branch: `feat/reusable-knowledge-factory-v1-20261002`
-TGserver comparison authority: PR #8 `feat/tgserver-vnext-capability-20261002`
-TGserver exact head reviewed: `07f8600e9c1c0cbfef975dd9684da8459975658c`
+Legacy TGserver usage: KEEP AS-IS
+New TGS vNext: SEPARATE SYSTEM / NO MIGRATION ASSUMPTION
 
 ## 1. Decision
 
-TGserver vNext and ModuleCatalog must remain separate systems with complementary responsibilities.
+ModuleCatalog continues to use the existing TGserver path and the original TGserver Group prepared for this purpose.
 
-TGserver owns durable runtime evidence transport/state. ModuleCatalog owns semantic reusable-asset processing and admission preparation.
+The new TGS vNext is being built separately. ModuleCatalog does not migrate to it as part of the current Factory v1 work and does not wait for it before continuing.
 
-ModuleCatalog must not duplicate TGserver vNext routing, provider scheduling, durable operation state, reconciliation, retry/DLQ, locator authority, Telegram transport, or rebuildable search implementation.
+The existing TGserver integration remains the runtime-observation source for ModuleCatalog. The existing Group remains the operational destination/source boundary for this integration unless Master explicitly changes that decision later.
 
-TGserver must not own ModuleCatalog-specific reusable-asset semantics, Knowledge Unit/Case construction, Module Architecture admission judgment, Canonical/Derived classification, or GPT final review.
+## 2. Fixed separation
 
-## 2. TGserver vNext Current responsibilities relevant to ModuleCatalog
+### Existing TGserver used by ModuleCatalog
 
-Current TGserver vNext architecture owns or is implementing:
+ModuleCatalog keeps using the current compatibility HTTP API and existing operational Group.
 
-- durable Operation Ledger and idempotency;
-- Telegram-first commit semantics;
-- durable Provider Receipt evidence;
-- reconciliation of ambiguous/provider-crash states;
-- durable Routing Registry;
-- Group/Topic/Generation placement;
-- Provider/Bot/Group scheduling and backpressure;
-- stable Group Catalog and isolated vNext topology;
-- durable Telegram locator management;
-- rebuildable Meilisearch indexing;
-- generic Event/Object/Search APIs and future `/v1` surface;
-- generic audit/repair/health/metrics.
-
-TGserver explicitly does not own Consumer-specific business semantics or AI semantic decision making.
-
-## 3. ModuleCatalog Current responsibilities
-
-ModuleCatalog owns:
-
-- exact Git revision intake;
-- repository fact/provenance collection;
-- runtime evidence intake through a TGserver adapter;
-- deterministic structural extraction;
-- reusable asset / Knowledge Unit / Case / Relationship construction;
-- Canonical / Deterministic Derived / AI Derived / UNKNOWN separation;
-- Module Architecture and reusable-quality gates;
-- DebugAI/Astera escalation under explicit contracts;
-- `gace.reusable-asset.v1` snapshot creation;
-- GPT final review and APPROVE / HOLD / REJECT;
-- approved KB admission initiation and matching KB ACTIVE readback.
-
-## 4. Current TGserver adapter contract
-
-The implemented ModuleCatalog adapter remains the existing TGserver compatibility API:
+Current adapter contract:
 
 ```text
 POST /search
@@ -64,79 +31,97 @@ from
 to
 ```
 
-This remains valid because TGserver vNext preserves existing endpoints as compatibility contracts until migration is explicitly approved.
+ModuleCatalog continues to:
 
-The current ModuleCatalog adapter must continue to:
+- call existing TGserver only through its current HTTP API;
+- use the original existing TGserver Group already prepared for this purpose;
+- treat returned records as observed runtime evidence;
+- keep Repository facts and TGserver observations separate;
+- preserve missing runtime facts as UNKNOWN / NOT_RECORDED;
+- avoid direct Telegram / Redis / Meilisearch access.
 
-- call TGserver only through its HTTP API;
-- never read Telegram, Redis, PostgreSQL, Provider Receipt Store, Routing Registry, or Meilisearch directly;
-- treat TGserver results as observed runtime evidence, not Canonical repository facts;
-- preserve missing or unavailable runtime facts as UNKNOWN/NOT_RECORDED rather than infer them.
+No new TGserver Group, vNext topology, Provider/Bot Pool, PostgreSQL Routing Registry, or vNext Runtime dependency is required for ModuleCatalog Factory v1.
 
-## 5. vNext migration boundary
+### New TGS vNext
 
-Do not invent or pre-implement a guessed `/v1` TGserver contract.
+New TGS vNext is a separate development/runtime track.
 
-ModuleCatalog may add a vNext evidence adapter only after TGserver has all of the following:
+Its Operation Ledger, Provider Receipt, Reconciliation, Routing Registry, Provider/Bot/Group scheduling, Group Catalog, new Telegram topology, Object Storage, and future `/v1` APIs are not ModuleCatalog Factory v1 dependencies.
 
-1. canonical `/v1` Native/Data/Search/Operation API contract fixed in TGserver source authority;
-2. exact runtime implementation wired;
-3. real Telegram vNext E2E verified;
-4. durable PostgreSQL Control Store wired and verified;
-5. failure/reconciliation drill verified;
-6. Master-approved integration boundary.
+ModuleCatalog must not duplicate those mechanisms internally, but it also must not automatically migrate to them.
 
-Until then, ModuleCatalog uses the compatibility `/search` adapter.
+Any future connection to new TGS vNext requires a new explicit Master decision. There is no implicit migration plan.
 
-## 6. Evidence identity after vNext activation
+## 3. ModuleCatalog responsibilities
 
-When the vNext API is verified, ModuleCatalog should prefer TGserver durable evidence identities over weak log-only references.
+ModuleCatalog owns:
 
-Candidate evidence material, only when exposed by the sanctioned TGserver API, includes:
+- exact Git revision intake;
+- repository fact/provenance collection;
+- runtime evidence intake through the existing TGserver adapter;
+- deterministic structural extraction;
+- reusable asset / Knowledge Unit / Case / Relationship construction;
+- Canonical / Deterministic Derived / AI Derived / UNKNOWN separation;
+- Module Architecture and reusable-quality gates;
+- DebugAI/Astera escalation under explicit contracts;
+- `gace.reusable-asset.v1` snapshot creation;
+- GPT final review and APPROVE / HOLD / REJECT;
+- approved KB admission initiation and matching KB ACTIVE readback.
 
-- operation identity;
-- payload/content hash;
-- durable operation state;
-- structured Telegram locator;
-- provider receipt evidence;
-- reconciliation status;
-- route/namespace/stream identity;
-- exact event/object timestamp and class.
+## 4. Existing TGserver evidence rules
 
-ModuleCatalog stores these as provenance/evidence references. It does not become the authority for their lifecycle.
+TGserver runtime observations are evidence, not Repository Canonical facts.
 
-Absence of a Provider Receipt must not be interpreted by ModuleCatalog as proof that Telegram delivery did not occur; TGserver reconciliation owns that decision.
+```text
+Repository = what is implemented / declared
+TGserver   = what was observed at runtime
+```
 
-## 7. No duplicate reliability stack
+Neither source silently overwrites the other.
+
+Contradiction may trigger verification/debug analysis, but ModuleCatalog does not invent missing facts or reinterpret absence as proof of failure.
+
+## 5. No duplicate reliability stack
 
 ModuleCatalog must not add its own generic versions of:
 
-- Telegram retry;
-- ambiguous provider acknowledgement recovery;
-- Provider/Bot/Group selection;
-- route/topic rotation;
-- operation ledger;
-- DLQ;
-- reconciliation worker;
+- Telegram retry infrastructure;
+- provider acknowledgement recovery;
+- generic Provider/Bot/Group scheduling;
+- route/topic lifecycle management;
+- generic operation ledger;
+- generic DLQ;
+- generic reconciliation worker;
 - Telegram object replication/self-heal;
 - generic Meili search authority.
 
-If ModuleCatalog needs those capabilities, it consumes the sanctioned TGserver API result.
+Those are TGserver/TGS responsibilities, not reusable-asset semantic processing responsibilities.
 
-## 8. KB transport remains separate for v1
+## 6. KB transport remains unchanged
 
-TGserver vNext Object Storage is not yet a replacement for the current ModuleCatalog Server-outbox → Master-PC pull → G-ACE KB intake path.
+ModuleCatalog Factory v1 keeps the existing transport:
 
-Current KB transport remains unchanged until TGserver Object/Manifest v2, Native API, real runtime E2E, recovery drill, and Master approval are complete.
+```text
+Server sealed outbox
+  -> Master-PC initiated pull
+  -> F:\G-ACE-KB ready boundary
+  -> KB processing
+  -> ACCEPTED
+  -> ACTIVE
+  -> processed
+  -> Deep Health
+```
 
-A later design may evaluate TGserver as a durable delivery carrier for review snapshots or KB packages, but that is a separate measured migration and must not silently replace the current transport.
+New TGS vNext Object Storage is not part of this path.
 
-## 9. Processing roles
+Do not replace the current KB transport with new TGS vNext unless Master explicitly directs a separate migration later.
+
+## 7. Processing roles
 
 ```text
 Repository facts --------------------+
                                       |
-TGserver observed runtime evidence ---+--> ModuleCatalog Factory
+existing TGserver runtime evidence ---+--> ModuleCatalog Factory
                                              |
                                   deterministic processing
                                              |
@@ -151,13 +136,13 @@ TGserver observed runtime evidence ---+--> ModuleCatalog Factory
                                   approved KB admission
 ```
 
-TGserver provides durable evidence/storage/delivery facts. ModuleCatalog performs reusable-asset semantic processing. GPT Chat remains the final review gate.
+## 8. Current verdict
 
-## 10. Current verdict
-
-- Existing ModuleCatalog `/search` adapter: KEEP.
+- Existing ModuleCatalog `/search` adapter: KEEP AS-IS.
+- Existing original TGserver Group for ModuleCatalog: KEEP USING.
+- New TGS vNext dependency for ModuleCatalog Factory v1: NO.
+- Automatic migration from existing TGserver to new TGS vNext: NO.
 - Direct TGserver DB/Telegram/Meili access from ModuleCatalog: FORBIDDEN.
-- Duplicate TGserver reliability/routing/reconciliation logic inside ModuleCatalog: FORBIDDEN.
-- TGserver vNext durable evidence adapter: DEFER until canonical API + runtime E2E are verified.
-- Current KB pull transport replacement by TGserver: NOT APPROVED / NOT IMPLEMENTED.
-- Future TGserver durable operation/locator/receipt evidence use: RECOMMENDED after sanctioned API activation.
+- Duplicate TGserver/TGS reliability/routing/reconciliation logic inside ModuleCatalog: FORBIDDEN.
+- Current Server-outbox -> Master-PC pull -> KB transport: KEEP.
+- Future new-TGS integration: only by separate explicit Master instruction.
