@@ -7,13 +7,14 @@ It keeps verified Source / Design / Logic / Architecture / Contract / Test / Evi
 ## Current design authority
 
 - Factory v1: [`docs/REUSABLE_KNOWLEDGE_FACTORY_V1.md`](docs/REUSABLE_KNOWLEDGE_FACTORY_V1.md)
+- Repository Candidate: [`docs/REPOSITORY_ASSET_CANDIDATE_V1.md`](docs/REPOSITORY_ASSET_CANDIDATE_V1.md)
 - KB delivery / ACTIVE readback contract: [`docs/KB_DELIVERY_CONTRACT_V1.md`](docs/KB_DELIVERY_CONTRACT_V1.md)
 - Factory design delta: [`docs/DESIGN_DELTA_FACTORY_V1.md`](docs/DESIGN_DELTA_FACTORY_V1.md)
 - Previous Catalog architecture baseline: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 - Asset format: [`docs/ASSET_FORMAT.md`](docs/ASSET_FORMAT.md)
 - Reusable-data audit: [`docs/REUSABLE_ASSET_DATA_AUDIT_20261001.md`](docs/REUSABLE_ASSET_DATA_AUDIT_20261001.md)
 
-The Factory v1 design is the current implementation baseline on the factory feature branch. GitHub source completion, Server runtime, KB delivery, KB `ACCEPTED`, and KB `ACTIVE` are separate states and must not be conflated.
+The Factory v1 design is the current implementation baseline on the factory feature branch. GitHub source completion, candidate materialization, Catalog registration, Server runtime, KB delivery, KB `ACCEPTED`, and KB `ACTIVE` are separate states and must not be conflated.
 
 ## Fixed boundaries
 
@@ -37,11 +38,29 @@ Direct Astera Evidence Search is **not currently connected from ModuleCatalog**.
 
 ModuleCatalog does not modify AI Core, DebugAI, Astera v8, TGserver, source repositories, or the KB runtime.
 
-Factory responsibility covers deterministic extraction, reusable bundle generation, producer-side delivery validation, atomic transport through the agreed KB inbox boundary, and producer-side verification of the matching KB `ACTIVE` receipt/current authority. KB-side BM25 / Vector / Knowledge Graph / MCP/search runtime and continuing health checks remain outside ModuleCatalog.
+Factory responsibility covers exact-revision repository intake, non-fabricated candidate construction, deterministic extraction, reusable bundle generation, producer-side delivery validation, atomic transport through the agreed KB inbox boundary, and producer-side verification of the matching KB `ACTIVE` receipt/current authority. KB-side BM25 / Vector / Knowledge Graph / MCP/search runtime and continuing health checks remain outside ModuleCatalog.
 
 ## Current implemented Factory path
 
-Repository intake now resolves the supplied 40-character revision against the actual Git object database before optional external adapters can run. An optional exact `previous_revision` yields an incremental `git diff`; without it, intake reports a full snapshot; equal revisions return `UNCHANGED`. Changes under existing `assets/<asset-id>/...` paths are projected to affected Catalog Asset IDs, while non-Asset paths remain explicit as `unmapped_paths` instead of being silently discarded.
+Repository intake resolves the supplied 40-character revision against the actual Git object database before optional external adapters can run. An optional exact `previous_revision` yields an incremental `git diff`; without it, intake reports a full snapshot; equal revisions return `UNCHANGED`. Changes under existing `assets/<asset-id>/...` paths are projected to affected Catalog Asset IDs, while non-Asset paths remain explicit as `unmapped_paths` instead of being silently discarded.
+
+For a generic repository that is not already laid out as a Catalog Asset, ModuleCatalog now supports a separate non-registered Candidate boundary:
+
+```text
+exact external repo revision
+  + explicit Canonical declaration
+  + explicit Design / Logic / Architecture / Evidence / Source / Normal Test / User Test mapping
+  -> assess missing repository facts
+  -> READY_TO_MATERIALIZE or INCOMPLETE
+  -> exact Git Blob materialization outside ModuleCatalog
+  -> existing Asset validation
+  -> READY_FOR_ADMISSION
+  -> explicit existing `register` command only
+```
+
+The declaration and role mapping are explicit authority inputs. ModuleCatalog does not infer a missing purpose, responsibility, layer, language, runtime, verification result, User Test role, or Evidence record from arbitrary repository content. Materialization reads exact committed blobs, so uncommitted Working Tree changes cannot leak into the Candidate. `READY_FOR_ADMISSION` is still not `REGISTERED`.
+
+The registered-Asset-to-KB path remains:
 
 ```text
 Catalog Asset / source
@@ -58,6 +77,8 @@ Catalog Asset / source
 
 Exporter provenance is fail-closed: an explicit `--catalog-commit` must equal the checked-out Catalog `HEAD`. A caller cannot label current Working Tree content with another revision.
 
+`README.md` is optional under the existing Asset admission format. The exporter emits a README Knowledge Unit only when the registered Asset actually contains a non-empty README; it never fabricates one.
+
 The diagnostic/verification coordination path is separately bounded:
 
 ```text
@@ -70,7 +91,7 @@ exact repo + revision + optional TGserver observations
   -> INSPECTION_COMPLETE
 ```
 
-`INSPECTION_COMPLETE` is not KB `COMPLETE` and does not claim that an arbitrary external repository has already been converted into a canonical Catalog Asset. Generic repository-to-new-Asset construction remains a separate Factory implementation boundary.
+`INSPECTION_COMPLETE`, `READY_FOR_ADMISSION`, Catalog registration, and KB `COMPLETE` are distinct states.
 
 ## Five-level Module Architecture
 
@@ -120,6 +141,7 @@ manifest.json
 node src/cli.js search --query "http retry" --language JavaScript --layer Feature
 node src/cli.js show <asset-id> --section architecture
 node src/cli.js validate <asset-id>
+node src/cli.js repository-candidate --repo <git-directory> --revision <40-char-sha> --spec <json-file> [--asset-root <path>] [--output <outside-directory>] --json
 node src/cli.js register /path/to/completed-asset
 node src/cli.js build-index
 node src/cli.js verify-index
@@ -128,6 +150,8 @@ node src/cli.js preflight-kb-delivery <delivery-directory>
 node src/cli.js publish-kb-delivery <delivery-directory> --kb-root <directory>
 node src/cli.js verify-kb-active <delivery-directory> --kb-root <directory>
 ```
+
+`repository-candidate` without `--output` performs assessment only. With `--output`, it materializes a validated non-registered Candidate outside the Catalog working tree. Registration remains an explicit separate operation.
 
 A command being documented does not by itself prove real Server/PC transport or KB runtime success. Cross-host transport remains unproven until a concrete bridge is configured and verified.
 
@@ -139,7 +163,7 @@ npm run verify
 npm run check
 ```
 
-Current automated regression covers existing Catalog behavior plus Reusable Asset schema/export determinism and exact-checkout provenance, exact-revision full/incremental/unchanged repository intake, KB delivery preflight/idempotency/ACTIVE authority, TGserver adapter boundaries, structural analysis, Granite controller constraints, DebugAI MCP mapping, Astera QCE transport, and Factory inspection orchestration.
+Current automated regression covers existing Catalog behavior plus Reusable Asset schema/export determinism and exact-checkout provenance, optional-README export compatibility, exact-revision full/incremental/unchanged repository intake, exact-revision Repository Candidate assessment/materialization/CLI boundaries, KB delivery preflight/idempotency/ACTIVE authority, TGserver adapter boundaries, structural analysis, Granite controller constraints, DebugAI MCP mapping, Astera QCE transport, and Factory inspection orchestration.
 
 Acceptance is based on expected output/state, regression, important failure cases, schema/integrity checks, and runtime/provider readback where relevant. Build or CI success alone is not a production/runtime PASS.
 
@@ -147,7 +171,7 @@ Acceptance is based on expected output/state, regression, important failure case
 
 The current branch is stacked on the 80-asset reusable export work from PR #4. Existing Asset identity, Source, tests, Evidence, Manifest, hashes, and provenance remain canonical inputs to Factory v1.
 
-Generated KB data is not committed as canonical source merely because it was exported. The Catalog remains the reproducible source of truth.
+Generated Candidate or KB data is not committed as canonical source merely because it was materialized or exported. The Catalog remains the reproducible source of truth after explicit admission.
 
 ## Legacy GPT work-control material
 
