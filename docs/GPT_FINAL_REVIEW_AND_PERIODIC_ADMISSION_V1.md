@@ -217,6 +217,8 @@ The admission builder must fail closed unless the exact reviewed Factory result 
 ```text
 contract_unknown_count=0
 applicability_empty_count=0
+applicability_unknown_derivation_count=0
+applicability_from_canonical_purpose_count + applicability_from_interface_count = asset_count
 known_unverified_count=0
 module_architecture_layer_gate_pass=true
 invalid_layer_values=[]
@@ -228,3 +230,16 @@ portable_reuse_command_count>=asset_count*2
 `real_cross_project_reuse_proven=true` is intentionally not required by this machine gate because §8 permits retention of a strongly supported reusable Asset while preserving the exact statement that unrelated-project integration remains unproven.
 
 A rejected or hold review creates no admission ticket regardless of machine-gate values.
+
+## 13. Applicability derivation boundary
+
+`applicability.use_when` must never be populated merely to avoid an empty-field result.
+
+The Factory accepts exactly two traceable derivation classes for the current v2 review rule:
+
+1. `meta.purpose` when the recorded purpose itself is specific enough to describe the reusable operation;
+2. the exact structurally observed input/output interface when `meta.purpose` is only the Asset name, a generic `reusable minimal skill` label, or the generic `1責務の独立Skill` wording.
+
+For the second class, the Canonical `meta.purpose` is preserved unchanged. Only the reusable `use_when` projection is Deterministic Derived, and its derivation source must explicitly record that the purpose was generic and the interface was used instead.
+
+If neither class can produce a traceable `use_when`, the Asset remains outside admission. The Factory must not ask an AI to invent a plausible use case.
