@@ -8,6 +8,7 @@ import { prepareKbOutbox } from './kb-outbox.js';
 const TICKET_SCHEMA = 'modulecatalog.kb-admission-ticket.v1';
 const CATALOG_REPOSITORY = 'seigo-gace/modular-catalog';
 const EXPECTED_TRANSPORT = 'master-pc-initiated-pull';
+const EXPECTED_SERVER_OUTBOX_ROOT = '/home/admin1/logs/modulecatalog/outbox';
 const EXPECTED_KB_ROOT = 'F:\\G-ACE-KB';
 const COMMIT_RE = /^[0-9a-f]{40}$/i;
 const SHA256_RE = /^[0-9a-f]{64}$/i;
@@ -37,6 +38,7 @@ export function validateRuntimeAdmissionTicket(input) {
   if (input.review_decision !== 'GPT_APPROVED') fail('Only GPT_APPROVED admission tickets may reach runtime admission.', 'RUNTIME_ADMISSION_NOT_APPROVED');
   if (input.status !== 'READY_FOR_RUNTIME_ADMISSION') fail('Admission ticket is not ready for runtime admission.', 'RUNTIME_ADMISSION_NOT_READY');
   if (input.transport !== EXPECTED_TRANSPORT) fail('Admission ticket transport is unsupported.', 'RUNTIME_ADMISSION_TRANSPORT_INVALID');
+  if (input.server_outbox_root !== EXPECTED_SERVER_OUTBOX_ROOT) fail('Admission ticket Server outbox root is not the fixed ModuleCatalog outbox.', 'RUNTIME_ADMISSION_OUTBOX_ROOT_INVALID');
   if (input.kb_root !== EXPECTED_KB_ROOT) fail('Admission ticket KB root is not the fixed G-ACE KB root.', 'RUNTIME_ADMISSION_KB_ROOT_INVALID');
 
   const catalogCommit = requiredString(input.catalog_commit, 'catalog_commit').toLowerCase();
@@ -56,7 +58,7 @@ export function validateRuntimeAdmissionTicket(input) {
     review_decision: 'GPT_APPROVED',
     status: 'READY_FOR_RUNTIME_ADMISSION',
     transport: EXPECTED_TRANSPORT,
-    server_outbox_root: requiredString(input.server_outbox_root, 'server_outbox_root'),
+    server_outbox_root: EXPECTED_SERVER_OUTBOX_ROOT,
     kb_root: EXPECTED_KB_ROOT,
     queued_at: queuedAt
   });
