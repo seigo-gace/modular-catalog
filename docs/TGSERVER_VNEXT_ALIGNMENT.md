@@ -1,6 +1,6 @@
 # ModuleCatalog ↔ TGserver Boundary
 
-Status: Current integration boundary
+Status: Current integration boundary / verified by Catalog Verify #90
 Date: 2026-10-03 JST
 ModuleCatalog branch: `feat/reusable-knowledge-factory-v1-20261002`
 Legacy TGserver usage: KEEP AS-IS
@@ -136,7 +136,22 @@ existing TGserver runtime evidence ---+--> ModuleCatalog Factory
                                   approved KB admission
 ```
 
-## 8. Current verdict
+## 8. Verification
+
+ModuleCatalog commit `7245d9c49eb15e11a386238cc17ca7f019db8d72` introduced this corrected separation boundary.
+
+Catalog Verify run `37038294463` (#90) completed SUCCESS:
+
+- Windows transport syntax: PASS;
+- Core tests: PASS;
+- registered Asset validation: PASS;
+- normal Asset tests: PASS;
+- user Asset tests: PASS;
+- Catalog cardinality: PASS.
+
+This verification proves the ModuleCatalog source/test suite remains valid after fixing the TGserver boundary. It does not mutate TGserver, new TGS, runtime Groups, KB runtime, Deploy, or Production.
+
+## 9. Current verdict
 
 - Existing ModuleCatalog `/search` adapter: KEEP AS-IS.
 - Existing original TGserver Group for ModuleCatalog: KEEP USING.
