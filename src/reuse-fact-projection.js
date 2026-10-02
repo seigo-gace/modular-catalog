@@ -22,7 +22,7 @@ function isGenericPurpose(meta) {
 
 function interfaceUseWhen(contractInputs, contractOutputs) {
   if (!contractInputs.length || !contractOutputs.length) return null;
-  return `Use when the required call contract matches ${contractInputs.join('; ')} and the caller can consume the recorded outputs ${contractOutputs.join('; ')}.`;
+  return `Use when the required call interface matches ${contractInputs.join('; ')}.`;
 }
 
 function sentences(text) {
@@ -83,7 +83,7 @@ export function projectExplicitReuseFacts({ meta, sections, structure, evidence 
     derived_fields.push({
       field: 'applicability.use_when',
       type: 'deterministic-derived',
-      source: genericPurpose ? 'ast-grep observed input/output interface because meta.purpose is generic' : 'meta.purpose',
+      source: genericPurpose ? 'ast-grep observed input interface because meta.purpose is generic' : 'meta.purpose',
       verified: false
     });
   }
