@@ -98,6 +98,10 @@ function structuralProjection(analyses) {
       knownUnverified.push(`STRUCTURAL_PARSE_ERROR:${result.source_path}`);
       continue;
     }
+    if (result.status === 'UNSUPPORTED_LANGUAGE') {
+      knownUnverified.push(`STRUCTURAL_UNSUPPORTED_LANGUAGE:${result.source_path}`);
+      continue;
+    }
     if (result.status !== 'ANALYZED') continue;
     for (const fact of result.facts) facts.push({ ...fact, source_path: result.source_path });
   }
@@ -124,12 +128,10 @@ function structuralProjection(analyses) {
     ...functionFacts.map((fact) => fact.parameters ?? ''),
     ...requires
   ].join(' ')).filter((term) => !GENERIC_EXPORT_NAMES.has(String(term).toLowerCase())));
-  const capabilities = exportedNames.filter((name) => !GENERIC_EXPORT_NAMES.has(name.toLowerCase())).map((name) => `export:${name}`);
 
   return Object.freeze({
     primarySymbol: exportedNames.length === 1 ? exportedNames[0] : null,
     exportedNames,
-    capabilities,
     semanticTerms,
     contractInputs: uniqueSorted(contractInputs),
     contractOutputs: uniqueSorted(contractOutputs),
@@ -207,7 +209,6 @@ async function buildReusableAsset(rootDir, assetId, catalogCommit, allAssetIds) 
     { field: 'contract.mutation_authority', type: 'deterministic-derived', source: 'meta.constraints', verified: false }
   ];
   if (structure.primarySymbol) derivedFields.push({ field: 'identity.symbol', type: 'deterministic-derived', source: 'ast-grep exact export set from source/', verified: false });
-  if (structure.capabilities.length) derivedFields.push({ field: 'discovery.capabilities', type: 'deterministic-derived', source: 'ast-grep named exported symbols', verified: false });
   if (structure.semanticTerms.length) derivedFields.push({ field: 'discovery.semantic_terms', type: 'deterministic-derived', source: 'ast-grep exported symbols + function parameters + imports/requires', verified: false });
   if (structure.contractInputs.length) derivedFields.push({ field: 'contract.inputs', type: 'deterministic-derived', source: 'ast-grep exported function signatures', verified: false });
   if (structure.contractOutputs.length) derivedFields.push({ field: 'contract.outputs', type: 'deterministic-derived', source: 'ast-grep exact return expressions of exported functions', verified: false });
@@ -217,7 +218,7 @@ async function buildReusableAsset(rootDir, assetId, catalogCommit, allAssetIds) 
     schema_version: 1,
     identity: { asset_id: meta.id, name: meta.name, version: meta.version, asset_kind: classification.value, symbol: structure.primarySymbol },
     classification: { domains: [], layers: meta.layers, languages: meta.languages, runtimes: meta.runtimes, tags: meta.tags },
-    discovery: { summary: meta.summary, purpose: meta.purpose, responsibility: meta.responsibility, capabilities: structure.capabilities, keywords, semantic_terms: structure.semanticTerms },
+    discovery: { summary: meta.summary, purpose: meta.purpose, responsibility: meta.responsibility, capabilities: [], keywords, semantic_terms: structure.semanticTerms },
     applicability: { use_when: [], do_not_use_when: [], preconditions: [], required_context: [], failure_conditions: [] },
     contract: { status: 'unknown', inputs: structure.contractInputs, outputs: structure.contractOutputs, required_fields: [], optional_fields: [], error_behavior: null, side_effects: null, mutation_authority: mutationAuthority(meta) },
     composition: { depends_on: meta.dependencies, requires: structure.requires, recommended_before: [], recommended_after: [], complements: [], alternative_to: [], conflicts_with: [], supersedes: [] },
