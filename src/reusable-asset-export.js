@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { CatalogError, sha256, tokenize, validateAssetDirectory } from './catalog.js';
 import { assertReusableAssetSchema, createReusableAssetValidator } from './reusable-asset-schema.js';
+import { projectExplicitReuseFacts } from './reuse-fact-projection.js';
 import { analyzeSourceFiles } from './structural-analyzer.js';
 
 const CATALOG_REPOSITORY = 'seigo-gace/modular-catalog';
@@ -206,6 +207,7 @@ async function buildReusableAsset(rootDir, assetId, catalogCommit, allAssetIds) 
   const testPaths = Object.keys(tests).sort();
   const analyses = await analyzeSourceFiles(sourcePaths.map((sourcePath) => ({ sourcePath, content: source[sourcePath] })));
   const structure = structuralProjection(analyses);
+  const reuseFacts = projectExplicitReuseFacts({ meta, sections, structure, evidence });
 
   const knowledgeUnits = [
     makeKnowledgeUnit({ knowledgeId: assetId + '::overview', parentAssetId: assetId, kind: 'discovery', title: meta.name, content: makeOverview(meta), sourcePaths: ['meta.json'] }),
@@ -240,7 +242,8 @@ async function buildReusableAsset(rootDir, assetId, catalogCommit, allAssetIds) 
   const derivedFields = [
     { field: 'identity.asset_kind', type: classification.mode, source: classification.source, verified: classification.mode === 'canonical' },
     { field: 'discovery.keywords', type: 'deterministic-derived', source: 'meta + design + logic + architecture', verified: false },
-    { field: 'contract.mutation_authority', type: 'deterministic-derived', source: 'meta.constraints', verified: false }
+    { field: 'contract.mutation_authority', type: 'deterministic-derived', source: 'meta.constraints', verified: false },
+    ...reuseFacts.derived_fields
   ];
   if (structure.primarySymbol) derivedFields.push({ field: 'identity.symbol', type: 'deterministic-derived', source: 'ast-grep exact export set from source/', verified: false });
   if (structure.semanticTerms.length) derivedFields.push({ field: 'discovery.semantic_terms', type: 'deterministic-derived', source: 'ast-grep exported symbols + function parameters + imports/requires', verified: false });
@@ -258,8 +261,8 @@ async function buildReusableAsset(rootDir, assetId, catalogCommit, allAssetIds) 
     identity: { asset_id: meta.id, name: meta.name, version: meta.version, asset_kind: classification.value, symbol: structure.primarySymbol },
     classification: { domains: [], layers: meta.layers, languages: meta.languages, runtimes: meta.runtimes, tags: meta.tags },
     discovery: { summary: meta.summary, purpose: meta.purpose, responsibility: meta.responsibility, capabilities: [], keywords, semantic_terms: structure.semanticTerms },
-    applicability: { use_when: [], do_not_use_when: [], preconditions: [], required_context: [], failure_conditions: [] },
-    contract: { status: 'unknown', inputs: structure.contractInputs, outputs: structure.contractOutputs, required_fields: [], optional_fields: [], error_behavior: null, side_effects: null, mutation_authority: mutationAuthority(meta) },
+    applicability: reuseFacts.applicability,
+    contract: { status: reuseFacts.contract.status, inputs: structure.contractInputs, outputs: structure.contractOutputs, required_fields: [], optional_fields: [], error_behavior: reuseFacts.contract.error_behavior, side_effects: reuseFacts.contract.side_effects, mutation_authority: mutationAuthority(meta) },
     composition: { depends_on: meta.dependencies, requires: structure.requires, recommended_before: [], recommended_after: [], complements: [], alternative_to: [], conflicts_with: [], supersedes: [] },
     implementation: { languages: meta.languages, runtimes: meta.runtimes, entrypoints: sourcePaths, source_files: sourcePaths, dependencies: meta.dependencies },
     verification: { status: evidence.normal.passed === true && evidence.user.passed === true ? 'verified' : 'unknown', normal_test: evidence.normal, user_test: evidence.user, verified_at: meta.verifiedAt, validation_boundary: 'Only the checks explicitly recorded in evidence.json are represented as verified.', known_unverified: structure.knownUnverified },
