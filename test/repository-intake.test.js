@@ -21,6 +21,10 @@ async function commit(repo, message) {
   return git(repo, ['rev-parse', 'HEAD']);
 }
 
+async function removeRepository(repo) {
+  await fs.rm(repo, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 });
+}
+
 async function makeRepository() {
   const repo = await fs.mkdtemp(path.join(os.tmpdir(), 'modulecatalog-intake-'));
   git(repo, ['init']);
@@ -91,7 +95,7 @@ test('repository intake resolves exact revisions and projects only affected Cata
     assert.deepEqual(unchanged.affected_asset_ids, []);
     assert.deepEqual(unchanged.unmapped_paths, []);
   } finally {
-    await fs.rm(fixture.repo, { recursive: true, force: true });
+    await removeRepository(fixture.repo);
   }
 });
 
@@ -107,7 +111,7 @@ test('repository intake rejects mutable or unresolved revision identity', async 
       (error) => error?.code === 'REPOSITORY_REVISION_UNRESOLVED'
     );
   } finally {
-    await fs.rm(fixture.repo, { recursive: true, force: true });
+    await removeRepository(fixture.repo);
   }
 });
 
