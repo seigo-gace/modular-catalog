@@ -3,10 +3,12 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { CatalogError, sha256, tokenize, validateAssetDirectory } from './catalog.js';
 import { assertReusableAssetSchema, createReusableAssetValidator } from './reusable-asset-schema.js';
+import { analyzeSourceFiles } from './structural-analyzer.js';
 
 const CATALOG_REPOSITORY = 'seigo-gace/modular-catalog';
 const BUNDLE_FORMAT = 'gace.reusable-asset.v1';
 const SECTION_FILES = ['README.md', 'design.md', 'logic.md', 'architecture.md', 'evidence.json', 'manifest.json'];
+const GENERIC_EXPORT_NAMES = new Set(['run', 'main', 'execute', 'handler', 'default']);
 
 function canonicalJson(value) {
   if (Array.isArray(value)) return '[' + value.map(canonicalJson).join(',') + ']';
@@ -84,6 +86,59 @@ async function collectSourceAndTests(assetDir) {
   };
 }
 
+function uniqueSorted(values) {
+  return [...new Set(values.filter((value) => typeof value === 'string' && value.trim()).map((value) => value.trim()))].sort((a, b) => a.localeCompare(b));
+}
+
+function structuralProjection(analyses) {
+  const facts = [];
+  const knownUnverified = [];
+  for (const result of analyses) {
+    if (result.status === 'PARSE_ERROR') {
+      knownUnverified.push(`STRUCTURAL_PARSE_ERROR:${result.source_path}`);
+      continue;
+    }
+    if (result.status !== 'ANALYZED') continue;
+    for (const fact of result.facts) facts.push({ ...fact, source_path: result.source_path });
+  }
+
+  const exportedNames = uniqueSorted(facts.filter((fact) => fact.kind === 'export').map((fact) => fact.name));
+  const functionFacts = facts.filter((fact) => fact.kind === 'function' && fact.name);
+  const functionByName = new Map();
+  for (const fact of functionFacts) {
+    if (!functionByName.has(fact.name)) functionByName.set(fact.name, fact);
+  }
+
+  const contractInputs = [];
+  const contractOutputs = [];
+  for (const name of exportedNames) {
+    const fn = functionByName.get(name);
+    if (!fn) continue;
+    if (fn.parameters) contractInputs.push(`${name}${fn.parameters}`);
+    for (const expression of Array.isArray(fn.returns) ? fn.returns : []) contractOutputs.push(`${name} -> ${expression}`);
+  }
+
+  const requires = uniqueSorted(facts.filter((fact) => fact.kind === 'import' || fact.kind === 'require').map((fact) => fact.source));
+  const semanticTerms = uniqueSorted(tokenize([
+    ...exportedNames,
+    ...functionFacts.map((fact) => fact.parameters ?? ''),
+    ...requires
+  ].join(' ')).filter((term) => !GENERIC_EXPORT_NAMES.has(String(term).toLowerCase())));
+  const capabilities = exportedNames.filter((name) => !GENERIC_EXPORT_NAMES.has(name.toLowerCase())).map((name) => `export:${name}`);
+
+  return Object.freeze({
+    primarySymbol: exportedNames.length === 1 ? exportedNames[0] : null,
+    exportedNames,
+    capabilities,
+    semanticTerms,
+    contractInputs: uniqueSorted(contractInputs),
+    contractOutputs: uniqueSorted(contractOutputs),
+    requires,
+    knownUnverified: uniqueSorted(knownUnverified),
+    analyzedSourcePaths: analyses.filter((item) => item.status === 'ANALYZED').map((item) => item.source_path).sort()
+  });
+}
+
 function normalizeCase({ assetId, caseType, sourcePath, content, evidence }) {
   const evidenceItem = evidence[caseType];
   return {
@@ -113,6 +168,8 @@ async function buildReusableAsset(rootDir, assetId, catalogCommit, allAssetIds) 
   const keywords = tokenize([meta.id, meta.name, meta.summary, meta.purpose, meta.responsibility, ...meta.layers, ...meta.languages, ...meta.runtimes, ...meta.tags, ...meta.dependencies, ...meta.constraints, sections.design, sections.logic, sections.architecture].join(' '));
   const sourcePaths = Object.keys(source).sort();
   const testPaths = Object.keys(tests).sort();
+  const analyses = await analyzeSourceFiles(sourcePaths.map((sourcePath) => ({ sourcePath, content: source[sourcePath] })));
+  const structure = structuralProjection(analyses);
 
   const knowledgeUnits = [
     makeKnowledgeUnit({ knowledgeId: assetId + '::overview', parentAssetId: assetId, kind: 'discovery', title: meta.name, content: makeOverview(meta), sourcePaths: ['meta.json'] }),
@@ -144,29 +201,37 @@ async function buildReusableAsset(rootDir, assetId, catalogCommit, allAssetIds) 
     relationships.push({ schema_version: 1, relationship_id: assetId + '::depends_on::' + dependency, from: assetId, relation: 'depends_on', to: dependency, verified: true, derivation: { type: 'canonical-projection', derived_from: ['meta.json#/dependencies'] } });
   }
 
+  const derivedFields = [
+    { field: 'identity.asset_kind', type: classification.mode, source: classification.source, verified: classification.mode === 'canonical' },
+    { field: 'discovery.keywords', type: 'deterministic-derived', source: 'meta + design + logic + architecture', verified: false },
+    { field: 'contract.mutation_authority', type: 'deterministic-derived', source: 'meta.constraints', verified: false }
+  ];
+  if (structure.primarySymbol) derivedFields.push({ field: 'identity.symbol', type: 'deterministic-derived', source: 'ast-grep exact export set from source/', verified: false });
+  if (structure.capabilities.length) derivedFields.push({ field: 'discovery.capabilities', type: 'deterministic-derived', source: 'ast-grep named exported symbols', verified: false });
+  if (structure.semanticTerms.length) derivedFields.push({ field: 'discovery.semantic_terms', type: 'deterministic-derived', source: 'ast-grep exported symbols + function parameters + imports/requires', verified: false });
+  if (structure.contractInputs.length) derivedFields.push({ field: 'contract.inputs', type: 'deterministic-derived', source: 'ast-grep exported function signatures', verified: false });
+  if (structure.contractOutputs.length) derivedFields.push({ field: 'contract.outputs', type: 'deterministic-derived', source: 'ast-grep exact return expressions of exported functions', verified: false });
+  if (structure.requires.length) derivedFields.push({ field: 'composition.requires', type: 'deterministic-derived', source: 'ast-grep exact import/require sources', verified: false });
+
   const asset = {
     schema_version: 1,
-    identity: { asset_id: meta.id, name: meta.name, version: meta.version, asset_kind: classification.value, symbol: null },
+    identity: { asset_id: meta.id, name: meta.name, version: meta.version, asset_kind: classification.value, symbol: structure.primarySymbol },
     classification: { domains: [], layers: meta.layers, languages: meta.languages, runtimes: meta.runtimes, tags: meta.tags },
-    discovery: { summary: meta.summary, purpose: meta.purpose, responsibility: meta.responsibility, capabilities: [], keywords, semantic_terms: [] },
+    discovery: { summary: meta.summary, purpose: meta.purpose, responsibility: meta.responsibility, capabilities: structure.capabilities, keywords, semantic_terms: structure.semanticTerms },
     applicability: { use_when: [], do_not_use_when: [], preconditions: [], required_context: [], failure_conditions: [] },
-    contract: { status: 'unknown', inputs: [], outputs: [], required_fields: [], optional_fields: [], error_behavior: null, side_effects: null, mutation_authority: mutationAuthority(meta) },
-    composition: { depends_on: meta.dependencies, requires: [], recommended_before: [], recommended_after: [], complements: [], alternative_to: [], conflicts_with: [], supersedes: [] },
+    contract: { status: 'unknown', inputs: structure.contractInputs, outputs: structure.contractOutputs, required_fields: [], optional_fields: [], error_behavior: null, side_effects: null, mutation_authority: mutationAuthority(meta) },
+    composition: { depends_on: meta.dependencies, requires: structure.requires, recommended_before: [], recommended_after: [], complements: [], alternative_to: [], conflicts_with: [], supersedes: [] },
     implementation: { languages: meta.languages, runtimes: meta.runtimes, entrypoints: sourcePaths, source_files: sourcePaths, dependencies: meta.dependencies },
-    verification: { status: evidence.normal.passed === true && evidence.user.passed === true ? 'verified' : 'unknown', normal_test: evidence.normal, user_test: evidence.user, verified_at: meta.verifiedAt, validation_boundary: 'Only the checks explicitly recorded in evidence.json are represented as verified.', known_unverified: [] },
+    verification: { status: evidence.normal.passed === true && evidence.user.passed === true ? 'verified' : 'unknown', normal_test: evidence.normal, user_test: evidence.user, verified_at: meta.verifiedAt, validation_boundary: 'Only the checks explicitly recorded in evidence.json are represented as verified.', known_unverified: structure.knownUnverified },
     provenance: { origin: { repository: meta.source.repository, commit: meta.source.commit }, catalog: { repository: CATALOG_REPOSITORY, commit: catalogCommit, asset_path: 'assets/' + assetId, asset_id: assetId } },
     lifecycle: { status: 'verified', introduced_version: meta.version, deprecated_at: null, superseded_by: null },
     integrity: { asset_hash: manifest.assetHash, meta_hash: sha256(canonicalJson(meta)), manifest_algorithm: manifest.algorithm, files: manifest.files },
     derivation: {
       canonical_sources: ['meta.json', 'README.md', 'design.md', 'logic.md', 'architecture.md', 'evidence.json', 'manifest.json', 'source/', 'tests/'],
-      derived_fields: [
-        { field: 'identity.asset_kind', type: classification.mode, source: classification.source, verified: classification.mode === 'canonical' },
-        { field: 'discovery.keywords', type: 'deterministic-derived', source: 'meta + design + logic + architecture', verified: false },
-        { field: 'contract.mutation_authority', type: 'deterministic-derived', source: 'meta.constraints', verified: false }
-      ]
+      derived_fields: derivedFields
     }
   };
-  return { asset, knowledgeUnits, relationships, cases, sourceCount: sourcePaths.length, testCount: testPaths.length };
+  return { asset, knowledgeUnits, relationships, cases, sourceCount: sourcePaths.length, testCount: testPaths.length, structuralAnalysis: analyses };
 }
 
 async function writeJson(file, value) { await fs.writeFile(file, JSON.stringify(value, null, 2) + '\n', 'utf8'); }
