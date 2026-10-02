@@ -1,0 +1,76 @@
+name: Chat KB Admission Gate
+
+on:
+  push:
+    branches:
+      - control/modulecatalog-chat-orchestration-v1
+    paths:
+      - '.gace-control/reviews/*.json'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: modulecatalog-chat-control
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout control plane
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Resolve one GPT review and matching Factory result
+        id: review
+        shell: bash
+        run: |
+          mapfile -t files < <(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA" -- '.gace-control/reviews/*.json')
+          test "${#files[@]}" -eq 1
+          export REVIEW_FILE="${files[0]}"
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const review = JSON.parse(fs.readFileSync(process.env.REVIEW_FILE, 'utf8'));
+          const requestId = String(review.request_id ?? '').trim();
+          if (!/^[A-Za-z0-9][A-Za-z0-9._-]{7,127}$/.test(requestId)) throw new Error('Invalid review request_id.');
+          const resultFile = `.gace-control/results/${requestId}.json`;
+          if (!fs.existsSync(resultFile)) throw new Error(`Factory result missing: ${resultFile}`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `review_file=${process.env.REVIEW_FILE}\nrequest_id=${requestId}\nresult_file=${resultFile}\n`);
+          NODE
+
+      - name: Evaluate exact GPT decision
+        id: admission
+        shell: bash
+        run: |
+          ticket='.gace-control/admission-queue/${{ steps.review.outputs.request_id }}.json'
+          export GACE_QUEUED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          node scripts/build-chat-admission-ticket.mjs --review '${{ steps.review.outputs.review_file }}' --result '${{ steps.review.outputs.result_file }}' --output "$ticket"
+          if test -f "$ticket"; then
+            echo 'allowed=true' >> "$GITHUB_OUTPUT"
+            echo "ticket=$ticket" >> "$GITHUB_OUTPUT"
+          else
+            echo 'allowed=false' >> "$GITHUB_OUTPUT"
+            echo 'GPT_FINAL_REVIEW=NO_ADMISSION'
+          fi
+
+      - name: Record approved runtime admission ticket
+        if: steps.admission.outputs.allowed == 'true'
+        shell: bash
+        run: |
+          ticket='${{ steps.admission.outputs.ticket }}'
+          git config user.name 'modulecatalog-control'
+          git config user.email 'modulecatalog-control@users.noreply.github.com'
+          git add -- "$ticket"
+          if git diff --cached --quiet; then
+            echo 'KB_ADMISSION_TICKET=UNCHANGED'
+            exit 0
+          fi
+          git commit -m 'control: queue approved KB admission ${{ steps.review.outputs.request_id }}'
+          git push origin HEAD:control/modulecatalog-chat-orchestration-v1
