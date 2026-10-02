@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import process from 'node:process';
-import { executeRuntimeAdmissionFile } from '../src/runtime-admission.js';
+import { executeRuntimeAdmissionFiles } from '../src/runtime-admission.js';
 
 function parseArgs(argv) {
   const flags = {};
@@ -15,7 +15,13 @@ function parseArgs(argv) {
 }
 
 const flags = parseArgs(process.argv.slice(2));
-if (!flags.ticket) throw new Error('Missing --ticket');
+for (const key of ['ticket', 'review', 'result']) {
+  if (!flags[key]) throw new Error(`Missing --${key}`);
+}
 const root = flags.root ?? process.cwd();
-const result = await executeRuntimeAdmissionFile(root, flags.ticket);
-console.log(JSON.stringify(result));
+const output = await executeRuntimeAdmissionFiles(root, {
+  ticketFile: flags.ticket,
+  reviewFile: flags.review,
+  resultFile: flags.result
+});
+console.log(JSON.stringify(output));
