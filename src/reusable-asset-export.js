@@ -19,9 +19,21 @@ function canonicalJson(value) {
 async function exists(target) { try { await fs.access(target); return true; } catch { return false; } }
 
 function getCatalogCommit(rootDir, explicitCommit) {
-  if (explicitCommit) return explicitCommit;
-  try { return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: rootDir, encoding: 'utf8' }).trim(); }
-  catch { throw new CatalogError('Catalog commit could not be resolved. Pass --catalog-commit or run inside a Git checkout.', 'MISSING_CATALOG_COMMIT'); }
+  let head;
+  try {
+    head = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: rootDir, encoding: 'utf8' }).trim();
+  } catch {
+    throw new CatalogError('Catalog commit could not be resolved from the checkout.', 'MISSING_CATALOG_COMMIT');
+  }
+  if (!/^[a-f0-9]{40}$/i.test(head)) throw new CatalogError(`Resolved Catalog HEAD is invalid: ${head}`, 'INVALID_CATALOG_COMMIT');
+  if (explicitCommit != null) {
+    const requested = String(explicitCommit).trim();
+    if (!/^[a-f0-9]{40}$/i.test(requested)) throw new CatalogError(`Invalid --catalog-commit: ${requested}`, 'INVALID_CATALOG_COMMIT');
+    if (requested.toLowerCase() !== head.toLowerCase()) {
+      throw new CatalogError(`Requested Catalog commit ${requested} does not match checked-out HEAD ${head}.`, 'CATALOG_REVISION_MISMATCH');
+    }
+  }
+  return head;
 }
 
 function classifyAsset(meta) {
