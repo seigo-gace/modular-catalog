@@ -8,6 +8,7 @@ import { exportReusableAssets } from '../src/reusable-asset-export.js';
 import { assertReusableAssetSchema, createReusableAssetValidator } from '../src/reusable-asset-schema.js';
 
 const root = process.cwd();
+const VALID_LAYERS = new Set(['Part', 'Feature', 'Component', 'System', 'Application System']);
 
 test('exports the full current catalog as reusable asset bundles without inventing missing fields', async () => {
   const schema = JSON.parse(await fs.readFile(path.join(root, 'schemas/reusable-asset-v1.schema.json'), 'utf8'));
@@ -30,6 +31,8 @@ test('exports the full current catalog as reusable asset bundles without inventi
 
     let totalKnowledgeUnits = 0;
     let totalCases = 0;
+    let knownContractCount = 0;
+    let nonEmptyApplicabilityCount = 0;
 
     for (const item of result.assets) {
       const dir = path.join(output, 'assets', item.id);
@@ -43,12 +46,12 @@ test('exports the full current catalog as reusable asset bundles without inventi
       assert.equal(asset.provenance.catalog.commit, commit);
       assert.equal(asset.integrity.asset_hash, item.assetHash);
       assert.equal(asset.verification.status, 'verified');
-      assert.equal(asset.contract.status, 'unknown');
-      assert.deepEqual(asset.applicability.use_when, []);
-      assert.deepEqual(asset.applicability.do_not_use_when, []);
-      assert.deepEqual(asset.applicability.preconditions, []);
-      assert.deepEqual(asset.applicability.required_context, []);
-      assert.deepEqual(asset.applicability.failure_conditions, []);
+      assert.equal(asset.classification.layers.length > 0, true);
+      assert.equal(asset.classification.layers.every((layer) => VALID_LAYERS.has(layer)), true);
+      assert.equal(asset.applicability.use_when.length, 1);
+      assert.equal(asset.applicability.use_when[0], asset.discovery.purpose);
+      if (asset.contract.status === 'known') knownContractCount += 1;
+      if (['use_when', 'do_not_use_when', 'preconditions', 'required_context', 'failure_conditions'].some((field) => asset.applicability[field].length > 0)) nonEmptyApplicabilityCount += 1;
       assert.equal(bundleManifest.source_asset_hash, item.assetHash);
       assert.equal(bundleManifest.bundle_hash, item.bundleHash);
       assert.equal(units.every((unit) => unit.parent_asset_id === item.id), true);
@@ -63,17 +66,29 @@ test('exports the full current catalog as reusable asset bundles without inventi
 
     assert.equal(totalKnowledgeUnits, 720);
     assert.equal(totalCases, 160);
+    assert.equal(nonEmptyApplicabilityCount, 80);
+    assert.equal(knownContractCount > 0, true);
 
     const approvalAsset = JSON.parse(await fs.readFile(path.join(output, 'assets', 'approval-route-resolver', 'asset.json'), 'utf8'));
     assert.equal(approvalAsset.identity.symbol, 'run');
     assert.deepEqual(approvalAsset.discovery.capabilities, []);
+    assert.equal(approvalAsset.contract.status, 'known');
     assert.equal(approvalAsset.contract.inputs.some((value) => typeof value === 'string' && value.startsWith('run(') && value.includes('action') && value.includes('risk') && value.includes('capability')), true);
     assert.equal(approvalAsset.contract.outputs.some((value) => typeof value === 'string' && value.startsWith('run -> ') && value.includes('status')), true);
     assert.equal(approvalAsset.contract.mutation_authority, false);
+    assert.equal(approvalAsset.contract.error_behavior.includes('Fail closed on structurally invalid input.'), true);
+    assert.equal(approvalAsset.contract.side_effects, 'Do not execute side effects.');
+    assert.deepEqual(approvalAsset.applicability.use_when, ['Resolve an approval route from explicit action, risk, capability and policy rules.']);
+    assert.deepEqual(approvalAsset.applicability.do_not_use_when, []);
+    assert.deepEqual(approvalAsset.applicability.preconditions, []);
+    assert.equal(approvalAsset.applicability.required_context.some((value) => value.startsWith('run(')), true);
+    assert.equal(approvalAsset.applicability.failure_conditions.includes('Fail closed on structurally invalid input.'), true);
     assert.deepEqual(approvalAsset.composition.requires, []);
     assert.equal(approvalAsset.derivation.derived_fields.some((entry) => entry.field === 'identity.symbol' && entry.type === 'deterministic-derived'), true);
     assert.equal(approvalAsset.derivation.derived_fields.some((entry) => entry.field === 'contract.inputs' && entry.type === 'deterministic-derived'), true);
     assert.equal(approvalAsset.derivation.derived_fields.some((entry) => entry.field === 'contract.outputs' && entry.type === 'deterministic-derived'), true);
+    assert.equal(approvalAsset.derivation.derived_fields.some((entry) => entry.field === 'contract.status' && entry.type === 'deterministic-derived'), true);
+    assert.equal(approvalAsset.derivation.derived_fields.some((entry) => entry.field === 'applicability.use_when' && entry.source === 'meta.purpose'), true);
     assert.equal(approvalAsset.derivation.derived_fields.some((entry) => entry.field === 'discovery.capabilities'), false);
 
     const topManifest = JSON.parse(await fs.readFile(path.join(output, 'manifest.json'), 'utf8'));
