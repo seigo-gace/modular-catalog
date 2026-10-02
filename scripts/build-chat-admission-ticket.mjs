@@ -26,7 +26,7 @@ for (const key of ['review', 'result', 'output']) {
 
 const result = validateFactoryResult(await readJson(flags.result));
 const review = validateGptReview(await readJson(flags.review), result);
-const ticket = buildAdmissionTicket(review, result, { queuedAt: process.env.GACE_QUEUED_AT || new Date().toISOString() });
+const ticket = buildAdmissionTicket(review, result, { queuedAt: review.reviewed_at });
 
 if (!ticket) {
   console.log(JSON.stringify({ admission_allowed: false, decision: review.decision, request_id: review.request_id }));
