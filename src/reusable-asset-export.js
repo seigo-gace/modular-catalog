@@ -7,7 +7,7 @@ import { analyzeSourceFiles } from './structural-analyzer.js';
 
 const CATALOG_REPOSITORY = 'seigo-gace/modular-catalog';
 const BUNDLE_FORMAT = 'gace.reusable-asset.v1';
-const SECTION_FILES = ['README.md', 'design.md', 'logic.md', 'architecture.md', 'evidence.json', 'manifest.json'];
+const REQUIRED_SECTION_FILES = ['design.md', 'logic.md', 'architecture.md', 'evidence.json', 'manifest.json'];
 const GENERIC_EXPORT_NAMES = new Set(['run', 'main', 'execute', 'handler', 'default']);
 
 function canonicalJson(value) {
@@ -176,10 +176,16 @@ async function buildReusableAsset(rootDir, assetId, catalogCommit, allAssetIds) 
   const assetDir = path.join(rootDir, 'assets', assetId);
   const { meta, evidence, manifest } = await validateAssetDirectory(assetDir, { verifyManifest: true });
   const sections = {};
-  for (const file of SECTION_FILES) sections[file] = await fs.readFile(path.join(assetDir, file), 'utf8');
+  for (const file of REQUIRED_SECTION_FILES) sections[file] = await fs.readFile(path.join(assetDir, file), 'utf8');
+  const readmePath = path.join(assetDir, 'README.md');
+  sections['README.md'] = await exists(readmePath) ? await fs.readFile(readmePath, 'utf8') : null;
   const { source, tests } = await collectSourceAndTests(assetDir);
   const classification = classifyAsset(meta);
-  const keywords = tokenize([meta.id, meta.name, meta.summary, meta.purpose, meta.responsibility, ...meta.layers, ...meta.languages, ...meta.runtimes, ...meta.tags, ...meta.dependencies, ...meta.constraints, sections.design, sections.logic, sections.architecture].join(' '));
+  const keywords = tokenize([
+    meta.id, meta.name, meta.summary, meta.purpose, meta.responsibility,
+    ...meta.layers, ...meta.languages, ...meta.runtimes, ...meta.tags, ...meta.dependencies, ...meta.constraints,
+    sections['design.md'], sections['logic.md'], sections['architecture.md']
+  ].filter(Boolean).join(' '));
   const sourcePaths = Object.keys(source).sort();
   const testPaths = Object.keys(tests).sort();
   const analyses = await analyzeSourceFiles(sourcePaths.map((sourcePath) => ({ sourcePath, content: source[sourcePath] })));
@@ -187,7 +193,7 @@ async function buildReusableAsset(rootDir, assetId, catalogCommit, allAssetIds) 
 
   const knowledgeUnits = [
     makeKnowledgeUnit({ knowledgeId: assetId + '::overview', parentAssetId: assetId, kind: 'discovery', title: meta.name, content: makeOverview(meta), sourcePaths: ['meta.json'] }),
-    makeKnowledgeUnit({ knowledgeId: assetId + '::readme', parentAssetId: assetId, kind: 'documentation', title: meta.name + ' README', content: sections['README.md'], sourcePaths: ['README.md'] }),
+    ...(sections['README.md']?.trim() ? [makeKnowledgeUnit({ knowledgeId: assetId + '::readme', parentAssetId: assetId, kind: 'documentation', title: meta.name + ' README', content: sections['README.md'], sourcePaths: ['README.md'] })] : []),
     makeKnowledgeUnit({ knowledgeId: assetId + '::design', parentAssetId: assetId, kind: 'design', title: meta.name + ' Design', content: sections['design.md'], sourcePaths: ['design.md'] }),
     makeKnowledgeUnit({ knowledgeId: assetId + '::logic', parentAssetId: assetId, kind: 'logic', title: meta.name + ' Logic', content: sections['logic.md'], sourcePaths: ['logic.md'] }),
     makeKnowledgeUnit({ knowledgeId: assetId + '::architecture', parentAssetId: assetId, kind: 'architecture', title: meta.name + ' Architecture', content: sections['architecture.md'], sourcePaths: ['architecture.md'] }),
@@ -226,6 +232,11 @@ async function buildReusableAsset(rootDir, assetId, catalogCommit, allAssetIds) 
   if (structure.contractOutputs.length) derivedFields.push({ field: 'contract.outputs', type: 'deterministic-derived', source: 'ast-grep exact return expressions of exported functions', verified: false });
   if (structure.requires.length) derivedFields.push({ field: 'composition.requires', type: 'deterministic-derived', source: 'ast-grep exact import/require sources', verified: false });
 
+  const canonicalSources = [
+    'meta.json',
+    ...(sections['README.md']?.trim() ? ['README.md'] : []),
+    'design.md', 'logic.md', 'architecture.md', 'evidence.json', 'manifest.json', 'source/', 'tests/'
+  ];
   const asset = {
     schema_version: 1,
     identity: { asset_id: meta.id, name: meta.name, version: meta.version, asset_kind: classification.value, symbol: structure.primarySymbol },
@@ -240,7 +251,7 @@ async function buildReusableAsset(rootDir, assetId, catalogCommit, allAssetIds) 
     lifecycle: { status: 'verified', introduced_version: meta.version, deprecated_at: null, superseded_by: null },
     integrity: { asset_hash: manifest.assetHash, meta_hash: sha256(canonicalJson(meta)), manifest_algorithm: manifest.algorithm, files: manifest.files },
     derivation: {
-      canonical_sources: ['meta.json', 'README.md', 'design.md', 'logic.md', 'architecture.md', 'evidence.json', 'manifest.json', 'source/', 'tests/'],
+      canonical_sources: canonicalSources,
       derived_fields: derivedFields
     }
   };
