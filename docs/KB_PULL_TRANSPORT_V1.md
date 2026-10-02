@@ -14,11 +14,12 @@ The shortest supported cross-host design is:
 Server-hosted ModuleCatalog Factory
   -> seal one complete full-snapshot delivery in a Server outbox
   -> Master PC pulls that exact revision with its existing SSH/SCP client
+  -> require remote manifest SHA-256 == GPT-approved manifest SHA-256
   -> copy lands in a same-volume temporary directory under F:\G-ACE-KB inbox root
-  -> verify top-level manifest identity against the Server manifest SHA-256
+  -> verify local top-level manifest SHA-256 == GPT-approved manifest SHA-256
   -> atomic same-filesystem rename into ready\<catalog-commit>
   -> invoke the existing G-ACE KB inbox processor
-  -> verify processed archive + ACTIVE receipt + Current authority
+  -> verify processed archive + ACTIVE receipt + Current authority retain the same approved manifest identity
   -> invoke existing KB deep health check
 ```
 
@@ -85,9 +86,12 @@ Inputs are explicit:
 ServerHost
 RemoteOutboxRoot
 CatalogCommit (exact 40-character SHA)
+ExpectedManifestSha256 (exact GPT-approved 64-character SHA-256)
 Root (default F:\G-ACE-KB)
 optional SSH port
 ```
+
+`ExpectedManifestSha256` is not discovered from the remote Server. It comes from the exact GPT-approved admission identity. The Master PC therefore independently enforces the same immutable `catalog commit + manifest SHA-256` that the Runtime Admission Worker used before sealing.
 
 The script uses only the existing Windows `ssh.exe` / `scp.exe` client surface. It uses `BatchMode=yes`, keeps normal host-key verification, and never enables or configures an inbound service.
 
@@ -95,26 +99,28 @@ The pull flow is:
 
 ```text
 remote manifest SHA-256 readback through SSH
+-> require remote SHA-256 == ExpectedManifestSha256 before SCP
 -> SCP exact <outbox>/<catalog-commit> into a unique local temporary directory
 -> validate top-level format/repository/commit/cardinality
--> compare local manifest SHA-256 with remote manifest SHA-256
+-> require local manifest SHA-256 == ExpectedManifestSha256
 -> verify ready/processing state
 -> same-filesystem Move-Item into ready\<catalog-commit>
--> re-read manifest hash
+-> re-read manifest hash == ExpectedManifestSha256
 -> call existing process-modulecatalog-inbox-windows.ps1
 -> require processed\<catalog-commit>
--> require matching ACTIVE receipt + Current marker + manifest identity
+-> require matching ACTIVE receipt + Current marker + approved manifest identity
 -> call existing check-modulecatalog-kb-runtime-windows.ps1 -Deep
 -> PASS
 ```
 
 The script also has state-aware resume/idempotency behavior:
 
-- matching `processed` + ACTIVE/current identity -> no re-delivery, run Deep health and return idempotent PASS;
-- matching `processing` -> invoke existing inbox processor to resume;
-- matching `ready` -> invoke existing inbox processor;
+- matching `processed` + ACTIVE/current approved identity -> no re-delivery, run Deep health and return idempotent PASS;
+- matching `processing` -> require approved manifest identity, then invoke existing inbox processor to resume;
+- matching `ready` -> require approved manifest identity, then invoke existing inbox processor;
 - other processing/ready delivery -> fail closed;
-- same commit with a different manifest identity -> fail closed.
+- same commit with a different manifest identity -> fail closed;
+- remote outbox manifest that does not equal the GPT-approved manifest SHA-256 -> fail closed before SCP.
 
 ## 5. Consumer ownership remains unchanged
 
@@ -141,10 +147,11 @@ The pull transport must not:
 - disable SSH host-key checking;
 - copy secrets into arguments, logs, manifests or bundle data;
 - infer the newest remote delivery by timestamp or directory ordering;
+- infer the approved manifest SHA-256 from the remote Server;
 - delete the Server outbox after success;
 - manipulate KB `processing`, `processed`, `failed`, receipt, Current, runtime-state or lock data directly.
 
-The exact Catalog commit is always supplied explicitly.
+The exact Catalog commit and exact GPT-approved manifest SHA-256 are always supplied explicitly.
 
 ## 7. Verification states
 
@@ -153,6 +160,7 @@ Source/CI verification and live transport verification are separate.
 ```text
 OUTBOX_SOURCE=IMPLEMENTED
 WINDOWS_PULL_SOURCE=IMPLEMENTED
+WINDOWS_APPROVAL_HASH_BINDING=IMPLEMENTED
 WINDOWS_POWERSHELL_PARSE=CI_REQUIRED
 OUTBOX_REGRESSION=CI_REQUIRED
 EXISTING_80_ASSET_REGRESSION=CI_REQUIRED
@@ -170,14 +178,15 @@ The first real run is complete only when all of the following are observed on th
 
 ```text
 Server ModuleCatalog checkout exact + clean
-Server outbox SEALED with exact Catalog commit
-Master PC ssh/scp client can read that exact Server outbox
-local transfer manifest hash == remote manifest hash
+Server outbox SEALED with exact approved Catalog commit + manifest SHA-256
+Master PC ssh/scp client reads that exact Server outbox
+remote manifest hash == GPT-approved manifest hash
+local transfer manifest hash == GPT-approved manifest hash
 ready publish occurs only after transfer completion
 existing KB processor returns ACTIVE
 processed/<catalog-commit> exists
-ACTIVE receipt identity matches delivery
-Current marker identity matches delivery
+ACTIVE receipt identity matches approved delivery
+Current marker identity matches approved delivery
 check-modulecatalog-kb-runtime-windows.ps1 -Deep PASS
 ```
 
