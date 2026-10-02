@@ -54,6 +54,9 @@ if (portableReuse.asset_count !== preflight.assetCount || portableReuse.passed_a
 let contractUnknownCount = 0;
 let applicabilityEmptyCount = 0;
 let knownUnverifiedCount = 0;
+let applicabilityFromCanonicalPurposeCount = 0;
+let applicabilityFromInterfaceCount = 0;
+let applicabilityUnknownDerivationCount = 0;
 const layerValues = new Set();
 const invalidLayerValues = new Set();
 
@@ -64,6 +67,14 @@ for (const item of preflight.manifest.assets) {
   const applicabilityFields = ['use_when', 'do_not_use_when', 'preconditions', 'required_context', 'failure_conditions'];
   if (applicabilityFields.every((field) => Array.isArray(applicability[field]) && applicability[field].length === 0)) applicabilityEmptyCount += 1;
   knownUnverifiedCount += Array.isArray(asset.verification?.known_unverified) ? asset.verification.known_unverified.length : 0;
+
+  const useWhenDerivation = Array.isArray(asset.derivation?.derived_fields)
+    ? asset.derivation.derived_fields.find((entry) => entry?.field === 'applicability.use_when')
+    : null;
+  if (useWhenDerivation?.source === 'meta.purpose') applicabilityFromCanonicalPurposeCount += 1;
+  else if (String(useWhenDerivation?.source ?? '').includes('meta.purpose is generic')) applicabilityFromInterfaceCount += 1;
+  else applicabilityUnknownDerivationCount += 1;
+
   for (const layer of Array.isArray(asset.classification?.layers) ? asset.classification.layers : []) {
     const normalized = String(layer).trim();
     if (!normalized) continue;
@@ -85,6 +96,9 @@ const result = {
   case_count: preflight.caseCount,
   contract_unknown_count: contractUnknownCount,
   applicability_empty_count: applicabilityEmptyCount,
+  applicability_from_canonical_purpose_count: applicabilityFromCanonicalPurposeCount,
+  applicability_from_interface_count: applicabilityFromInterfaceCount,
+  applicability_unknown_derivation_count: applicabilityUnknownDerivationCount,
   known_unverified_count: knownUnverifiedCount,
   layer_values: [...layerValues].sort(),
   invalid_layer_values: [...invalidLayerValues].sort(),
