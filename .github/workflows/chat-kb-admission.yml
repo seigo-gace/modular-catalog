@@ -50,7 +50,6 @@ jobs:
         shell: bash
         run: |
           ticket='.gace-control/admission-queue/${{ steps.review.outputs.request_id }}.json'
-          export GACE_QUEUED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           node scripts/build-chat-admission-ticket.mjs --review '${{ steps.review.outputs.review_file }}' --result '${{ steps.review.outputs.result_file }}' --output "$ticket"
           if test -f "$ticket"; then
             echo 'allowed=true' >> "$GITHUB_OUTPUT"
