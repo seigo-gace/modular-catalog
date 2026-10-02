@@ -26,7 +26,7 @@ function normalizeHit(hit) {
   const severity = String(hit.severity ?? '').trim();
   const timestamp = String(hit.timestamp ?? '').trim();
   const message = typeof hit.message === 'string' ? hit.message : '';
-  if (!projectId || !ALLOWED_SEVERITIES.has(severity) || !timestamp || !message) return null;
+  if (!projectId || !ALLOWED_SEVERITIES.has(severity) || !timestamp || Number.isNaN(Date.parse(timestamp)) || !message) return null;
   return Object.freeze({
     id: hit.id == null ? null : String(hit.id),
     project_id: projectId,
@@ -36,6 +36,15 @@ function normalizeHit(hit) {
     hash: hit.hash == null ? null : String(hit.hash),
     telegram_message_id: Number.isInteger(hit.telegram_message_id) ? hit.telegram_message_id : null
   });
+}
+
+function hitMatchesRequest(hit, { projectId, severity, fromIso, toIso }) {
+  if (hit.project_id !== projectId) return false;
+  if (severity && hit.severity !== severity) return false;
+  const time = Date.parse(hit.timestamp);
+  if (fromIso && time < Date.parse(fromIso)) return false;
+  if (toIso && time > Date.parse(toIso)) return false;
+  return true;
 }
 
 export function createTgserverClient({
@@ -82,7 +91,8 @@ export function createTgserverClient({
       if (!body || typeof body !== 'object' || Array.isArray(body) || !Array.isArray(body.hits)) {
         throw new CatalogError('TGserver search response must contain hits[].', 'TGS_INVALID_RESPONSE');
       }
-      const hits = body.hits.map(normalizeHit).filter(Boolean).filter((hit) => hit.project_id === projectId).slice(0, maxHits);
+      const requestBoundary = { projectId, severity: normalizedSeverity, fromIso, toIso };
+      const hits = body.hits.map(normalizeHit).filter(Boolean).filter((hit) => hitMatchesRequest(hit, requestBoundary)).slice(0, maxHits);
       return Object.freeze({
         project_id: projectId,
         query: String(query ?? ''),
