@@ -7,12 +7,13 @@ It keeps verified Source / Design / Logic / Architecture / Contract / Test / Evi
 ## Current design authority
 
 - Factory v1: [`docs/REUSABLE_KNOWLEDGE_FACTORY_V1.md`](docs/REUSABLE_KNOWLEDGE_FACTORY_V1.md)
+- KB delivery / ACTIVE readback contract: [`docs/KB_DELIVERY_CONTRACT_V1.md`](docs/KB_DELIVERY_CONTRACT_V1.md)
 - Factory design delta: [`docs/DESIGN_DELTA_FACTORY_V1.md`](docs/DESIGN_DELTA_FACTORY_V1.md)
 - Previous Catalog architecture baseline: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 - Asset format: [`docs/ASSET_FORMAT.md`](docs/ASSET_FORMAT.md)
 - Reusable-data audit: [`docs/REUSABLE_ASSET_DATA_AUDIT_20261001.md`](docs/REUSABLE_ASSET_DATA_AUDIT_20261001.md)
 
-The Factory v1 design is the current implementation baseline on the factory feature branch. GitHub source completion, Server runtime, and KB delivery are separate states and must not be conflated.
+The Factory v1 design is the current implementation baseline on the factory feature branch. GitHub source completion, Server runtime, KB delivery, KB `ACCEPTED`, and KB `ACTIVE` are separate states and must not be conflated.
 
 ## Fixed boundaries
 
@@ -34,7 +35,7 @@ Astera APIs        -> Evidence Search / Quality Completion evaluation
 
 ModuleCatalog does not modify AI Core, DebugAI, Astera v8, TGserver, or the KB runtime.
 
-Factory responsibility ends after a KB-ready bundle is sent through the agreed KB receiving contract and its receipt/hash/count are verified. KB-side BM25 / Vector / Knowledge Graph / MCP/search runtime remains outside ModuleCatalog.
+Factory responsibility covers generation of immediately consumable KB data, atomic transport through the agreed inbox boundary, and producer-side verification of the matching KB `ACTIVE` receipt/current authority. KB-side BM25 / Vector / Knowledge Graph / MCP/search runtime and continuing health checks remain outside ModuleCatalog.
 
 ## Five-level Module Architecture
 
