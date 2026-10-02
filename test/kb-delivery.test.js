@@ -1,15 +1,23 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import { sha256 } from '../src/catalog.js';
 import { exportReusableAssets } from '../src/reusable-asset-export.js';
 import { preflightDelivery, publishDelivery, verifyKbActive } from '../src/kb-delivery.js';
 
 const root = process.cwd();
 const ASSET_ID = 'approval-route-resolver';
-const COMMIT_A = 'a'.repeat(40);
-const COMMIT_B = 'b'.repeat(40);
+const COMMIT_A = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+const COMMIT_B = (COMMIT_A[0] === 'b' ? 'a' : 'b') + COMMIT_A.slice(1);
+
+function canonicalJson(value) {
+  if (Array.isArray(value)) return '[' + value.map(canonicalJson).join(',') + ']';
+  if (value && typeof value === 'object') return '{' + Object.keys(value).sort().map((key) => JSON.stringify(key) + ':' + canonicalJson(value[key])).join(',') + '}';
+  return JSON.stringify(value);
+}
 
 async function makeKbRoot() {
   const kbRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'modulecatalog-kb-'));
@@ -25,6 +33,34 @@ async function makeKbRoot() {
 async function writeJson(file, value) {
   await fs.mkdir(path.dirname(file), { recursive: true });
   await fs.writeFile(file, JSON.stringify(value, null, 2) + '\n', 'utf8');
+}
+
+async function rebindDeliveryCommit(deliveryRoot, targetCommit) {
+  const topFile = path.join(deliveryRoot, 'manifest.json');
+  const top = JSON.parse(await fs.readFile(topFile, 'utf8'));
+  top.catalog.commit = targetCommit;
+
+  for (const item of top.assets) {
+    const assetDir = path.join(deliveryRoot, 'assets', item.id);
+    const assetFile = path.join(assetDir, 'asset.json');
+    const asset = JSON.parse(await fs.readFile(assetFile, 'utf8'));
+    asset.provenance.catalog.commit = targetCommit;
+    await writeJson(assetFile, asset);
+
+    const manifestFile = path.join(assetDir, 'manifest.json');
+    const manifest = JSON.parse(await fs.readFile(manifestFile, 'utf8'));
+    manifest.catalog.commit = targetCommit;
+    for (const fileEntry of manifest.files) {
+      const bytes = await fs.readFile(path.join(assetDir, fileEntry.path));
+      fileEntry.size = bytes.length;
+      fileEntry.sha256 = sha256(bytes);
+    }
+    manifest.bundle_hash = sha256(canonicalJson(manifest.files));
+    item.bundleHash = manifest.bundle_hash;
+    await writeJson(manifestFile, manifest);
+  }
+
+  await writeJson(topFile, top);
 }
 
 function stateFrom(expected, status = 'ACTIVE') {
@@ -64,7 +100,8 @@ test('preflights and atomically publishes exactly one complete full snapshot', a
   const { kbRoot, inboxBase } = await makeKbRoot();
   try {
     await exportReusableAssets(root, deliveryA, { catalogCommit: COMMIT_A });
-    await exportReusableAssets(root, deliveryB, { catalogCommit: COMMIT_B });
+    await fs.cp(deliveryA, deliveryB, { recursive: true });
+    await rebindDeliveryCommit(deliveryB, COMMIT_B);
 
     const checked = await preflightDelivery(root, deliveryA);
     assert.equal(checked.catalogCommit, COMMIT_A);
@@ -72,6 +109,9 @@ test('preflights and atomically publishes exactly one complete full snapshot', a
     assert.equal(checked.knowledgeUnitCount, 720);
     assert.equal(checked.caseCount, 160);
     assert.equal(checked.relationshipCount >= 720, true);
+
+    const checkedB = await preflightDelivery(root, deliveryB);
+    assert.equal(checkedB.catalogCommit, COMMIT_B);
 
     const published = await publishDelivery(root, deliveryA, kbRoot);
     assert.equal(published.status, 'PUBLISHED');
