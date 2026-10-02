@@ -3,6 +3,7 @@
 Status: Active design authority
 Project: ModuleCatalog
 Scope owner: ModuleCatalog
+Review rule version: `gpt-final-review-v2`
 
 ## 1. Decision
 
@@ -206,3 +207,24 @@ real_cross_project_reuse_proven=true
 ```
 
 The final GPT review must use both facts without promoting the portable smoke result into a stronger cross-project claim.
+
+## 12. Mandatory machine admission gate
+
+`GPT_APPROVED` is necessary but not sufficient for a runtime admission ticket.
+
+The admission builder must fail closed unless the exact reviewed Factory result also satisfies all of the following:
+
+```text
+contract_unknown_count=0
+applicability_empty_count=0
+known_unverified_count=0
+module_architecture_layer_gate_pass=true
+invalid_layer_values=[]
+portable_reuse_smoke_proven=true
+portable_reuse_asset_count=asset_count
+portable_reuse_command_count>=asset_count*2
+```
+
+`real_cross_project_reuse_proven=true` is intentionally not required by this machine gate because §8 permits retention of a strongly supported reusable Asset while preserving the exact statement that unrelated-project integration remains unproven.
+
+A rejected or hold review creates no admission ticket regardless of machine-gate values.
