@@ -11,6 +11,7 @@ It keeps verified Source / Design / Logic / Architecture / Contract / Test / Evi
 - Repository Candidate: [`docs/REPOSITORY_ASSET_CANDIDATE_V1.md`](docs/REPOSITORY_ASSET_CANDIDATE_V1.md)
 - KB delivery / ACTIVE readback contract: [`docs/KB_DELIVERY_CONTRACT_V1.md`](docs/KB_DELIVERY_CONTRACT_V1.md)
 - Server-to-Master-PC pull transport: [`docs/KB_PULL_TRANSPORT_V1.md`](docs/KB_PULL_TRANSPORT_V1.md)
+- Runtime approved-admission worker: [`docs/RUNTIME_ADMISSION_WORKER_V1.md`](docs/RUNTIME_ADMISSION_WORKER_V1.md)
 - Factory design delta: [`docs/DESIGN_DELTA_FACTORY_V1.md`](docs/DESIGN_DELTA_FACTORY_V1.md)
 - Previous Catalog architecture baseline: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 - Asset format: [`docs/ASSET_FORMAT.md`](docs/ASSET_FORMAT.md)
@@ -77,13 +78,14 @@ Catalog Asset / source
   -> GPT Chat final review of exact commit + manifest + review-rule version
   -> GPT_APPROVED plus mandatory machine gates
   -> Server outbox-local temporary build
-  -> atomic seal as <server-outbox>/<catalog-commit>
-  -> Master PC pulls the exact commit through existing SSH/SCP client
+  -> atomic seal as <server-outbox>/<catalog-commit> only when manifest SHA-256 equals the approved identity
+  -> Master PC pulls the exact commit through existing SSH/SCP client with the same approved manifest SHA-256 supplied explicitly
+  -> require remote manifest SHA-256 == approved manifest SHA-256 before SCP
   -> F:\G-ACE-KB target-local temporary copy
-  -> remote/local top-level manifest hash match
+  -> require local top-level manifest SHA-256 == approved manifest SHA-256
   -> same-filesystem atomic ready/<catalog-commit> publish
   -> existing KB inbox processor
-  -> KB ACCEPTED / ACTIVE / Current readback
+  -> KB ACCEPTED / ACTIVE / Current readback with the same approved identity
   -> existing KB Deep health gate
 ```
 
@@ -227,7 +229,7 @@ For the real cross-host path, the Master PC uses:
 scripts/pull-modulecatalog-kb-delivery-windows.ps1
 ```
 
-The script uses Windows `ssh.exe` / `scp.exe` as a client only, pulls one explicitly supplied Catalog commit into a temporary directory on the target `F:` filesystem, verifies transfer identity, atomically publishes to the standard KB `ready` directory, invokes the existing KB inbox processor, verifies matching ACTIVE/current state and runs the existing Deep health check.
+Required identity inputs include the explicit `CatalogCommit` and the exact GPT-approved `ExpectedManifestSha256`; the script never infers approval identity from the remote Server. It uses Windows `ssh.exe` / `scp.exe` as a client only, rejects a remote manifest whose SHA-256 differs from the approved value before transfer, pulls the exact commit into a temporary directory on the target `F:` filesystem, requires the local manifest to retain the approved SHA-256, atomically publishes to the standard KB `ready` directory, invokes the existing KB inbox processor, verifies matching ACTIVE/current state and runs the existing Deep health check.
 
 A command being documented or source/CI passing does not prove real Server/PC transport or KB runtime success. Cross-host runtime remains unverified until the intended Server and Master PC execute the path successfully.
 
@@ -240,7 +242,7 @@ npm run verify:portable
 npm run check
 ```
 
-Current automated regression covers existing Catalog behavior plus Reusable Asset schema/export determinism and exact-checkout/clean-worktree provenance, traceable reuse-fact projection, generic-purpose fallback to observed interfaces, five-level layer validation, optional-README export compatibility, exact-revision full/incremental/unchanged repository intake, exact-revision Repository Candidate assessment/materialization/CLI boundaries, KB delivery preflight/idempotency/ACTIVE authority, sealed Server outbox identity/idempotency/conflict behavior, Windows pull-transport source constraints and PowerShell parsing, TGserver adapter boundaries, structural analysis, Granite controller constraints, DebugAI MCP mapping, Astera QCE transport, portable reuse smoke, Chat Factory result evidence, GPT final-review identity, and mandatory machine admission gates.
+Current automated regression covers existing Catalog behavior plus Reusable Asset schema/export determinism and exact-checkout/clean-worktree provenance, traceable reuse-fact projection, generic-purpose fallback to observed interfaces, five-level layer validation, optional-README export compatibility, exact-revision full/incremental/unchanged repository intake, exact-revision Repository Candidate assessment/materialization/CLI boundaries, KB delivery preflight/idempotency/ACTIVE authority, sealed Server outbox identity/idempotency/conflict behavior, Windows pull-transport source constraints including approved-manifest-hash binding and PowerShell parsing, TGserver adapter boundaries, structural analysis, Granite controller constraints, DebugAI MCP mapping, Astera QCE transport, portable reuse smoke, Chat Factory result evidence, GPT final-review identity, and mandatory machine admission gates.
 
 Acceptance is based on expected output/state, regression, important failure cases, schema/integrity checks, and runtime/provider readback where relevant. Build or CI success alone is not a production/runtime PASS.
 
