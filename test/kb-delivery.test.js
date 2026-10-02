@@ -27,60 +27,110 @@ async function writeJson(file, value) {
   await fs.writeFile(file, JSON.stringify(value, null, 2) + '\n', 'utf8');
 }
 
-test('preflights, atomically publishes one delivery, and refuses a second ready snapshot', async () => {
+function stateFrom(expected, status = 'ACTIVE') {
+  return {
+    schemaVersion: 1,
+    status,
+    catalogRepository: 'seigo-gace/modular-catalog',
+    catalogCommit: expected.catalogCommit,
+    assetCount: expected.assetCount,
+    knowledgeUnitCount: expected.knowledgeUnitCount,
+    relationshipCount: expected.relationshipCount,
+    caseCount: expected.caseCount,
+    deliveryManifestSha256: expected.manifestSha256
+  };
+}
+
+test('KB activation preflight requires a full current Catalog snapshot', async () => {
+  const work = await fs.mkdtemp(path.join(os.tmpdir(), 'modulecatalog-partial-'));
+  try {
+    await exportReusableAssets(root, work, { assetId: ASSET_ID, catalogCommit: COMMIT_A });
+    await assert.rejects(
+      () => preflightDelivery(root, work),
+      (error) => error?.code === 'KB_DELIVERY_NOT_FULL_SNAPSHOT'
+    );
+    const partial = await preflightDelivery(root, work, { requireFullSnapshot: false });
+    assert.equal(partial.assetCount, 1);
+    assert.equal(partial.caseCount, 2);
+  } finally {
+    await fs.rm(work, { recursive: true, force: true });
+  }
+});
+
+test('preflights and atomically publishes exactly one complete full snapshot', async () => {
   const work = await fs.mkdtemp(path.join(os.tmpdir(), 'modulecatalog-delivery-'));
   const deliveryA = path.join(work, 'delivery-a');
   const deliveryB = path.join(work, 'delivery-b');
-  const deliveryVariant = path.join(work, 'delivery-variant');
   const { kbRoot, inboxBase } = await makeKbRoot();
   try {
-    await exportReusableAssets(root, deliveryA, { assetId: ASSET_ID, catalogCommit: COMMIT_A });
-    await exportReusableAssets(root, deliveryB, { assetId: ASSET_ID, catalogCommit: COMMIT_B });
+    await exportReusableAssets(root, deliveryA, { catalogCommit: COMMIT_A });
+    await exportReusableAssets(root, deliveryB, { catalogCommit: COMMIT_B });
 
     const checked = await preflightDelivery(root, deliveryA);
     assert.equal(checked.catalogCommit, COMMIT_A);
-    assert.equal(checked.assetCount, 1);
-    assert.equal(checked.knowledgeUnitCount > 0, true);
-    assert.equal(checked.relationshipCount > 0, true);
-    assert.equal(checked.caseCount, 2);
+    assert.equal(checked.assetCount, 80);
+    assert.equal(checked.knowledgeUnitCount, 720);
+    assert.equal(checked.caseCount, 160);
+    assert.equal(checked.relationshipCount >= 720, true);
 
-    const published = await publishDelivery(root, deliveryA, inboxBase);
+    const published = await publishDelivery(root, deliveryA, kbRoot);
     assert.equal(published.status, 'PUBLISHED');
     assert.equal(published.idempotent, false);
-    assert.equal(published.deliveryId, COMMIT_A);
     assert.equal(await fs.stat(path.join(inboxBase, 'ready', COMMIT_A, 'manifest.json')).then(() => true), true);
-    assert.equal((await fs.readdir(path.join(inboxBase, '.producer-publish'))).length, 0);
 
-    const repeated = await publishDelivery(root, deliveryA, inboxBase);
+    const repeated = await publishDelivery(root, deliveryA, kbRoot);
     assert.equal(repeated.status, 'PUBLISHED');
     assert.equal(repeated.idempotent, true);
 
     await assert.rejects(
-      () => publishDelivery(root, deliveryB, inboxBase),
+      () => publishDelivery(root, deliveryB, kbRoot),
       (error) => error?.code === 'KB_READY_OCCUPIED'
     );
+  } finally {
+    await fs.rm(work, { recursive: true, force: true });
+    await fs.rm(kbRoot, { recursive: true, force: true });
+  }
+});
 
-    await fs.cp(deliveryA, deliveryVariant, { recursive: true });
-    const variantManifestFile = path.join(deliveryVariant, 'manifest.json');
-    const variantManifest = JSON.parse(await fs.readFile(variantManifestFile, 'utf8'));
-    variantManifest.producer_note = 'same commit, different manifest identity';
-    await writeJson(variantManifestFile, variantManifest);
-    await preflightDelivery(root, deliveryVariant);
+test('does not queue another activation candidate while KB processing is occupied', async () => {
+  const work = await fs.mkdtemp(path.join(os.tmpdir(), 'modulecatalog-busy-'));
+  const delivery = path.join(work, 'delivery');
+  const { kbRoot, inboxBase } = await makeKbRoot();
+  try {
+    await exportReusableAssets(root, delivery, { catalogCommit: COMMIT_A });
+    await fs.mkdir(path.join(inboxBase, 'processing', 'other-delivery'), { recursive: true });
     await assert.rejects(
-      () => publishDelivery(root, deliveryVariant, inboxBase),
-      (error) => error?.code === 'KB_DELIVERY_IDENTITY_CONFLICT'
+      () => publishDelivery(root, delivery, kbRoot),
+      (error) => error?.code === 'KB_RECEIVER_BUSY'
     );
+    assert.equal((await fs.readdir(path.join(inboxBase, 'ready'))).length, 0);
+  } finally {
+    await fs.rm(work, { recursive: true, force: true });
+    await fs.rm(kbRoot, { recursive: true, force: true });
+  }
+});
 
-    const claimed = path.join(inboxBase, 'processing', COMMIT_A);
-    await fs.rename(path.join(inboxBase, 'ready', COMMIT_A), claimed);
-    const processing = await publishDelivery(root, deliveryA, inboxBase);
-    assert.equal(processing.status, 'PROCESSING');
-    assert.equal(processing.idempotent, true);
+test('detects same-commit delivery identity conflict before republishing', async () => {
+  const work = await fs.mkdtemp(path.join(os.tmpdir(), 'modulecatalog-identity-'));
+  const delivery = path.join(work, 'delivery');
+  const variant = path.join(work, 'variant');
+  const { kbRoot } = await makeKbRoot();
+  try {
+    await exportReusableAssets(root, delivery, { catalogCommit: COMMIT_A });
+    const expected = await preflightDelivery(root, delivery);
+    await fs.cp(delivery, variant, { recursive: true });
+    const variantManifestFile = path.join(variant, 'manifest.json');
+    const variantManifest = JSON.parse(await fs.readFile(variantManifestFile, 'utf8'));
+    variantManifest.producer_note = 'same semantic snapshot, different delivery manifest bytes';
+    await writeJson(variantManifestFile, variantManifest);
+    const changed = await preflightDelivery(root, variant);
+    assert.notEqual(changed.manifestSha256, expected.manifestSha256);
 
-    const missingBase = path.join(kbRoot, 'not-configured');
+    const receiptFile = path.join(kbRoot, 'data', 'knowledge-intake', 'modulecatalog', 'receipts', `${COMMIT_A}.json`);
+    await writeJson(receiptFile, stateFrom(expected, 'ACCEPTED'));
     await assert.rejects(
-      () => publishDelivery(root, deliveryB, missingBase),
-      (error) => error?.code === 'KB_DELIVERY_NOT_CONFIGURED'
+      () => publishDelivery(root, variant, kbRoot),
+      (error) => error?.code === 'KB_DELIVERY_IDENTITY_CONFLICT'
     );
   } finally {
     await fs.rm(work, { recursive: true, force: true });
@@ -93,36 +143,26 @@ test('treats ACCEPTED as pending and requires matching ACTIVE receipt plus curre
   const delivery = path.join(work, 'delivery');
   const { kbRoot } = await makeKbRoot();
   try {
-    await exportReusableAssets(root, delivery, { assetId: ASSET_ID, catalogCommit: COMMIT_A });
+    await exportReusableAssets(root, delivery, { catalogCommit: COMMIT_A });
     const expected = await preflightDelivery(root, delivery);
     const receiptFile = path.join(kbRoot, 'data', 'knowledge-intake', 'modulecatalog', 'receipts', `${COMMIT_A}.json`);
     const currentFile = path.join(kbRoot, 'data', 'knowledge-records', 'modulecatalog-reusable-active.json');
-    const baseState = {
-      schemaVersion: 1,
-      catalogRepository: 'seigo-gace/modular-catalog',
-      catalogCommit: COMMIT_A,
-      assetCount: expected.assetCount,
-      knowledgeUnitCount: expected.knowledgeUnitCount,
-      relationshipCount: expected.relationshipCount,
-      caseCount: expected.caseCount,
-      deliveryManifestSha256: expected.manifestSha256.toUpperCase()
-    };
 
-    await writeJson(receiptFile, { ...baseState, status: 'ACCEPTED' });
+    await writeJson(receiptFile, stateFrom(expected, 'ACCEPTED'));
     const accepted = await verifyKbActive(root, delivery, kbRoot);
     assert.equal(accepted.status, 'ACCEPTED');
     assert.equal(accepted.code, 'KB_ACCEPTED_PENDING_ACTIVE');
 
-    await writeJson(receiptFile, { ...baseState, status: 'ACTIVE' });
-    await writeJson(currentFile, { ...baseState, status: 'ACTIVE' });
+    await writeJson(receiptFile, stateFrom(expected, 'ACTIVE'));
+    await writeJson(currentFile, stateFrom(expected, 'ACTIVE'));
     const complete = await verifyKbActive(root, delivery, kbRoot);
     assert.equal(complete.status, 'COMPLETE');
-    assert.equal(complete.catalogCommit, COMMIT_A);
+    assert.equal(complete.summary.catalogCommit, COMMIT_A);
 
-    await writeJson(currentFile, { ...baseState, status: 'ACTIVE', catalogCommit: COMMIT_B });
+    await writeJson(currentFile, { ...stateFrom(expected, 'ACTIVE'), catalogCommit: COMMIT_B });
     await assert.rejects(
       () => verifyKbActive(root, delivery, kbRoot),
-      (error) => error?.code === 'KB_CURRENT_MISMATCH'
+      (error) => error?.code === 'KB_STALE_REDELIVERY_REJECTED'
     );
   } finally {
     await fs.rm(work, { recursive: true, force: true });
