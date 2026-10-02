@@ -11,6 +11,10 @@ param(
     [ValidatePattern('^[0-9a-fA-F]{40}$')]
     [string]$CatalogCommit,
 
+    [Parameter(Mandatory=$true)]
+    [ValidatePattern('^[0-9a-fA-F]{64}$')]
+    [string]$ExpectedManifestSha256,
+
     [string]$Root = 'F:\G-ACE-KB',
     [string]$SshExe = 'ssh.exe',
     [string]$ScpExe = 'scp.exe',
@@ -20,6 +24,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $CatalogCommit = $CatalogCommit.ToLowerInvariant()
+$ExpectedManifestSha256 = $ExpectedManifestSha256.ToLowerInvariant()
 $RemoteOutboxRoot = $RemoteOutboxRoot.TrimEnd('/')
 
 if (($RemoteOutboxRoot -split '/') -contains '..' -or ($RemoteOutboxRoot -split '/') -contains '.') {
@@ -104,6 +109,9 @@ $remoteHashOutput = & $SshExe @sshArgs $ServerHost "sha256sum -- $remoteManifest
 if ($LASTEXITCODE -ne 0) { throw "MODULECATALOG_REMOTE_MANIFEST_READ_FAILED=$LASTEXITCODE" }
 $remoteHashText = (($remoteHashOutput | Out-String).Trim() -split '\s+')[0].ToLowerInvariant()
 if ($remoteHashText -notmatch '^[0-9a-f]{64}$') { throw "MODULECATALOG_REMOTE_MANIFEST_HASH_INVALID=$remoteHashText" }
+if ($remoteHashText -ne $ExpectedManifestSha256) {
+    throw "MODULECATALOG_REMOTE_MANIFEST_APPROVAL_MISMATCH expected=$ExpectedManifestSha256 actual=$remoteHashText"
+}
 
 # Fast idempotent path: the exact delivery is already the active/current KB and its
 # processed archive exists. No transport or reactivation is performed.
@@ -111,10 +119,10 @@ if (Test-Path $ProcessedDelivery) {
     $processedManifest = Join-Path $ProcessedDelivery 'manifest.json'
     [void](Assert-ManifestContract -ManifestPath $processedManifest)
     $processedHash = Get-FileSha256Lower -Path $processedManifest
-    if ($processedHash -ne $remoteHashText) { throw 'MODULECATALOG_PROCESSED_DELIVERY_IDENTITY_CONFLICT' }
-    Assert-ActiveIdentity -ExpectedManifestSha256 $remoteHashText
+    if ($processedHash -ne $ExpectedManifestSha256) { throw 'MODULECATALOG_PROCESSED_DELIVERY_IDENTITY_CONFLICT' }
+    Assert-ActiveIdentity -ExpectedManifestSha256 $ExpectedManifestSha256
     Invoke-DeepHealth
-    Write-Host "GACE_MODULECATALOG_PULL=PASS IDEMPOTENT=YES STATUS=ACTIVE COMMIT=$CatalogCommit ARCHIVE=$ProcessedDelivery"
+    Write-Host "GACE_MODULECATALOG_PULL=PASS IDEMPOTENT=YES STATUS=ACTIVE COMMIT=$CatalogCommit MANIFEST=$ExpectedManifestSha256 ARCHIVE=$ProcessedDelivery"
     return
 }
 
@@ -123,12 +131,12 @@ if ($processingDirs.Count -gt 0) {
     if ($processingDirs.Count -eq 1 -and $processingDirs[0].Name -eq $CatalogCommit) {
         $processingManifest = Join-Path $processingDirs[0].FullName 'manifest.json'
         [void](Assert-ManifestContract -ManifestPath $processingManifest)
-        if ((Get-FileSha256Lower -Path $processingManifest) -ne $remoteHashText) { throw 'MODULECATALOG_PROCESSING_DELIVERY_IDENTITY_CONFLICT' }
+        if ((Get-FileSha256Lower -Path $processingManifest) -ne $ExpectedManifestSha256) { throw 'MODULECATALOG_PROCESSING_DELIVERY_IDENTITY_CONFLICT' }
         Invoke-InboxProcessor
         if (-not (Test-Path $ProcessedDelivery)) { throw "MODULECATALOG_PROCESSED_ARCHIVE_MISSING=$ProcessedDelivery" }
-        Assert-ActiveIdentity -ExpectedManifestSha256 $remoteHashText
+        Assert-ActiveIdentity -ExpectedManifestSha256 $ExpectedManifestSha256
         Invoke-DeepHealth
-        Write-Host "GACE_MODULECATALOG_PULL=PASS RESUMED=YES STATUS=ACTIVE COMMIT=$CatalogCommit ARCHIVE=$ProcessedDelivery"
+        Write-Host "GACE_MODULECATALOG_PULL=PASS RESUMED=YES STATUS=ACTIVE COMMIT=$CatalogCommit MANIFEST=$ExpectedManifestSha256 ARCHIVE=$ProcessedDelivery"
         return
     }
     $names = ($processingDirs | ForEach-Object { $_.Name }) -join ','
@@ -144,12 +152,12 @@ if ($otherReady.Count -gt 0) {
 if (Test-Path $FinalReady) {
     $readyManifest = Join-Path $FinalReady 'manifest.json'
     [void](Assert-ManifestContract -ManifestPath $readyManifest)
-    if ((Get-FileSha256Lower -Path $readyManifest) -ne $remoteHashText) { throw 'MODULECATALOG_READY_DELIVERY_IDENTITY_CONFLICT' }
+    if ((Get-FileSha256Lower -Path $readyManifest) -ne $ExpectedManifestSha256) { throw 'MODULECATALOG_READY_DELIVERY_IDENTITY_CONFLICT' }
     Invoke-InboxProcessor
     if (-not (Test-Path $ProcessedDelivery)) { throw "MODULECATALOG_PROCESSED_ARCHIVE_MISSING=$ProcessedDelivery" }
-    Assert-ActiveIdentity -ExpectedManifestSha256 $remoteHashText
+    Assert-ActiveIdentity -ExpectedManifestSha256 $ExpectedManifestSha256
     Invoke-DeepHealth
-    Write-Host "GACE_MODULECATALOG_PULL=PASS RESUMED_READY=YES STATUS=ACTIVE COMMIT=$CatalogCommit ARCHIVE=$ProcessedDelivery"
+    Write-Host "GACE_MODULECATALOG_PULL=PASS RESUMED_READY=YES STATUS=ACTIVE COMMIT=$CatalogCommit MANIFEST=$ExpectedManifestSha256 ARCHIVE=$ProcessedDelivery"
     return
 }
 
@@ -163,14 +171,14 @@ try {
     $localManifest = Join-Path $localDelivery 'manifest.json'
     [void](Assert-ManifestContract -ManifestPath $localManifest)
     $localHash = Get-FileSha256Lower -Path $localManifest
-    if ($localHash -ne $remoteHashText) {
-        throw "MODULECATALOG_TRANSFER_MANIFEST_MISMATCH remote=$remoteHashText local=$localHash"
+    if ($localHash -ne $ExpectedManifestSha256) {
+        throw "MODULECATALOG_TRANSFER_MANIFEST_MISMATCH expected=$ExpectedManifestSha256 local=$localHash"
     }
 
     # Final publish is a same-filesystem directory rename. The KB never sees the
     # partially transferred directory under ready/.
     Move-Item -Path $localDelivery -Destination $FinalReady
-    if ((Get-FileSha256Lower -Path (Join-Path $FinalReady 'manifest.json')) -ne $remoteHashText) {
+    if ((Get-FileSha256Lower -Path (Join-Path $FinalReady 'manifest.json')) -ne $ExpectedManifestSha256) {
         throw 'MODULECATALOG_READY_READBACK_MISMATCH'
     }
 }
@@ -180,6 +188,6 @@ finally {
 
 Invoke-InboxProcessor
 if (-not (Test-Path $ProcessedDelivery)) { throw "MODULECATALOG_PROCESSED_ARCHIVE_MISSING=$ProcessedDelivery" }
-Assert-ActiveIdentity -ExpectedManifestSha256 $remoteHashText
+Assert-ActiveIdentity -ExpectedManifestSha256 $ExpectedManifestSha256
 Invoke-DeepHealth
-Write-Host "GACE_MODULECATALOG_PULL=PASS STATUS=ACTIVE COMMIT=$CatalogCommit ARCHIVE=$ProcessedDelivery"
+Write-Host "GACE_MODULECATALOG_PULL=PASS STATUS=ACTIVE COMMIT=$CatalogCommit MANIFEST=$ExpectedManifestSha256 ARCHIVE=$ProcessedDelivery"
