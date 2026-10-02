@@ -1,99 +1,56 @@
 # ModuleCatalog
 
-ModuleCatalog is the canonical repository and processing factory for reusable development assets.
+ModuleCatalog is the internal reusable development-asset processing factory and canonical catalog for G-ACE development work.
 
-It keeps verified Source / Design / Logic / Architecture / Contract / Test / Evidence / Provenance together, converts them into reusable Knowledge Units and related metadata, and delivers KB-ready data without fabricating missing facts.
+The active Factory path is designed to turn exact repository facts plus observed runtime evidence into verified reusable asset data without fabricating missing facts, then deliver one complete `gace.reusable-asset.v1` snapshot to the G-ACE KB boundary.
 
-## Current design authority
-
-- Factory v1: [`docs/REUSABLE_KNOWLEDGE_FACTORY_V1.md`](docs/REUSABLE_KNOWLEDGE_FACTORY_V1.md)
-- Repository Candidate: [`docs/REPOSITORY_ASSET_CANDIDATE_V1.md`](docs/REPOSITORY_ASSET_CANDIDATE_V1.md)
-- KB delivery / ACTIVE readback contract: [`docs/KB_DELIVERY_CONTRACT_V1.md`](docs/KB_DELIVERY_CONTRACT_V1.md)
-- Factory design delta: [`docs/DESIGN_DELTA_FACTORY_V1.md`](docs/DESIGN_DELTA_FACTORY_V1.md)
-- Previous Catalog architecture baseline: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
-- Asset format: [`docs/ASSET_FORMAT.md`](docs/ASSET_FORMAT.md)
-- Reusable-data audit: [`docs/REUSABLE_ASSET_DATA_AUDIT_20261001.md`](docs/REUSABLE_ASSET_DATA_AUDIT_20261001.md)
-
-The Factory v1 design is the current implementation baseline on the factory feature branch. GitHub source completion, candidate materialization, Catalog registration, Server runtime, KB delivery, KB `ACCEPTED`, and KB `ACTIVE` are separate states and must not be conflated.
-
-## Fixed boundaries
-
-Factory evidence inputs are kept separate:
+## Current Factory boundary
 
 ```text
-pinned Git repository / exact revision
-+
-TGserver logs through TGserver HTTP API
+Git repository exact revision
++ TGserver runtime evidence
+        ↓
+Repository intake / Candidate assessment
+        ↓
+Canonical + deterministic structural extraction
+        ↓
+Knowledge Unit / Case / Relationship / metadata projection
+        ↓
+Granite Debug Controller when deterministic failure signals exist
+        ↓
+DebugAI MCP analyze / verify only
+        ↓
+optional supported Astera evaluation
+        ↓
+Ajv schema + integrity gates
+        ↓
+gace.reusable-asset.v1 full snapshot
+        ↓
+sealed Server outbox
+        ↓
+Master-PC initiated SSH/SCP pull
+        ↓
+F:\G-ACE-KB standard inbox
+        ↓
+existing KB receiver / BM25 / Vector / KG / MCP / ACTIVE
 ```
 
-Implemented optional adapters use established boundaries only:
+ModuleCatalog does not own or modify Astera v8, AI Core, DebugAI, TGserver, or the G-ACE KB runtime implementation. Those are external capabilities with separate authorities.
 
-```text
-AI Core Router API -> Granite Debug Controller -> SKIP / ANALYZE / VERIFY
-DebugAI MCP        -> analyze / verify only
-Astera QCE API     -> POST /v1/evaluate with X-API-Key
-```
+## Truth boundary
 
-Direct Astera Evidence Search is **not currently connected from ModuleCatalog**. The current Evidence Search transport is an Astera-internal route that authenticates the caller as `service=astera-main`; there is no sanctioned ModuleCatalog caller identity in that contract. ModuleCatalog therefore reports `ASTERA_EVIDENCE_CONTRACT_NOT_AVAILABLE` instead of impersonating `astera-main` or guessing another route.
+Produced information is separated into:
 
-ModuleCatalog does not modify AI Core, DebugAI, Astera v8, TGserver, source repositories, or the KB runtime.
+- Canonical: explicitly recorded authoritative facts;
+- Deterministic Derived: repeatable projection from Canonical facts;
+- AI Derived: AI interpretation with explicit derivation boundary;
+- Unknown / Not Recorded: evidence is insufficient.
 
-Factory responsibility covers exact-revision repository intake, non-fabricated candidate construction, deterministic extraction, reusable bundle generation, producer-side delivery validation, atomic transport through the agreed KB inbox boundary, and producer-side verification of the matching KB `ACTIVE` receipt/current authority. KB-side BM25 / Vector / Knowledge Graph / MCP/search runtime and continuing health checks remain outside ModuleCatalog.
+Missing facts are not filled merely to make an Asset appear complete.
 
-## Current implemented Factory path
+## Module Architecture
 
-Repository intake resolves the supplied 40-character revision against the actual Git object database before optional external adapters can run. An optional exact `previous_revision` yields an incremental `git diff`; without it, intake reports a full snapshot; equal revisions return `UNCHANGED`. Changes under existing `assets/<asset-id>/...` paths are projected to affected Catalog Asset IDs, while non-Asset paths remain explicit as `unmapped_paths` instead of being silently discarded.
-
-For a generic repository that is not already laid out as a Catalog Asset, ModuleCatalog now supports a separate non-registered Candidate boundary:
-
-```text
-exact external repo revision
-  + explicit Canonical declaration
-  + explicit Design / Logic / Architecture / Evidence / Source / Normal Test / User Test mapping
-  -> assess missing repository facts
-  -> READY_TO_MATERIALIZE or INCOMPLETE
-  -> exact Git Blob materialization outside ModuleCatalog
-  -> existing Asset validation
-  -> READY_FOR_ADMISSION
-  -> explicit existing `register` command only
-```
-
-The declaration and role mapping are explicit authority inputs. ModuleCatalog does not infer a missing purpose, responsibility, layer, language, runtime, verification result, User Test role, or Evidence record from arbitrary repository content. Materialization reads exact committed blobs, so uncommitted Working Tree changes cannot leak into the Candidate. `READY_FOR_ADMISSION` is still not `REGISTERED`.
-
-The registered-Asset-to-KB path remains:
-
-```text
-Catalog Asset / source
-  -> exact Git revision intake / optional incremental diff
-  -> integrity + existing evidence validation
-  -> ast-grep deterministic JS/TS structural extraction
-  -> exact source-derived symbol / signature / return / import-require projection
-  -> Reusable Asset Schema v1 (Ajv Draft 2020-12)
-  -> deterministic bundle + hash/count preflight
-  -> target-local temporary copy
-  -> atomic ready/<catalog-commit> publish
-  -> KB ACCEPTED / ACTIVE / Current readback
-```
-
-Exporter provenance is fail-closed: an explicit `--catalog-commit` must equal the checked-out Catalog `HEAD`. A caller cannot label current Working Tree content with another revision.
-
-`README.md` is optional under the existing Asset admission format. The exporter emits a README Knowledge Unit only when the registered Asset actually contains a non-empty README; it never fabricates one.
-
-The diagnostic/verification coordination path is separately bounded:
-
-```text
-exact repo + revision + optional TGserver observations
-  -> repository revision resolution before external calls
-  -> explicit/deterministic failure signals
-  -> Granite Debug Controller when a signal exists
-  -> DebugAI MCP analyze/verify when selected
-  -> optional Astera QCE evaluation when an explicit QCE request is supplied
-  -> INSPECTION_COMPLETE
-```
-
-`INSPECTION_COMPLETE`, `READY_FOR_ADMISSION`, Catalog registration, and KB `COMPLETE` are distinct states.
-
-## Five-level Module Architecture
+The preserved logical architecture is:
 
 ```text
 Part
@@ -103,59 +60,193 @@ Part
         -> Application System
 ```
 
-This is a logical architecture. It does not require one directory per level.
+The five levels are logical responsibility/reuse levels and do not require a matching directory hierarchy.
 
-## Reusable Asset Schema v1
+## Active design authorities
 
-Current reusable asset output is defined by:
+- `docs/REUSABLE_KNOWLEDGE_FACTORY_V1.md`
+- `docs/DESIGN_DELTA_FACTORY_V1.md`
+- `docs/REPOSITORY_ASSET_CANDIDATE_V1.md`
+- `docs/KB_DELIVERY_CONTRACT_V1.md`
+- `docs/KB_PULL_TRANSPORT_V1.md`
+- `schemas/reusable-asset-v1.schema.json`
+- `schemas/debug-controller-v1.schema.json`
 
-```text
-schemas/reusable-asset-v1.schema.json
-```
+Historical ChatGPT-specific work-control material is not the Factory v1 design authority. Workspace operational authority is owned by `server-core` plus the current explicit task instructions.
 
-It preserves Canonical data separately from deterministic/derived data and keeps unavailable information explicit rather than inventing values.
+## Minimal runtime dependencies
 
-Deterministic structural projection may populate exact source facts such as:
+Factory v1 intentionally avoids a new workflow platform/database/AI router.
 
-- one unambiguous exported symbol;
-- exported function signatures;
-- exact return expressions;
-- exact import/require sources;
-- source-derived semantic search terms.
+Current direct dependencies are:
 
-It does **not** convert an exported function name into a semantic capability, does not invent `use_when` / `do_not_use_when`, and does not promote partial structural facts into a fully known contract.
+- Node.js 22+
+- Ajv — executable JSON Schema validation
+- ast-grep — deterministic structural extraction; Tree-sitter is used through ast-grep
+- MCP client — DebugAI stdio integration
 
-Per-asset bundle:
+Existing external capabilities are reused instead of duplicated:
 
-```text
-asset.json
-knowledge-units.jsonl
-relationships.jsonl
-cases.jsonl
-manifest.json
-```
+- TGserver HTTP `/search`
+- AI Core OpenAI-compatible Router API with Granite as the Debug Controller model
+- DebugAI MCP
+- Astera QCE API where its sanctioned caller contract exists
+- G-ACE KB Windows receiver/runtime
 
-## Current CLI
+Direct Astera Evidence Search is intentionally not connected because the current inspected route does not expose a sanctioned ModuleCatalog caller contract.
+
+## Existing registered Asset commands
+
+Search:
 
 ```bash
-node src/cli.js search --query "http retry" --language JavaScript --layer Feature
-node src/cli.js show <asset-id> --section architecture
-node src/cli.js validate <asset-id>
-node src/cli.js repository-candidate --repo <git-directory> --revision <40-char-sha> --spec <json-file> [--asset-root <path>] [--output <outside-directory>] --json
-node src/cli.js register /path/to/completed-asset
-node src/cli.js build-index
-node src/cli.js verify-index
-node src/cli.js export-reusable-assets --output <directory>
-node src/cli.js preflight-kb-delivery <delivery-directory>
-node src/cli.js publish-kb-delivery <delivery-directory> --kb-root <directory>
-node src/cli.js verify-kb-active <delivery-directory> --kb-root <directory>
+node src/cli.js search --query "text" --json
 ```
 
-`repository-candidate` without `--output` performs assessment only. With `--output`, it materializes a validated non-registered Candidate outside the Catalog working tree. Registration remains an explicit separate operation.
+Show:
 
-A command being documented does not by itself prove real Server/PC transport or KB runtime success. Cross-host transport remains unproven until a concrete bridge is configured and verified.
+```bash
+node src/cli.js show <asset-id> --section all --json
+```
 
-## Verification
+Validate:
+
+```bash
+node src/cli.js validate <asset-id> --json
+```
+
+Explicit registration remains the Canonical admission boundary:
+
+```bash
+node src/cli.js register <candidate-directory> --json
+```
+
+Build/verify index:
+
+```bash
+node src/cli.js build-index --json
+node src/cli.js verify-index --json
+```
+
+## Generic repository Candidate boundary
+
+Assess an exact external Git revision without registering it:
+
+```bash
+node src/cli.js repository-candidate \
+  --repo <git-directory> \
+  --revision <exact-40-char-sha> \
+  --spec <candidate-spec.json> \
+  --json
+```
+
+Materialize a validated Candidate outside the ModuleCatalog working tree:
+
+```bash
+node src/cli.js repository-candidate \
+  --repo <git-directory> \
+  --revision <exact-40-char-sha> \
+  --spec <candidate-spec.json> \
+  --output <external-candidate-directory> \
+  --json
+```
+
+Candidate construction requires explicit Canonical metadata plus explicit file mappings for required Design / Logic / Architecture / Evidence / Source / Normal Test / User Test material. Missing material remains `INCOMPLETE`.
+
+`READY_FOR_ADMISSION` does not mean registered. The existing `register` operation must still succeed before the Asset becomes Canonical Catalog state.
+
+## Reusable Asset export
+
+Export the complete registered Catalog:
+
+```bash
+node src/cli.js export-reusable-assets \
+  --output <external-directory> \
+  --catalog-commit <exact-current-head> \
+  --json
+```
+
+Export one registered Asset for inspection/testing:
+
+```bash
+node src/cli.js export-reusable-assets <asset-id> \
+  --output <external-directory> \
+  --catalog-commit <exact-current-head> \
+  --json
+```
+
+Export provenance is fail-closed:
+
+- explicit Catalog commit must equal checked-out `HEAD`;
+- Catalog Working Tree must be clean;
+- output must be outside the Catalog working tree;
+- same canonical input/revision remains deterministic.
+
+KB activation itself requires a full current snapshot, not a single-Asset export.
+
+## KB delivery preflight
+
+Validate a completed full delivery before transport:
+
+```bash
+node src/cli.js preflight-kb-delivery <delivery-directory> --json
+```
+
+The producer preflight validates schema, provenance, per-file hashes, bundle hashes, counts, IDs, parent links and relationship targets. The KB independently revalidates the delivery after transport.
+
+## Sealed Server outbox
+
+Factory v1 prepares a transportable full snapshot in an existing Server outbox directory:
+
+```bash
+node src/cli.js prepare-kb-outbox \
+  --outbox <existing-server-outbox-directory> \
+  --json
+```
+
+The operation builds in an outbox-local temporary directory, runs full producer preflight, then atomically renames to:
+
+```text
+<outbox>/<exact-catalog-commit>/
+```
+
+Same commit + same manifest is idempotent. A conflicting existing identity fails closed.
+
+The outbox is only a transport staging boundary. It is not KB Current authority.
+
+## Master-PC pull transport
+
+Cross-host Factory v1 uses the existing Windows SSH/SCP **client** surface and does not create a PC inbound server/service.
+
+Source:
+
+```text
+scripts/pull-modulecatalog-kb-delivery-windows.ps1
+```
+
+It pulls one explicitly named Catalog commit from the sealed Server outbox into a temporary directory under the `F:\G-ACE-KB` inbox filesystem, validates the top-level transfer identity, then publishes by same-filesystem rename into the standard `ready\<catalog-commit>` location.
+
+It then invokes the existing KB-owned inbox processor and existing Deep health check. ModuleCatalog does not duplicate KB admission, indexing, cutover, rollback or archive logic.
+
+Real SSH/SCP connectivity, Server outbox execution, Master-PC pull and KB `ACTIVE` E2E remain runtime gates until actually executed.
+
+## Filesystem delivery reference commands
+
+For same-host controlled fixtures/reference behavior only:
+
+```bash
+node src/cli.js publish-kb-delivery <delivery-directory> \
+  --kb-root <kb-root> \
+  --json
+
+node src/cli.js verify-kb-active <delivery-directory> \
+  --kb-root <kb-root> \
+  --json
+```
+
+A Server-hosted ModuleCatalog must not assume direct filesystem access to the Master PC `F:` drive. The real cross-host design is documented in `docs/KB_PULL_TRANSPORT_V1.md`.
+
+## Source verification
 
 ```bash
 npm test
@@ -163,16 +254,4 @@ npm run verify
 npm run check
 ```
 
-Current automated regression covers existing Catalog behavior plus Reusable Asset schema/export determinism and exact-checkout provenance, optional-README export compatibility, exact-revision full/incremental/unchanged repository intake, exact-revision Repository Candidate assessment/materialization/CLI boundaries, KB delivery preflight/idempotency/ACTIVE authority, TGserver adapter boundaries, structural analysis, Granite controller constraints, DebugAI MCP mapping, Astera QCE transport, and Factory inspection orchestration.
-
-Acceptance is based on expected output/state, regression, important failure cases, schema/integrity checks, and runtime/provider readback where relevant. Build or CI success alone is not a production/runtime PASS.
-
-## Existing assets
-
-The current branch is stacked on the 80-asset reusable export work from PR #4. Existing Asset identity, Source, tests, Evidence, Manifest, hashes, and provenance remain canonical inputs to Factory v1.
-
-Generated Candidate or KB data is not committed as canonical source merely because it was materialized or exported. The Catalog remains the reproducible source of truth after explicit admission.
-
-## Legacy GPT work-control material
-
-The old ChatGPT-specific Work Control files are not Factory v1 design authority. Workspace/development control now comes from server-core and current project instructions. Legacy files are retained temporarily only until implementation cleanup can remove them without mixing cleanup with Factory correctness.
+GitHub source/CI PASS is not Server runtime PASS, Master-PC transport PASS, or KB `ACTIVE` PASS. Those states must be reported separately.
