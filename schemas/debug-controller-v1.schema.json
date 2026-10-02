@@ -57,8 +57,8 @@
         "properties": {
           "request": { "type": "null" },
           "task": { "type": "null" },
-          "paths": { "maxItems": 0 },
-          "change_scope": { "maxItems": 0 }
+          "paths": { "type": "array", "maxItems": 0 },
+          "change_scope": { "type": "array", "maxItems": 0 }
         }
       }
     }
