@@ -16,7 +16,8 @@ GPT Chat review
 -> runtime revalidation of Factory result + GPT review + ticket
 -> approved commit + manifest identity revalidation before seal
 -> /home/admin1/logs/modulecatalog/outbox/<catalog-commit>
--> existing Master-PC initiated pull
+-> existing Master-PC initiated pull with the same approved manifest SHA-256 supplied explicitly
+-> Master PC rejects remote manifest identity drift before SCP
 -> F:\G-ACE-KB
 ```
 
@@ -30,6 +31,7 @@ GPT Chat review
 - An existing revision directory is accepted only when its manifest identity matches; otherwise it is an identity conflict.
 - GitHub access by this worker is read-only and limited to the fixed ModuleCatalog control branch paths.
 - The worker does not push to the Master PC and does not create an inbound PC service.
+- The Master-PC pull independently requires the same approved manifest SHA-256 and rejects any remote Outbox manifest that no longer matches it before copying data.
 
 ## Source
 
@@ -37,6 +39,7 @@ GPT Chat review
 - `src/runtime-admission-queue.js`: fixed GitHub queue discovery, exact temporary checkout, idempotent one-shot processing and local receipt creation.
 - `scripts/admit-approved-kb-ticket.mjs`: direct evidence-bundle admission entrypoint.
 - `scripts/process-approved-admission-queue.mjs`: one-shot queue worker entrypoint.
+- `scripts/pull-modulecatalog-kb-delivery-windows.ps1`: PC-initiated transport that requires both exact Catalog commit and exact GPT-approved manifest SHA-256.
 
 ## Runtime state boundary
 
