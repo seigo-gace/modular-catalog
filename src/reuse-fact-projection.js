@@ -2,9 +2,27 @@ const EXPLICIT_FAILURE_STATEMENT = /^\s*(?:fail(?:[- ]?closed)?\b|reject(?:ed|io
 const FAILURE_OUTPUT_PATTERN = /\b(?:BLOCKED|REJECTED|ERROR|INVALID|AMBIGUOUS|UNKNOWN)\b/;
 const DO_NOT_USE_PATTERN = /\b(?:do not use|must not be used|never use|not for use|forbidden to use)\b/i;
 const SIDE_EFFECT_PATTERN = /(?:\bno\b.*\bside effects?\b|\bwithout\b.*\bside effects?\b|\bdo not execute side effects?\b)/i;
+const GENERIC_SKILL_PURPOSE = /(?:reusable minimal skill|を1責務の独立skillとして提供する[。.]?$)/i;
 
 function unique(values) {
   return [...new Set(values.filter((value) => typeof value === 'string' && value.trim()).map((value) => value.trim()))];
+}
+
+function normalizeIdentity(value) {
+  return String(value ?? '').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
+}
+
+function isGenericPurpose(meta) {
+  const purpose = String(meta?.purpose ?? '').trim();
+  const name = String(meta?.name ?? '').trim();
+  if (!purpose) return true;
+  if (normalizeIdentity(purpose) === normalizeIdentity(name)) return true;
+  return GENERIC_SKILL_PURPOSE.test(purpose);
+}
+
+function interfaceUseWhen(contractInputs, contractOutputs) {
+  if (!contractInputs.length || !contractOutputs.length) return null;
+  return `Use when the required call contract matches ${contractInputs.join('; ')} and the caller can consume the recorded outputs ${contractOutputs.join('; ')}.`;
 }
 
 function sentences(text) {
@@ -38,9 +56,14 @@ export function projectExplicitReuseFacts({ meta, sections, structure, evidence 
   const verificationPassed = evidence?.normal?.passed === true && evidence?.user?.passed === true;
   const explicitFailureTexts = unique(explicitFailureStatements.map((entry) => entry.text));
   const failureConditions = unique([...explicitFailureTexts, ...sourceFailureOutputs]);
+  const genericPurpose = isGenericPurpose(meta);
+  const interfaceCondition = interfaceUseWhen(contractInputs, contractOutputs);
+  const useWhen = genericPurpose
+    ? (interfaceCondition ? [interfaceCondition] : [])
+    : (meta.purpose?.trim() ? [meta.purpose.trim()] : []);
 
   const applicability = {
-    use_when: meta.purpose?.trim() ? [meta.purpose.trim()] : [],
+    use_when: useWhen,
     do_not_use_when: unique(doNotUseStatements.map((entry) => entry.text)),
     preconditions: unique(meta.dependencies ?? []),
     required_context: contractInputs,
@@ -56,7 +79,14 @@ export function projectExplicitReuseFacts({ meta, sections, structure, evidence 
   };
 
   const derived_fields = [];
-  if (applicability.use_when.length) derived_fields.push({ field: 'applicability.use_when', type: 'deterministic-derived', source: 'meta.purpose', verified: false });
+  if (applicability.use_when.length) {
+    derived_fields.push({
+      field: 'applicability.use_when',
+      type: 'deterministic-derived',
+      source: genericPurpose ? 'ast-grep observed input/output interface because meta.purpose is generic' : 'meta.purpose',
+      verified: false
+    });
+  }
   if (applicability.do_not_use_when.length) derived_fields.push({ field: 'applicability.do_not_use_when', type: 'deterministic-derived', source: 'explicit do-not-use statements from meta/design/logic/architecture', verified: false });
   if (applicability.preconditions.length) derived_fields.push({ field: 'applicability.preconditions', type: 'deterministic-derived', source: 'meta.dependencies', verified: false });
   if (applicability.required_context.length) derived_fields.push({ field: 'applicability.required_context', type: 'deterministic-derived', source: 'ast-grep exported function signatures', verified: false });
