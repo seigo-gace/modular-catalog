@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -121,6 +121,39 @@ test('constructs a validated non-registered candidate from exact committed repos
   } finally {
     await fs.rm(fixture.repo, { recursive: true, force: true });
     await fs.rm(outputRoot, { recursive: true, force: true });
+  }
+});
+
+test('repository-candidate CLI assesses and materializes without registering the asset', async () => {
+  const fixture = await makeRepository();
+  const work = await fs.mkdtemp(path.join(os.tmpdir(), 'modulecatalog-candidate-cli-'));
+  const specPath = path.join(work, 'candidate-spec.json');
+  const output = path.join(work, 'candidate');
+  try {
+    await write(specPath, JSON.stringify(specFor(fixture.revision), null, 2) + '\n');
+    const baseArgs = [
+      'src/cli.js', 'repository-candidate',
+      '--repo', fixture.repo,
+      '--revision', fixture.revision,
+      '--asset-root', 'module',
+      '--spec', specPath,
+      '--json'
+    ];
+    const assessed = spawnSync(process.execPath, baseArgs, { cwd: catalogRoot, encoding: 'utf8' });
+    assert.equal(assessed.status, 0, assessed.stderr);
+    const assessment = JSON.parse(assessed.stdout);
+    assert.equal(assessment.status, 'READY_TO_MATERIALIZE');
+    assert.equal(assessment.admission.catalog_registered, false);
+
+    const materialized = spawnSync(process.execPath, [...baseArgs, '--output', output], { cwd: catalogRoot, encoding: 'utf8' });
+    assert.equal(materialized.status, 0, materialized.stderr);
+    const result = JSON.parse(materialized.stdout);
+    assert.equal(result.status, 'READY_FOR_ADMISSION');
+    assert.equal(result.admission.catalog_registered, false);
+    assert.equal(await fs.stat(path.join(output, 'manifest.json')).then(() => true).catch(() => false), false);
+  } finally {
+    await fs.rm(fixture.repo, { recursive: true, force: true });
+    await fs.rm(work, { recursive: true, force: true });
   }
 });
 
