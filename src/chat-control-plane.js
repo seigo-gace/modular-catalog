@@ -96,6 +96,9 @@ export function validateFactoryResult(input) {
     case_count: integer(value.case_count, 'case_count', 'CHAT_FACTORY_RESULT_INVALID'),
     contract_unknown_count: integer(value.contract_unknown_count, 'contract_unknown_count', 'CHAT_FACTORY_RESULT_INVALID'),
     applicability_empty_count: integer(value.applicability_empty_count, 'applicability_empty_count', 'CHAT_FACTORY_RESULT_INVALID'),
+    applicability_from_canonical_purpose_count: integer(value.applicability_from_canonical_purpose_count, 'applicability_from_canonical_purpose_count', 'CHAT_FACTORY_RESULT_INVALID'),
+    applicability_from_interface_count: integer(value.applicability_from_interface_count, 'applicability_from_interface_count', 'CHAT_FACTORY_RESULT_INVALID'),
+    applicability_unknown_derivation_count: integer(value.applicability_unknown_derivation_count, 'applicability_unknown_derivation_count', 'CHAT_FACTORY_RESULT_INVALID'),
     known_unverified_count: integer(value.known_unverified_count, 'known_unverified_count', 'CHAT_FACTORY_RESULT_INVALID'),
     layer_values: strings(value.layer_values, 'layer_values', 'CHAT_FACTORY_RESULT_INVALID'),
     invalid_layer_values: strings(value.invalid_layer_values, 'invalid_layer_values', 'CHAT_FACTORY_RESULT_INVALID'),
@@ -142,6 +145,8 @@ function assertMachineAdmissionGates(result) {
   const failures = [];
   if (result.contract_unknown_count !== 0) failures.push(`contract_unknown_count=${result.contract_unknown_count}`);
   if (result.applicability_empty_count !== 0) failures.push(`applicability_empty_count=${result.applicability_empty_count}`);
+  if (result.applicability_unknown_derivation_count !== 0) failures.push(`applicability_unknown_derivation_count=${result.applicability_unknown_derivation_count}`);
+  if (result.applicability_from_canonical_purpose_count + result.applicability_from_interface_count !== result.asset_count) failures.push('applicability_derivation_coverage_mismatch');
   if (result.known_unverified_count !== 0) failures.push(`known_unverified_count=${result.known_unverified_count}`);
   if (!result.module_architecture_layer_gate_pass) failures.push('module_architecture_layer_gate_pass=false');
   if (result.invalid_layer_values.length) failures.push(`invalid_layer_values=${result.invalid_layer_values.join(',')}`);
