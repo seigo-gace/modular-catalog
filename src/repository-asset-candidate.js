@@ -72,9 +72,9 @@ function validateSpec(spec, revision) {
   return Object.freeze({ declaration: Object.freeze(declaration), files: Object.freeze(normalized) });
 }
 
-function gitBuffer(repo, args, code) {
+function gitBuffer(repo, args, code, maxBuffer = MAX_FILE_BYTES + 1024 * 1024) {
   try {
-    return execFileSync('git', args, { cwd: repo, encoding: null, maxBuffer: MAX_FILE_BYTES + 1024 * 1024 });
+    return execFileSync('git', args, { cwd: repo, encoding: null, maxBuffer });
   } catch (error) {
     const failure = new CatalogError(`Git command failed: git ${args.join(' ')}`, code);
     failure.details = { status: error?.status ?? null, stderr: Buffer.isBuffer(error?.stderr) ? error.stderr.toString('utf8').trim() || null : String(error?.stderr ?? '').trim() || null };
@@ -82,23 +82,46 @@ function gitBuffer(repo, args, code) {
   }
 }
 
+function gitText(repo, args, code) {
+  return gitBuffer(repo, args, code).toString('utf8').trim();
+}
+
 function revisionPath(assetRoot, relative) {
   return assetRoot ? `${assetRoot}/${relative}` : relative;
 }
 
+function resolveRevisionEntry(repo, revision, sourcePath) {
+  const raw = gitBuffer(repo, ['ls-tree', '-z', revision, '--', sourcePath], 'ASSET_CANDIDATE_TREE_LOOKUP_FAILED', 1024 * 1024);
+  if (raw.length === 0) return null;
+  const records = raw.toString('utf8').split('\0').filter(Boolean);
+  const record = records.find((item) => item.endsWith(`\t${sourcePath}`));
+  if (!record) return null;
+  const match = /^(\d{6})\s+(\w+)\s+([a-f0-9]{40})\t(.+)$/.exec(record);
+  if (!match || match[4] !== sourcePath) {
+    throw new CatalogError(`Candidate Git tree entry is invalid: ${sourcePath}`, 'ASSET_CANDIDATE_TREE_ENTRY_INVALID');
+  }
+  const [, mode, type, objectId] = match;
+  if (mode === '120000') throw new CatalogError(`Symbolic link is not allowed: ${sourcePath}`, 'SYMLINK_REJECTED');
+  if (type !== 'blob') throw new CatalogError(`Candidate mapped path must be a regular file: ${sourcePath}`, 'ASSET_CANDIDATE_FILE_TYPE_INVALID');
+  return Object.freeze({ mode, type, object_id: objectId, path: sourcePath });
+}
+
 function readRevisionFile(repo, revision, assetRoot, relative) {
   const sourcePath = revisionPath(assetRoot, relative);
-  let bytes;
-  try {
-    bytes = gitBuffer(repo, ['show', `${revision}:${sourcePath}`], 'ASSET_CANDIDATE_FILE_UNAVAILABLE');
-  } catch (error) {
-    if (error?.code === 'ASSET_CANDIDATE_FILE_UNAVAILABLE') return null;
-    throw error;
+  const entry = resolveRevisionEntry(repo, revision, sourcePath);
+  if (!entry) return null;
+  const size = Number(gitText(repo, ['cat-file', '-s', entry.object_id], 'ASSET_CANDIDATE_FILE_UNAVAILABLE'));
+  if (!Number.isSafeInteger(size) || size < 0) {
+    throw new CatalogError(`Candidate file size is invalid: ${sourcePath}`, 'ASSET_CANDIDATE_FILE_INVALID');
   }
-  if (bytes.length > MAX_FILE_BYTES) {
+  if (size > MAX_FILE_BYTES) {
     throw new CatalogError(`Candidate file exceeds 2 MiB limit: ${sourcePath}`, 'FILE_TOO_LARGE');
   }
-  return Object.freeze({ source_path: sourcePath, bytes });
+  const bytes = gitBuffer(repo, ['cat-file', 'blob', entry.object_id], 'ASSET_CANDIDATE_FILE_UNAVAILABLE', Math.max(size + 1024, 64 * 1024));
+  if (bytes.length !== size) {
+    throw new CatalogError(`Candidate Git blob size changed unexpectedly: ${sourcePath}`, 'ASSET_CANDIDATE_FILE_INVALID');
+  }
+  return Object.freeze({ source_path: sourcePath, object_id: entry.object_id, bytes });
 }
 
 function mappedFiles(spec) {
@@ -128,7 +151,7 @@ export async function assessRepositoryAssetCandidate({ repoPath, revision, asset
       missing.push(Object.freeze({ role: mapping.role, source_path: revisionPath(root, mapping.source), required: true }));
       continue;
     }
-    present.push(Object.freeze({ role: mapping.role, source_path: found.source_path, target_path: mapping.target, size: found.bytes.length }));
+    present.push(Object.freeze({ role: mapping.role, source_path: found.source_path, target_path: mapping.target, object_id: found.object_id, size: found.bytes.length }));
   }
 
   return Object.freeze({
@@ -188,6 +211,9 @@ export async function materializeRepositoryAssetCandidate(catalogRoot, input, ou
         : mapping.source_path.slice(assessment.asset_root.length + 1);
       const found = readRevisionFile(assessment.repository, assessment.revision, assessment.asset_root === '.' ? '' : assessment.asset_root, relativeToAssetRoot);
       if (!found) throw new CatalogError(`Candidate source disappeared from exact revision: ${mapping.source_path}`, 'ASSET_CANDIDATE_FILE_UNAVAILABLE');
+      if (found.object_id !== mapping.object_id) {
+        throw new CatalogError(`Candidate Git object changed during materialization: ${mapping.source_path}`, 'ASSET_CANDIDATE_FILE_CHANGED');
+      }
       await writeExact(path.join(temporary, mapping.target_path), found.bytes);
     }
 
