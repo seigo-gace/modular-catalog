@@ -37,7 +37,22 @@ function sameIdentity(left, right) {
     && left.caseCount === right.caseCount;
 }
 
-export async function prepareKbOutbox(rootDir, outboxRoot) {
+function assertExpectedIdentity(staged, expectedCatalogCommit, expectedManifestSha256) {
+  if (expectedCatalogCommit != null && staged.catalogCommit !== String(expectedCatalogCommit).trim().toLowerCase()) {
+    fail('Staged KB outbox Catalog commit does not match the approved expected commit.', 'KB_OUTBOX_EXPECTED_COMMIT_MISMATCH', {
+      expected: String(expectedCatalogCommit).trim().toLowerCase(),
+      actual: staged.catalogCommit
+    });
+  }
+  if (expectedManifestSha256 != null && staged.manifestSha256 !== String(expectedManifestSha256).trim().toLowerCase()) {
+    fail('Staged KB outbox manifest SHA-256 does not match the approved expected manifest.', 'KB_OUTBOX_EXPECTED_MANIFEST_MISMATCH', {
+      expected: String(expectedManifestSha256).trim().toLowerCase(),
+      actual: staged.manifestSha256
+    });
+  }
+}
+
+export async function prepareKbOutbox(rootDir, outboxRoot, { expectedCatalogCommit = null, expectedManifestSha256 = null } = {}) {
   const root = path.resolve(rootDir);
   const outbox = await assertSafeOutbox(root, outboxRoot);
   const temp = path.join(outbox, `.incoming-${process.pid}-${crypto.randomUUID()}`);
@@ -45,6 +60,7 @@ export async function prepareKbOutbox(rootDir, outboxRoot) {
   try {
     await exportReusableAssets(root, temp);
     const staged = await preflightDelivery(root, temp);
+    assertExpectedIdentity(staged, expectedCatalogCommit, expectedManifestSha256);
     const finalPath = path.join(outbox, staged.catalogCommit);
 
     if (await exists(finalPath)) {
