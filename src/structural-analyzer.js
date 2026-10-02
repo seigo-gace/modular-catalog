@@ -11,7 +11,7 @@ const LANGUAGE_BY_EXTENSION = Object.freeze({
   '.jsx': Lang.Tsx
 });
 
-function bounded(value, maxLength = 1200) {
+function bounded(value, maxLength = 512) {
   const text = String(value ?? '');
   return text.length <= maxLength ? text : text.slice(0, maxLength);
 }
@@ -50,22 +50,18 @@ function collectNamed(root, treeKind, recordKind) {
 
 function collectImports(root) {
   return root.findAll({ rule: { kind: 'import_statement' } }).map((node) => nodeRecord('import', node, {
-    source: stripQuoted(node.field('source')?.text() ?? ''),
-    text: bounded(node.text())
+    source: stripQuoted(node.field('source')?.text() ?? '')
   }));
 }
 
 function collectCalls(root) {
   return root.findAll({ rule: { kind: 'call_expression' } }).map((node) => nodeRecord('call', node, {
-    target: bounded(node.field('function')?.text() ?? '', 512),
-    text: bounded(node.text())
+    target: bounded(node.field('function')?.text() ?? '')
   }));
 }
 
 function collectExports(root) {
-  return root.findAll({ rule: { kind: 'export_statement' } }).map((node) => nodeRecord('export', node, {
-    text: bounded(node.text())
-  }));
+  return root.findAll({ rule: { kind: 'export_statement' } }).map((node) => nodeRecord('export', node));
 }
 
 function stableFacts(facts) {
@@ -105,7 +101,7 @@ export async function analyzeSourceFile({ sourcePath, content } = {}) {
         status: 'PARSE_ERROR',
         language: String(language),
         facts: [],
-        parse_errors: errors.slice(0, 20).map((node) => ({ text: bounded(node.text(), 500), ...rangeRecord(node) }))
+        parse_errors: errors.slice(0, 20).map((node) => rangeRecord(node))
       });
     }
 
