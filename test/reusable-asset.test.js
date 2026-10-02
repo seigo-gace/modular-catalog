@@ -89,6 +89,12 @@ test('exports the full current catalog as reusable asset bundles without inventi
     assert.deepEqual(secondRepeat, firstRepeat);
     assert.equal(secondRepeatManifest, firstRepeatManifest);
 
+    const wrongCommit = (commit[0] === '0' ? '1' : '0') + commit.slice(1);
+    await assert.rejects(
+      () => exportReusableAssets(root, repeatOutput, { assetId: repeatAssetId, catalogCommit: wrongCommit }),
+      (error) => error?.code === 'CATALOG_REVISION_MISMATCH'
+    );
+
     const validator = await createReusableAssetValidator(root);
     const validAsset = JSON.parse(await fs.readFile(path.join(output, 'assets', repeatAssetId, 'asset.json'), 'utf8'));
     assert.equal(validator.validate(validAsset).valid, true);
