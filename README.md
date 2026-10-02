@@ -7,6 +7,7 @@ It keeps verified Source / Design / Logic / Architecture / Contract / Test / Evi
 ## Current design authority
 
 - Factory v1: [`docs/REUSABLE_KNOWLEDGE_FACTORY_V1.md`](docs/REUSABLE_KNOWLEDGE_FACTORY_V1.md)
+- GPT final review / periodic admission: [`docs/GPT_FINAL_REVIEW_AND_PERIODIC_ADMISSION_V1.md`](docs/GPT_FINAL_REVIEW_AND_PERIODIC_ADMISSION_V1.md)
 - Repository Candidate: [`docs/REPOSITORY_ASSET_CANDIDATE_V1.md`](docs/REPOSITORY_ASSET_CANDIDATE_V1.md)
 - KB delivery / ACTIVE readback contract: [`docs/KB_DELIVERY_CONTRACT_V1.md`](docs/KB_DELIVERY_CONTRACT_V1.md)
 - Server-to-Master-PC pull transport: [`docs/KB_PULL_TRANSPORT_V1.md`](docs/KB_PULL_TRANSPORT_V1.md)
@@ -15,7 +16,7 @@ It keeps verified Source / Design / Logic / Architecture / Contract / Test / Evi
 - Asset format: [`docs/ASSET_FORMAT.md`](docs/ASSET_FORMAT.md)
 - Reusable-data audit: [`docs/REUSABLE_ASSET_DATA_AUDIT_20261001.md`](docs/REUSABLE_ASSET_DATA_AUDIT_20261001.md)
 
-The Factory v1 design is the current implementation baseline on the factory feature branch. GitHub source completion, candidate materialization, Catalog registration, Server runtime, KB delivery, KB `ACCEPTED`, and KB `ACTIVE` are separate states and must not be conflated.
+The Factory v1 design is the current implementation baseline on the factory feature branch. GitHub source completion, candidate materialization, Catalog registration, Server runtime, GPT final review, KB admission eligibility, KB delivery, KB `ACCEPTED`, and KB `ACTIVE` are separate states and must not be conflated.
 
 ## Fixed boundaries
 
@@ -45,7 +46,7 @@ Factory responsibility covers exact-revision repository intake, non-fabricated c
 
 Repository intake resolves the supplied 40-character revision against the actual Git object database before optional external adapters can run. An optional exact `previous_revision` yields an incremental `git diff`; without it, intake reports a full snapshot; equal revisions return `UNCHANGED`. Changes under existing `assets/<asset-id>/...` paths are projected to affected Catalog Asset IDs, while non-Asset paths remain explicit as `unmapped_paths` instead of being silently discarded.
 
-For a generic repository that is not already laid out as a Catalog Asset, ModuleCatalog now supports a separate non-registered Candidate boundary:
+For a generic repository that is not already laid out as a Catalog Asset, ModuleCatalog supports a separate non-registered Candidate boundary:
 
 ```text
 exact external repo revision
@@ -69,8 +70,12 @@ Catalog Asset / source
   -> integrity + existing evidence validation
   -> ast-grep deterministic JS/TS structural extraction
   -> exact source-derived symbol / signature / return / import-require projection
+  -> explicit reuse-fact projection with traceable derivation
   -> Reusable Asset Schema v1 (Ajv Draft 2020-12)
   -> deterministic full-snapshot bundle + hash/count preflight
+  -> portable reuse smoke outside the Catalog working tree
+  -> GPT Chat final review of exact commit + manifest + review-rule version
+  -> GPT_APPROVED plus mandatory machine gates
   -> Server outbox-local temporary build
   -> atomic seal as <server-outbox>/<catalog-commit>
   -> Master PC pulls the exact commit through existing SSH/SCP client
@@ -100,7 +105,7 @@ exact repo + revision + optional TGserver observations
   -> INSPECTION_COMPLETE
 ```
 
-`INSPECTION_COMPLETE`, `READY_FOR_ADMISSION`, Catalog registration, sealed transport state, and KB `COMPLETE` are distinct states.
+`INSPECTION_COMPLETE`, `READY_FOR_ADMISSION`, Catalog registration, GPT approval, sealed transport state, and KB `COMPLETE` are distinct states.
 
 ## Five-level Module Architecture
 
@@ -112,7 +117,7 @@ Part
         -> Application System
 ```
 
-This is a logical architecture. It does not require one directory per level.
+This is a logical architecture. It does not require one directory per level, and a snapshot does not have to contain an Asset at all five levels. Every registered Asset must declare at least one valid value from the five-level vocabulary. Invalid layer values fail mechanically. The Factory does not invent parent Assets or synthetic relationships merely to populate missing levels.
 
 ## Reusable Asset Schema v1
 
@@ -132,7 +137,17 @@ Deterministic structural projection may populate exact source facts such as:
 - exact import/require sources;
 - source-derived semantic search terms.
 
-It does **not** convert an exported function name into a semantic capability, does not invent `use_when` / `do_not_use_when`, and does not promote partial structural facts into a fully known contract.
+Reuse-fact projection remains bounded to recorded or mechanically observed facts:
+
+- `applicability.use_when` uses the recorded `meta.purpose` when that purpose is specific;
+- when the purpose is only the Asset name or generic Skill boilerplate, `use_when` is derived from the exact observed input/output interface instead of copying the weak label;
+- the Canonical purpose itself is never rewritten by this projection;
+- explicit failure statements and exact failure-bearing return expressions may populate failure/error behavior;
+- explicit no-side-effect wording may populate side-effect behavior;
+- `contract.status=known` requires an observed input/output interface and recorded Normal + User evidence PASS;
+- every projected field retains a `derivation.derived_fields` source record.
+
+The Factory does not turn an exported function name into an unsupported semantic capability, does not invent a plausible human use case, and does not silently convert AI interpretation into Canonical data.
 
 Per-asset bundle:
 
@@ -143,6 +158,47 @@ relationships.jsonl
 cases.jsonl
 manifest.json
 ```
+
+## Portable reuse smoke
+
+The Catalog Verify and Chat Factory paths copy each registered Asset outside the Catalog working tree and execute the Asset's recorded Normal/User Node test commands from that copied root.
+
+This proves the recorded behavior does not depend on the original Catalog filesystem location. It is intentionally weaker than unrelated real-project integration:
+
+```text
+portable_reuse_smoke_proven=true
+!=
+real_cross_project_reuse_proven=true
+```
+
+The distinction is preserved in Factory results and GPT final review.
+
+## GPT final review and machine admission gates
+
+GPT review is bound to the exact Catalog commit, snapshot manifest SHA-256 and review-rule version. Review states are exactly:
+
+```text
+GPT_APPROVED
+GPT_REJECTED
+GPT_HOLD
+```
+
+`GPT_APPROVED` alone cannot produce a runtime admission ticket. Current review rule `gpt-final-review-v2` also requires the exact Factory result to satisfy:
+
+```text
+contract_unknown_count=0
+applicability_empty_count=0
+applicability_unknown_derivation_count=0
+applicability_from_canonical_purpose_count + applicability_from_interface_count = asset_count
+known_unverified_count=0
+module_architecture_layer_gate_pass=true
+invalid_layer_values=[]
+portable_reuse_smoke_proven=true
+portable_reuse_asset_count=asset_count
+portable_reuse_command_count>=asset_count*2
+```
+
+Real unrelated-project reuse remains a separate evidence class and is not relabeled as proven by this gate.
 
 ## Current CLI
 
@@ -180,10 +236,11 @@ A command being documented or source/CI passing does not prove real Server/PC tr
 ```bash
 npm test
 npm run verify
+npm run verify:portable
 npm run check
 ```
 
-Current automated regression covers existing Catalog behavior plus Reusable Asset schema/export determinism and exact-checkout/clean-worktree provenance, optional-README export compatibility, exact-revision full/incremental/unchanged repository intake, exact-revision Repository Candidate assessment/materialization/CLI boundaries, KB delivery preflight/idempotency/ACTIVE authority, sealed Server outbox identity/idempotency/conflict behavior, Windows pull-transport source constraints and PowerShell parsing, TGserver adapter boundaries, structural analysis, Granite controller constraints, DebugAI MCP mapping, Astera QCE transport, and Factory inspection orchestration.
+Current automated regression covers existing Catalog behavior plus Reusable Asset schema/export determinism and exact-checkout/clean-worktree provenance, traceable reuse-fact projection, generic-purpose fallback to observed interfaces, five-level layer validation, optional-README export compatibility, exact-revision full/incremental/unchanged repository intake, exact-revision Repository Candidate assessment/materialization/CLI boundaries, KB delivery preflight/idempotency/ACTIVE authority, sealed Server outbox identity/idempotency/conflict behavior, Windows pull-transport source constraints and PowerShell parsing, TGserver adapter boundaries, structural analysis, Granite controller constraints, DebugAI MCP mapping, Astera QCE transport, portable reuse smoke, Chat Factory result evidence, GPT final-review identity, and mandatory machine admission gates.
 
 Acceptance is based on expected output/state, regression, important failure cases, schema/integrity checks, and runtime/provider readback where relevant. Build or CI success alone is not a production/runtime PASS.
 
