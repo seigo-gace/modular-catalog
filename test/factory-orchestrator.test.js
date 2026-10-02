@@ -1,17 +1,41 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { execFileSync } from 'node:child_process';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import test, { after } from 'node:test';
 import { deriveRuntimeSignals, runFactoryInspection } from '../src/factory-orchestrator.js';
 
-const REVISION = 'd'.repeat(40);
+function git(repo, args) {
+  return execFileSync('git', args, { cwd: repo, encoding: 'utf8' }).trim();
+}
 
-test('Factory inspection stays deterministic and mutation-free when optional services are absent', async () => {
+const TEST_REPO = await fs.mkdtemp(path.join(os.tmpdir(), 'modulecatalog-orchestrator-'));
+git(TEST_REPO, ['init']);
+git(TEST_REPO, ['config', 'user.name', 'ModuleCatalog Test']);
+git(TEST_REPO, ['config', 'user.email', 'modulecatalog-test@example.invalid']);
+await fs.mkdir(path.join(TEST_REPO, 'src'), { recursive: true });
+await fs.writeFile(path.join(TEST_REPO, 'src', 'index.js'), 'export const ready = true;\n', 'utf8');
+git(TEST_REPO, ['add', '-A']);
+git(TEST_REPO, ['commit', '-m', 'fixture']);
+const REVISION = git(TEST_REPO, ['rev-parse', 'HEAD']);
+
+after(async () => {
+  await fs.rm(TEST_REPO, { recursive: true, force: true });
+});
+
+test('Factory inspection resolves the exact repository revision and stays mutation-free when optional services are absent', async () => {
   const result = await runFactoryInspection({
-    repo: '/workspace/example',
+    repo: TEST_REPO,
     revision: REVISION,
     paths: ['src/index.js']
   });
   assert.equal(result.schema_version, 'modulecatalog.factory-inspection.v1');
   assert.equal(result.status, 'INSPECTION_COMPLETE');
+  assert.equal(result.repo, TEST_REPO);
+  assert.equal(result.revision, REVISION);
+  assert.equal(result.repository_intake.mode, 'FULL_SNAPSHOT');
+  assert.equal(result.repository_intake.current_revision, REVISION);
   assert.equal(result.tgserver.status, 'SKIPPED');
   assert.equal(result.debug.status, 'SKIPPED');
   assert.equal(result.qce.status, 'SKIPPED');
@@ -42,6 +66,8 @@ test('repeated scoped TGserver failures create an explicit debug signal and rout
   const debugController = {
     async decide(input) {
       calls.push(['controller', input]);
+      assert.equal(input.repo, TEST_REPO);
+      assert.equal(input.revision, REVISION);
       assert.equal(input.signals.some((signal) => signal.type === 'REPEATED_ERROR_LOG'), true);
       assert.deepEqual(input.evidenceRefs, ['tg:same-hash']);
       return {
@@ -49,7 +75,7 @@ test('repeated scoped TGserver failures create an explicit debug signal and rout
         action: 'ANALYZE',
         reason_codes: ['REPEATED_ERROR_LOG'],
         request: 'Analyze the repeated runtime failure from supplied evidence.',
-        repo: '/workspace/example',
+        repo: TEST_REPO,
         paths: ['src/index.js'],
         change_scope: [],
         task: null,
@@ -85,7 +111,7 @@ test('repeated scoped TGserver failures create an explicit debug signal and rout
   };
 
   const result = await runFactoryInspection({
-    repo: '/workspace/example',
+    repo: TEST_REPO,
     revision: REVISION,
     paths: ['src/index.js'],
     project_id: 'P006',
@@ -107,12 +133,27 @@ test('repeated scoped TGserver failures create an explicit debug signal and rout
 test('Factory does not silently ignore actionable signals when the Debug Controller is unavailable', async () => {
   await assert.rejects(
     () => runFactoryInspection({
-      repo: '/workspace/example',
+      repo: TEST_REPO,
       revision: REVISION,
       signals: [{ type: 'TEST_FAILURE', summary: 'fixture failed', evidence_refs: [] }]
     }),
     (error) => error?.code === 'DEBUG_CONTROLLER_NOT_CONFIGURED'
   );
+});
+
+test('Factory rejects an unresolved exact revision before optional external adapters run', async () => {
+  let called = false;
+  await assert.rejects(
+    () => runFactoryInspection({
+      repo: TEST_REPO,
+      revision: 'f'.repeat(40),
+      project_id: 'P006'
+    }, {
+      tgserver: { async search() { called = true; return { hits: [], returned: 0 }; } }
+    }),
+    (error) => error?.code === 'REPOSITORY_REVISION_UNRESOLVED'
+  );
+  assert.equal(called, false);
 });
 
 test('runtime signal derivation requires repetition and never promotes a single warning', () => {
