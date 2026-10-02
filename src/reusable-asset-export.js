@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { CatalogError, sha256, tokenize, validateAssetDirectory } from './catalog.js';
+import { assertReusableAssetSchema, createReusableAssetValidator } from './reusable-asset-schema.js';
 
 const CATALOG_REPOSITORY = 'seigo-gace/modular-catalog';
 const BUNDLE_FORMAT = 'gace.reusable-asset.v1';
@@ -195,6 +196,7 @@ export async function exportReusableAssets(rootDir, outputDir, { assetId = null,
   const output = path.resolve(outputDir);
   assertOutsideRoot(root, output);
   const commit = getCatalogCommit(root, catalogCommit);
+  const schemaValidator = await createReusableAssetValidator(root);
   const assetsRoot = path.join(root, 'assets');
   if (!await exists(assetsRoot)) throw new CatalogError('assets/ directory is required.', 'MISSING_ASSETS');
   const allCatalogAssetIds = (await fs.readdir(assetsRoot, { withFileTypes: true })).filter((entry) => entry.isDirectory() && !entry.name.startsWith('.')).map((entry) => entry.name).sort();
@@ -213,6 +215,7 @@ export async function exportReusableAssets(rootDir, outputDir, { assetId = null,
   const exported = [];
   for (const id of assetIds) {
     const built = await buildReusableAsset(root, id, commit, allAssetIds);
+    assertReusableAssetSchema(schemaValidator, built.asset, id);
     const dir = path.join(output, 'assets', id);
     await fs.mkdir(dir, { recursive: true });
     await writeJson(path.join(dir, 'asset.json'), built.asset);
