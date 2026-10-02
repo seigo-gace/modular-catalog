@@ -173,15 +173,15 @@ export async function createDebugController({
   model = GRANITE_DEBUG_MODEL
 } = {}) {
   if (!rootDir) throw new CatalogError('Debug Controller rootDir is required.', 'DEBUG_CONTROLLER_NOT_CONFIGURED');
-  if (!baseUrl) throw new CatalogError('MODULECATALOG_AI_CORE_URL or DEBUG_AI_CORE_URL is required.', 'DEBUG_CONTROLLER_NOT_CONFIGURED');
-  if (!apiKey) throw new CatalogError('AI_CORE_API_KEY is required.', 'DEBUG_CONTROLLER_NOT_CONFIGURED');
-  if (typeof fetchImpl !== 'function') throw new CatalogError('Debug Controller requires fetch.', 'DEBUG_CONTROLLER_NOT_CONFIGURED');
   const validate = await compileValidator(rootDir);
-  const endpoint = new URL('/v1/chat/completions', baseUrl).toString();
+  const endpoint = baseUrl ? new URL('/v1/chat/completions', baseUrl).toString() : null;
 
   async function decide(input) {
     const evidencePackage = buildDebugEvidencePackage(input);
     if (!requiresGraniteDebugDecision(evidencePackage)) return deterministicSkip(evidencePackage);
+    if (!endpoint) throw new CatalogError('MODULECATALOG_AI_CORE_URL or DEBUG_AI_CORE_URL is required for debug escalation.', 'DEBUG_CONTROLLER_NOT_CONFIGURED');
+    if (!apiKey) throw new CatalogError('AI_CORE_API_KEY is required for debug escalation.', 'DEBUG_CONTROLLER_NOT_CONFIGURED');
+    if (typeof fetchImpl !== 'function') throw new CatalogError('Debug Controller requires fetch for debug escalation.', 'DEBUG_CONTROLLER_NOT_CONFIGURED');
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
