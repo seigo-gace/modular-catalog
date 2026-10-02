@@ -40,6 +40,8 @@ test('projects only explicit failure statements and exact failure-bearing output
   assert.equal(result.applicability.failure_conditions.some((value) => value.includes('Failure Mode Explorer')), false);
   assert.equal(result.applicability.failure_conditions.some((value) => value.includes('PASS/READY/BLOCKED/UNKNOWN style result')), false);
   assert.equal(result.contract.side_effects, 'No external side effects.');
+  assert.equal(result.derived_fields.some((entry) => entry.field === 'contract.required_fields' && entry.type === 'not-recorded'), true);
+  assert.equal(result.derived_fields.some((entry) => entry.field === 'contract.optional_fields' && entry.type === 'not-recorded'), true);
 });
 
 test('replaces name-only purpose with concise interface-derived reuse condition', () => {
