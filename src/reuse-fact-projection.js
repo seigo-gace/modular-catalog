@@ -78,7 +78,10 @@ export function projectExplicitReuseFacts({ meta, sections, structure, evidence 
     side_effects: sideEffectStatement?.text ?? null
   };
 
-  const derived_fields = [];
+  const derived_fields = [
+    { field: 'contract.required_fields', type: 'not-recorded', source: 'current structural projection does not infer field requiredness', verified: false },
+    { field: 'contract.optional_fields', type: 'not-recorded', source: 'current structural projection does not infer field optionality', verified: false }
+  ];
   if (applicability.use_when.length) {
     derived_fields.push({
       field: 'applicability.use_when',
