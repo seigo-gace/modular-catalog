@@ -3,6 +3,7 @@
 Status: Active design delta
 Baseline preserved: `docs/ARCHITECTURE.md`
 New design authority: `docs/REUSABLE_KNOWLEDGE_FACTORY_V1.md`
+Delivery authority: `docs/KB_DELIVERY_CONTRACT_V1.md`
 
 ## 1. Why this delta exists
 
@@ -58,9 +59,12 @@ ModuleCatalog now owns the processing boundary from source evidence to KB delive
 - Astera Evidence/QCE API integration where required;
 - executable schema/integrity gates;
 - KB-ready bundle generation;
-- KB transport and receipt verification.
+- atomic KB transport;
+- producer-side readback of KB `ACCEPTED` / `ACTIVE` state and final matching Current authority.
 
-KB internal indexing/search/runtime remains outside ModuleCatalog.
+KB internal indexing/search/runtime remains outside ModuleCatalog. `ACTIVE` readback is completion evidence for the delivery; it does not make ModuleCatalog the owner of KB indexing, Current cutover, rollback, or continuing health checks.
+
+Exact producer/consumer transport/readback behavior is defined only in `docs/KB_DELIVERY_CONTRACT_V1.md` and must follow the current executable KB contract rather than inferred directory or timestamp ordering.
 
 ## 5. Technology delta
 
@@ -102,6 +106,8 @@ It must preserve:
 
 The Factory may enrich these records only when the derivation class and source evidence are retained.
 
+The KB consumer remains a single-current-snapshot runtime. Factory v1 therefore emits one complete activation candidate at a time and does not invent producer sequence/generation authority merely to queue multiple snapshots.
+
 ## 7. Rollback boundary
 
-The Factory is developed on a branch based on the current reusable-asset export branch. No main merge, deploy, production switch, source repository mutation, Astera modification, AI Core modification, or DebugAI modification is part of this design delta.
+The Factory is developed on a branch based on the current reusable-asset export branch. No main merge, deploy, production switch, source repository mutation, Astera modification, AI Core modification, DebugAI modification, TGserver modification, or KB runtime modification is part of this design delta.
