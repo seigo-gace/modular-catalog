@@ -26,6 +26,8 @@ $ErrorActionPreference = 'Stop'
 $CatalogCommit = $CatalogCommit.ToLowerInvariant()
 $ExpectedManifestSha256 = $ExpectedManifestSha256.ToLowerInvariant()
 $RemoteOutboxRoot = $RemoteOutboxRoot.TrimEnd('/')
+$FinalizationBranch = 'feat/reusable-knowledge-factory-v1-20261002'
+$RemoteCatalogRepo = '/home/admin1/projects/modular-catalog'
 
 if (($RemoteOutboxRoot -split '/') -contains '..' -or ($RemoteOutboxRoot -split '/') -contains '.') {
     throw "MODULECATALOG_REMOTE_OUTBOX_PATH_UNSAFE=$RemoteOutboxRoot"
@@ -104,6 +106,19 @@ if ($SshPort -gt 0) {
     $sshArgs += @('-p',[string]$SshPort)
     $scpArgs += @('-P',[string]$SshPort)
 }
+
+# Final delivery freshness gate: a previously approved/sealed snapshot becomes stale
+# as soon as the authoritative Catalog finalization branch advances. Refuse transport
+# before any KB-side idempotent/resume path or SCP can consume stale data.
+$remoteSourceHeadOutput = & $SshExe @sshArgs $ServerHost "git -C $RemoteCatalogRepo rev-parse HEAD"
+if ($LASTEXITCODE -ne 0) { throw "MODULECATALOG_REMOTE_SOURCE_HEAD_READ_FAILED=$LASTEXITCODE" }
+$remoteSourceHead = (($remoteSourceHeadOutput | Out-String).Trim()).ToLowerInvariant()
+if ($remoteSourceHead -notmatch '^[0-9a-f]{40}$') { throw "MODULECATALOG_REMOTE_SOURCE_HEAD_INVALID=$remoteSourceHead" }
+$remoteSourceBranchOutput = & $SshExe @sshArgs $ServerHost "git -C $RemoteCatalogRepo branch --show-current"
+if ($LASTEXITCODE -ne 0) { throw "MODULECATALOG_REMOTE_SOURCE_BRANCH_READ_FAILED=$LASTEXITCODE" }
+$remoteSourceBranch = (($remoteSourceBranchOutput | Out-String).Trim())
+if ($remoteSourceBranch -ne $FinalizationBranch) { throw "MODULECATALOG_REMOTE_SOURCE_BRANCH_MISMATCH expected=$FinalizationBranch actual=$remoteSourceBranch" }
+if ($remoteSourceHead -ne $CatalogCommit) { throw "MODULECATALOG_STALE_FINAL_DELIVERY expected_current=$remoteSourceHead requested=$CatalogCommit" }
 
 $remoteHashOutput = & $SshExe @sshArgs $ServerHost "sha256sum -- $remoteManifest"
 if ($LASTEXITCODE -ne 0) { throw "MODULECATALOG_REMOTE_MANIFEST_READ_FAILED=$LASTEXITCODE" }

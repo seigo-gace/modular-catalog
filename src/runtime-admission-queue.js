@@ -9,8 +9,10 @@ import { executeRuntimeAdmission, validateRuntimeAdmissionBundle } from './runti
 const execFile = promisify(execFileCallback);
 const REPOSITORY = 'seigo-gace/modular-catalog';
 const CONTROL_BRANCH = 'control/modulecatalog-chat-orchestration-v1';
+const FINALIZATION_BRANCH = 'feat/reusable-knowledge-factory-v1-20261002';
 const GITHUB_API = `https://api.github.com/repos/${REPOSITORY}`;
 const REQUEST_ID_RE = /^[A-Za-z0-9][A-Za-z0-9._-]{7,127}$/;
+const COMMIT_RE = /^[0-9a-f]{40}$/i;
 
 function fail(message, code, details = null) {
   const error = new CatalogError(message, code);
@@ -37,6 +39,28 @@ async function fetchApiJson(url, fetchImpl) {
   }
   if (!response.ok) fail('GitHub admission control fetch returned a non-success status.', 'RUNTIME_ADMISSION_QUEUE_FETCH_FAILED', { status: response.status, url });
   return response.json();
+}
+
+export async function fetchCurrentFinalizationHead(fetchImpl = globalThis.fetch) {
+  const url = `${GITHUB_API}/git/ref/heads/${FINALIZATION_BRANCH}`;
+  const payload = await fetchApiJson(url, fetchImpl);
+  const sha = String(payload?.object?.sha ?? '').trim().toLowerCase();
+  if (!COMMIT_RE.test(sha)) fail('Current Catalog finalization branch HEAD is invalid.', 'CATALOG_FINALIZATION_HEAD_INVALID', { branch: FINALIZATION_BRANCH, value: sha || null });
+  return sha;
+}
+
+export async function assertCurrentFinalizationCommit(catalogCommit, fetchImpl = globalThis.fetch) {
+  const expected = String(catalogCommit ?? '').trim().toLowerCase();
+  if (!COMMIT_RE.test(expected)) fail('Catalog finalization commit is invalid.', 'CATALOG_FINALIZATION_COMMIT_INVALID');
+  const current = await fetchCurrentFinalizationHead(fetchImpl);
+  if (expected !== current) {
+    fail('Approved Catalog data is stale because the finalization branch has advanced.', 'CATALOG_FINALIZATION_STALE_COMMIT', {
+      branch: FINALIZATION_BRANCH,
+      approved_commit: expected,
+      current_head: current
+    });
+  }
+  return current;
 }
 
 export async function listAdmissionRequestIds(fetchImpl = globalThis.fetch) {
@@ -114,6 +138,7 @@ export async function processAdmissionQueueOnce({ workRoot, requestId = null, fe
   for (const id of ids) {
     const bundle = await fetchAdmissionBundle(id, fetchImpl);
     const ticket = validateRuntimeAdmissionBundle(bundle);
+    await assertCurrentFinalizationCommit(ticket.catalog_commit, fetchImpl);
     const existing = await manifestState(ticket);
     if (existing.state === 'MATCH') {
       results.push({ request_id: id, status: 'ALREADY_SEALED_FOR_MASTER_PC_PULL', catalog_commit: ticket.catalog_commit, manifest_sha256: ticket.manifest_sha256, outbox_path: existing.finalPath });
@@ -136,4 +161,4 @@ export async function processAdmissionQueueOnce({ workRoot, requestId = null, fe
   return Object.freeze({ status: 'RUNTIME_ADMISSION_QUEUE_PROCESSED', processed: results.length, results });
 }
 
-export const RUNTIME_ADMISSION_CONTROL = Object.freeze({ repository: REPOSITORY, control_branch: CONTROL_BRANCH });
+export const RUNTIME_ADMISSION_CONTROL = Object.freeze({ repository: REPOSITORY, control_branch: CONTROL_BRANCH, finalization_branch: FINALIZATION_BRANCH });
