@@ -1,14 +1,16 @@
 # Reusable Knowledge Factory v1
 
-Status: Design baseline for implementation
+Status: Active Factory v1 implementation authority
 Project: ModuleCatalog
 Scope owner: ModuleCatalog
+Repository Candidate authority: `docs/REPOSITORY_ASSET_CANDIDATE_V1.md`
+KB delivery authority: `docs/KB_DELIVERY_CONTRACT_V1.md`
 
 ## 1. Purpose
 
 ModuleCatalog is the canonical repository and processing factory for reusable development assets.
 
-The Factory converts repository facts and TGserver runtime evidence into KB-ready reusable asset data, preserves provenance and uncertainty, validates the result, transports it to the G-ACE KB inbox, and does not claim completion until the KB reports the same Catalog commit as `ACTIVE`.
+The Factory converts exact-revision repository facts and TGserver runtime evidence into reusable asset data, preserves provenance and uncertainty, validates the result, transports complete bundles to the G-ACE KB inbox, and does not claim end-to-end completion until the KB reports the same Catalog commit as `ACTIVE`.
 
 The Factory is an internal development-efficiency system. It is not a public product and is not optimized for marketplace features, multi-tenant UX, or independent external consumption.
 
@@ -25,25 +27,50 @@ proven reusable source assets
 
 Development time is minimized by reusing proven public OSS and existing G-ACE capabilities. New code is limited to ModuleCatalog-specific responsibility and thin adapters.
 
+### Current implementation boundary
+
+Source-side Factory v1 currently implements:
+
+- exact Git revision intake with `FULL_SNAPSHOT`, `INCREMENTAL`, and `UNCHANGED` states;
+- generic repository -> non-registered Repository Asset Candidate assessment/materialization from exact Git objects;
+- existing explicit Catalog admission through the separate `register` operation;
+- existing registered-Asset validation and Reusable Asset v1 export;
+- deterministic JS/TS structural projection through ast-grep;
+- TGserver HTTP search intake;
+- Granite Debug Controller routing through AI Core;
+- DebugAI MCP `analyze` / `verify` only;
+- Astera QCE through the sanctioned `/v1/evaluate` contract;
+- KB delivery preflight, atomic filesystem publish semantics, and ACCEPTED/ACTIVE/Current readback logic against controlled filesystem fixtures.
+
+The following remain separate/unproven boundaries:
+
+- direct Astera Evidence Search from ModuleCatalog because the current Astera transport authenticates the internal caller as `service=astera-main` and exposes no sanctioned ModuleCatalog caller contract;
+- real Server-to-Master-PC transport bridge;
+- real KB `ACTIVE` end-to-end execution;
+- Main merge / Deploy / Production activation.
+
+GitHub CI success is source evidence only and is never reported as Production/runtime PASS.
+
 ## 2. Fixed responsibility boundary
 
 ### ModuleCatalog owns
 
 1. repository intake and exact revision identity;
-2. TGserver log retrieval through its HTTP API;
-3. canonical asset integrity verification;
-4. deterministic structural extraction;
-5. Knowledge Unit / Case / Relationship construction;
-6. metadata and contract projection;
-7. Canonical / Deterministic Derived / AI Derived / Unknown separation;
-8. DebugAI invocation decision and evidence return handling;
-9. optional Astera Evidence Search / Quality Completion evaluation through APIs;
-10. schema and integrity gates;
-11. deterministic `gace.reusable-asset.v1` bundle generation;
-12. atomic transport to the KB `ready` boundary;
-13. delivery retry/idempotency policy;
-14. KB `ACCEPTED` / `ACTIVE` receipt readback;
-15. end-to-end success only after the delivered Catalog commit is `ACTIVE`.
+2. explicit generic-repository Candidate construction without Canonical invention;
+3. TGserver log retrieval through its HTTP API;
+4. canonical asset integrity verification;
+5. deterministic structural extraction;
+6. Knowledge Unit / Case / Relationship construction;
+7. metadata and contract projection;
+8. Canonical / Deterministic Derived / AI Derived / Unknown separation;
+9. DebugAI invocation decision and evidence return handling;
+10. optional Astera evaluation only through sanctioned ModuleCatalog-callable API contracts;
+11. schema and integrity gates;
+12. deterministic `gace.reusable-asset.v1` bundle generation;
+13. atomic transport to the KB `ready` boundary;
+14. delivery retry/idempotency policy;
+15. KB `ACCEPTED` / `ACTIVE` receipt readback;
+16. end-to-end success only after the delivered Catalog commit is `ACTIVE`.
 
 ### G-ACE KB owns after delivery
 
@@ -82,14 +109,18 @@ Repository data is the implementation/design authority for the asset being proce
 Typical canonical sources:
 
 - source code;
-- README / Design / Logic / Architecture;
+- README / Design / Logic / Architecture when present;
 - explicit contracts and schemas;
 - tests;
 - evidence records;
-- manifest/hash;
-- Git revision and file paths.
+- manifest/hash for registered Catalog Assets;
+- exact Git revision, Git object identity, and file paths.
 
 An exact Git commit/revision is always retained in provenance.
+
+For a repository that is not already organized as a registered Catalog Asset, the Factory does not infer Canonical metadata from arbitrary files. It requires an explicit Canonical declaration plus an explicit mapping for Design, Logic, Architecture, Evidence, Source, Normal Test, and User Test material. Missing required repository facts remain `INCOMPLETE`.
+
+Candidate bytes are read from exact Git blobs, not from mutable Working Tree state. Git symlinks are rejected from the exact tree before materialization.
 
 ### 3.2 TGserver
 
@@ -124,7 +155,7 @@ Every produced field is one of four classes.
 
 Directly recorded in an authoritative source without semantic invention.
 
-Examples: explicit meta field, source path, test assertion, evidence result, Git commit, manifest hash.
+Examples: explicit meta field, exact source path, test assertion, evidence result, Git commit, Git object, manifest hash.
 
 ### DETERMINISTIC_DERIVED
 
@@ -136,7 +167,7 @@ Examples: token/keyword projection, symbol list from structural analysis, exact 
 
 Produced by an AI interpretation and therefore never silently promoted to Canonical.
 
-Factory v1 does not use AI merely to fill metadata gaps. AI use in v1 is limited to the Debug Controller. If an AI-derived field is introduced later, it must include exact derivation sources, model route, output contract, and verification state.
+Factory v1 does not use AI merely to fill metadata gaps. AI use in v1 is limited to the Debug Controller path. If an AI-derived field is introduced later, it must include exact derivation sources, model route, output contract, and verification state.
 
 ### UNKNOWN / NOT_RECORDED
 
@@ -154,7 +185,11 @@ Existing ModuleCatalog Node.js 22 codebase.
 
 Reason: it already owns validation, asset scanning, hashing, export and tests. Introducing Kestra, Dagster, Temporal, or another orchestrator would duplicate responsibility and lengthen completion time.
 
-### Adopt now
+### Adopted
+
+#### Native Git object/tree commands
+
+Purpose: exact revision identity, incremental diff, exact Candidate blob reads, Git-mode type checks, and symlink rejection without trusting mutable Working Tree bytes.
 
 #### Ajv
 
@@ -201,6 +236,8 @@ Part
 ### Part
 
 - RepositoryRevision
+- RepositoryAssetCandidate
+- GitObjectIdentity
 - TGLogRecord
 - ContentHash
 - SourceSymbol
@@ -215,6 +252,8 @@ Part
 ### Feature
 
 - Intake
+- Candidate Assessment
+- Candidate Materialization
 - Integrity Verification
 - Structural Extraction
 - Knowledge Projection
@@ -230,6 +269,7 @@ Part
 ### Component
 
 - Factory Intake Component
+- Asset Candidate Component
 - Asset Analysis Component
 - Knowledge Factory Component
 - Verification Component
@@ -255,6 +295,16 @@ TGserver HTTP /search -----------+----> Intake
                                          v
                               Integrity / Revision Gate
                                          |
+                       +-----------------+------------------+
+                       |                                    |
+            registered Catalog Asset            generic repository asset
+                       |                                    |
+                       |                         explicit declaration + mapping
+                       |                                    |
+                       |                         Candidate assessment/materialize
+                       |                                    |
+                       |                         explicit register only
+                       +-----------------+------------------+
                                          v
                             Deterministic Analysis Layer
                               |                |
@@ -282,9 +332,10 @@ TGserver HTTP /search -----------+----> Intake
                        |                              |
                        +--------------+---------------+
                                       v
-                         optional external verification
-                           Astera Evidence Search API
-                           Astera QCE API
+                         optional external evaluation
+                            Astera QCE API
+                    Evidence Search = unavailable until
+                   sanctioned ModuleCatalog caller exists
                                       |
                                       v
                          Canonical / Derived Gate
@@ -316,27 +367,42 @@ TGserver HTTP /search -----------+----> Intake
 
 A run receives:
 
-- project_id;
+- project_id when runtime evidence is requested;
 - repository path/identifier;
 - exact repository revision;
+- optional previous exact revision;
 - optional asset_id filter;
+- optional generic-repository Candidate specification;
 - TGserver time window or cursor;
 - output/delivery target contract.
 
-No mutable `latest` reference is stored as provenance. The exact resolved revision is recorded.
+No mutable `latest`, branch name, tag, or bare `HEAD` reference is stored as provenance. The exact resolved revision is recorded.
 
 ### Stage 1: Intake
 
-1. resolve exact repository revision;
-2. enumerate selected asset/source files;
-3. load declared metadata/docs/tests/evidence;
-4. query TGserver by project_id and relevant time/severity boundaries;
-5. redact/reject secrets according to existing Catalog safety rules;
-6. attach source references, never raw secret material.
+1. resolve the exact repository revision against the real Git object database;
+2. if a previous exact revision exists, compute deterministic changed paths with rename preservation;
+3. for registered Catalog Assets, enumerate selected asset/source files and validate existing Canonical material;
+4. for generic repositories, assess explicit Candidate declaration/file mappings and keep missing requirements explicit;
+5. read Candidate content from exact Git blobs, not mutable Working Tree bytes;
+6. query TGserver by project_id and relevant time/severity boundaries when requested;
+7. redact/reject secrets according to existing Catalog safety rules;
+8. attach source references, never raw secret material.
+
+Candidate states are distinct:
+
+```text
+INCOMPLETE
+READY_TO_MATERIALIZE
+READY_FOR_ADMISSION
+REGISTERED
+```
+
+Only the existing explicit `register` operation moves a validated Candidate into Canonical Catalog storage and creates its Manifest/index state.
 
 ### Stage 2: Integrity
 
-Existing Catalog manifest/hash validation is reused.
+Existing Catalog manifest/hash validation is reused for registered Assets.
 
 Failure is fail-closed for Canonical asset publication:
 
@@ -345,7 +411,19 @@ Failure is fail-closed for Canonical asset publication:
 - hash mismatch;
 - symlink/path escape;
 - duplicate identity;
-- invalid revision identity.
+- invalid/unresolved revision identity;
+- Candidate declaration revision mismatch;
+- Candidate Git object/type mismatch.
+
+Revision-bound reusable export additionally requires:
+
+```text
+explicit --catalog-commit (when supplied) == checked-out HEAD
+AND
+Catalog Working Tree is clean
+```
+
+This prevents current Working Tree bytes from being labeled with a different or stale Catalog revision.
 
 ### Stage 3: Deterministic extraction
 
@@ -362,21 +440,26 @@ explicit canonical contract
 
 The Factory never calls AI simply because a deterministic extractor returned no answer.
 
+Current ast-grep projection may emit only traceable source facts such as exact exported symbol identity, exported function signature, exact return expressions, and import/require sources. A function name such as `run` is not converted into a semantic capability merely because it is exported.
+
 ### Stage 4: Knowledge construction
 
 For each parent asset, construct only meaningful units from present source material:
 
 - overview/discovery;
+- README documentation only when a non-empty README actually exists;
 - design;
 - logic;
 - architecture;
-- contract;
+- contract facts when deterministically supported;
 - code/symbol;
 - test case;
 - evidence;
 - runtime observation/remediation when supported by evidence.
 
 Every unit retains `parent_asset_id` and source references.
+
+`README.md` is optional under the registered Asset admission contract. The exporter must not invent it or require it merely because the current 80-Asset compatibility set happens to contain one.
 
 ### Stage 5: Case normalization
 
@@ -402,7 +485,7 @@ Priority:
 
 1. parent `contains` unit;
 2. explicit Catalog dependency `depends_on`;
-3. exact structural reference/call/import relation from deterministic analysis;
+3. exact structural reference/call/import relation from deterministic analysis when implemented and proven;
 4. optional semantic-index relation;
 5. otherwise no relation.
 
@@ -421,6 +504,8 @@ Debug escalation candidates include:
 - extracted contract and deterministic verification disagree.
 
 No debug escalation is needed merely because optional metadata is unknown.
+
+Current deterministic runtime signal logic promotes repeated scoped warn/error observations only when the same grouped signal is observed at least twice. A single warning is not automatically treated as actionable failure.
 
 ## 9. Granite Debug Controller
 
@@ -490,19 +575,32 @@ DebugAI results are evidence inputs to the Factory; they do not mutate Canonical
 
 ## 10. Astera adapters
 
-Astera is always an external service.
+Astera is always an external service. ModuleCatalog must use only a caller contract that Astera actually exposes for ModuleCatalog or a general authenticated client. It must not impersonate another internal Astera service identity.
 
 ### Evidence Search
 
-Used when a derived claim requires external evidence that repository/TGserver data cannot establish.
+Current state:
 
-The adapter calls the supported Evidence Search API and preserves its exact result/status. Paid search is never enabled by ModuleCatalog.
+```text
+ASTERA_EVIDENCE_CONTRACT_NOT_AVAILABLE
+```
+
+Astera's current direct Evidence Search transport is `/internal/v1/evidence/search`. Its signed internal-auth contract requires `service=astera-main`. No sanctioned ModuleCatalog caller identity/route is currently exposed.
+
+Therefore Factory v1 does **not** call that route and does not forge `astera-main` authentication. Evidence Search remains an explicit unavailable optional enrichment path until Astera exposes a supported ModuleCatalog-callable contract.
+
+When/if that contract exists later, the adapter may call it and must preserve exact result/status. Paid search remains disabled unless a separately approved contract explicitly changes that rule.
 
 ### Quality Completion Evaluator
 
-Used when a Factory artifact needs a quality/completion assessment against explicit requirements.
+QCE is currently connected through the supported authenticated API:
 
-The adapter calls QCE `/v1/evaluate` or the sanctioned private route according to the deployed contract. ModuleCatalog does not import QCE internals.
+```text
+POST /v1/evaluate
+X-API-Key: <configured ASTERA API key>
+```
+
+The Factory validates the explicit QCE request boundary and preserves evaluator status. ModuleCatalog does not import QCE internals and does not turn `REVISION_REQUIRED`, `BLOCKED`, evaluator failure, invalid JSON, or transport failure into PASS.
 
 Astera failure/unavailability remains an explicit state; it is never reported as PASS.
 
@@ -518,7 +616,9 @@ Before delivery:
 6. Canonical fields are never sourced only from AI interpretation;
 7. file hashes and bundle hash match generated content;
 8. top-level manifest declares `schema_version=1`, `format=gace.reusable-asset.v1`, repository, exact commit, asset count and per-asset KU/relationship/case counts;
-9. output is reproducible for identical canonical inputs/revision and identical accepted external evidence set.
+9. explicit Catalog commit identity matches the checked-out exact HEAD;
+10. the Catalog Working Tree is clean before revision-bound export;
+11. output is reproducible for identical Canonical inputs/revision and identical accepted external evidence set.
 
 ## 12. Bundle and producer/consumer contract
 
@@ -551,7 +651,22 @@ Runtime-only timestamps must not make content hashes nondeterministic.
 
 ## 13. Incremental processing
 
-The Factory compares source identity and asset hash.
+Repository intake currently resolves exact revision pairs and classifies:
+
+```text
+no previous revision
+-> FULL_SNAPSHOT
+
+previous != current
+-> INCREMENTAL
+
+previous == current
+-> UNCHANGED
+```
+
+Incremental diff preserves rename source/destination paths. Existing Catalog paths under `assets/<asset-id>/...` project to affected Asset IDs; other changed paths remain explicit as `unmapped_paths` instead of being silently discarded.
+
+The intended reusable processing policy remains:
 
 ```text
 unchanged asset hash + unchanged relevant evidence cursor
@@ -714,11 +829,15 @@ Until a concrete cross-host bridge is configured and verified, the transport sta
 
 ## 15. Failure states
 
-Factory states are explicit and machine-readable. Minimum states:
+Factory states are explicit and machine-readable. Current/required state vocabulary includes:
 
 - `INPUT_INVALID`
 - `REVISION_UNRESOLVED`
 - `INTEGRITY_FAILED`
+- `ASSET_CANDIDATE_INCOMPLETE`
+- `ASSET_CANDIDATE_REVISION_MISMATCH`
+- `CATALOG_REVISION_MISMATCH`
+- `CATALOG_WORKTREE_DIRTY`
 - `TGSEARCH_UNAVAILABLE`
 - `STRUCTURAL_ANALYZER_UNAVAILABLE`
 - `STRUCTURAL_EXTRACTION_FAILED`
@@ -726,7 +845,7 @@ Factory states are explicit and machine-readable. Minimum states:
 - `DEBUG_CONTROLLER_INVALID_OUTPUT`
 - `DEBUGAI_UNAVAILABLE`
 - `DEBUGAI_FAILED`
-- `ASTERA_EVIDENCE_UNAVAILABLE`
+- `ASTERA_EVIDENCE_CONTRACT_NOT_AVAILABLE`
 - `QCE_UNAVAILABLE`
 - `SCHEMA_INVALID`
 - `BUNDLE_INTEGRITY_FAILED`
@@ -747,45 +866,60 @@ Availability failure of an optional enrichment path does not rewrite facts. Whet
 - Secrets are never stored in asset data, documents, prompts, logs, or bundle output.
 - API keys/secrets are read from runtime configuration only.
 - TGserver is queried through its HTTP API only.
-- Astera is used through APIs only.
+- Astera is used through sanctioned API contracts only.
+- ModuleCatalog never signs an internal Astera request as another service identity.
 - DebugAI is used through MCP only.
 - AI Core is used through its Router API only.
 - Source repositories are read-only to the Factory.
+- Generic Candidate materialization writes only to an explicitly selected directory outside the ModuleCatalog working tree.
 - Factory v1 has no automated source patch/apply capability.
-- KB delivery is the only intended external write owned by this Factory.
+- KB delivery is the only intended external runtime write owned by this Factory.
 - KB-owned processing/current/runtime state is read for verification but not mutated by ModuleCatalog.
 
-## 17. Shortest implementation sequence
+## 17. Implementation status and remaining sequence
 
-Implementation order is intentionally narrow:
+Implemented source-side steps on the Factory branch:
 
-1. fix the already-advertised `export-reusable-assets` CLI dispatch gap;
-2. add executable JSON Schema validation and regression tests;
-3. add deterministic delivery manifest/count/integrity preflight;
-4. add filesystem Delivery Adapter with target-local temp + atomic rename + single-ready enforcement;
-5. add KB receipt/current readback and `ACTIVE` completion gate;
-6. introduce remaining Factory contracts/state model without changing current asset truth;
-7. add TGserver HTTP search adapter;
-8. add deterministic structural analyzer adapter using ast-grep;
-9. add repository/TG consistency gate;
-10. add Granite Debug Controller with strict output validation;
-11. add DebugAI MCP adapter for `analyze` / `verify` only;
-12. add optional Astera API adapters;
-13. bind enriched Factory results to the existing exporter;
-14. run source/CI regression;
-15. separately verify the real server-to-PC transport/runtime only after the concrete bridge exists and required deployment/runtime approval is granted.
+1. Reusable Asset export CLI and deterministic bundle generation;
+2. executable Ajv schema validation and regression tests;
+3. deterministic delivery manifest/count/integrity preflight;
+4. filesystem Delivery Adapter with target-local temp + atomic rename + single-ready enforcement;
+5. KB receipt/current readback and `ACTIVE` completion gate logic against controlled filesystem fixtures;
+6. TGserver HTTP search adapter;
+7. ast-grep deterministic structural analyzer and exporter projection;
+8. Granite Debug Controller with strict bounded output;
+9. DebugAI MCP adapter for `analyze` / `verify` only;
+10. Astera QCE adapter;
+11. exact Git repository intake and incremental diff states;
+12. generic exact-revision Repository Asset Candidate assessment/materialization;
+13. exact Git tree/blob symlink/type protections;
+14. strict exporter provenance gates (`HEAD` match + clean Working Tree);
+15. source/CI regression coverage preserving the current 80-Asset baseline.
 
-This order prioritizes the already-working producer/consumer contract and avoids building infrastructure before the Factory has a proven need for it.
+Intentionally unavailable or still unproven:
+
+1. direct Astera Evidence Search until a sanctioned ModuleCatalog caller contract exists;
+2. real Server-to-Master-PC transport bridge;
+3. real KB `ACTIVE` E2E using that bridge;
+4. Production/Deploy/Main merge state, which remains outside source completion and requires explicit approval.
+
+No extra workflow platform, second AI router, second debug engine, or automatic patch/apply path is needed to close these remaining boundaries.
 
 ## 18. Completion criteria
 
-Factory v1 is not complete merely because code builds, a bundle is copied, or a KB intake is `ACCEPTED`.
+Factory v1 is not complete merely because code builds, a Candidate materializes, a bundle is copied, or a KB intake is `ACCEPTED`.
 
 Minimum completion evidence:
 
 - current registered assets still validate and regressions pass;
+- generic repository Candidate assessment retains exact revision identity and refuses missing required evidence;
+- Candidate materialization uses exact committed Git objects, excludes mutable Working Tree bytes, and rejects Git symlinks;
+- `READY_FOR_ADMISSION` remains separate from explicit Catalog registration;
 - exported `asset.json` files actually validate against the JSON Schema;
 - deterministic repeat export remains byte-stable where expected;
+- explicit Catalog revision does not differ from checked-out HEAD;
+- dirty Catalog Working Tree cannot be exported under a clean commit identity;
+- optional README absence does not break an otherwise valid registered Asset/export;
 - delivery preflight verifies manifest/count/hash identity;
 - incomplete transport is never visible as a completed `ready` delivery;
 - a second completed ready delivery is refused in v1;
@@ -796,7 +930,8 @@ Minimum completion evidence:
 - contradiction fixture routes through a valid Granite decision to the correct DebugAI MCP action;
 - invalid Granite output is rejected;
 - no patch/apply mutation path exists;
-- Astera adapters preserve unavailable/rejected states without false PASS;
+- QCE preserves unavailable/rejected states without false PASS;
+- unavailable direct Evidence Search is reported explicitly rather than impersonating `astera-main`;
 - real KB delivery verifies matching `ACTIVE` receipt and Current authority for the delivered commit;
 - changed and unchanged states are both verified;
 - existing Catalog behavior required by the new design has no unintended regression;
