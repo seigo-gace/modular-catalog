@@ -163,13 +163,16 @@ test('seals one complete full snapshot into a revision-named KB outbox idempoten
   }
 });
 
-test('Windows pull transport reuses the existing KB inbox processor and does not open a PC inbound service', async () => {
+test('Windows pull transport reuses the existing KB inbox processor and requires the approved manifest identity', async () => {
   const script = await fs.readFile(path.join(root, 'scripts', 'pull-modulecatalog-kb-delivery-windows.ps1'), 'utf8');
   assert.match(script, /scp\.exe/);
   assert.match(script, /process-modulecatalog-inbox-windows\.ps1/);
   assert.match(script, /check-modulecatalog-kb-runtime-windows\.ps1/);
   assert.match(script, /-Deep/);
   assert.match(script, /BatchMode=yes/);
+  assert.match(script, /\[string\]\$ExpectedManifestSha256/);
+  assert.match(script, /MODULECATALOG_REMOTE_MANIFEST_APPROVAL_MISMATCH/);
+  assert.match(script, /\$remoteHashText -ne \$ExpectedManifestSha256/);
   assert.match(script, /Move-Item -Path \$localDelivery -Destination \$FinalReady/);
   assert.doesNotMatch(script, /New-NetFirewallRule|Set-NetFirewallRule|New-SmbShare|Enable-WindowsOptionalFeature|Start-Service\s+sshd|Set-Service\s+sshd/i);
   assert.doesNotMatch(script, /receive-modulecatalog-kbdata-windows\.ps1/);
