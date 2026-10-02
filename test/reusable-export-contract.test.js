@@ -18,7 +18,7 @@ async function write(file, content) {
   await fs.writeFile(file, content, 'utf8');
 }
 
-test('reusable export accepts the registered Asset contract without an optional README', async () => {
+test('reusable export accepts the registered Asset contract without an optional README and rejects dirty provenance', async () => {
   const catalog = await fs.mkdtemp(path.join(os.tmpdir(), 'modulecatalog-minimal-catalog-'));
   const outputRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'modulecatalog-minimal-export-'));
   const output = path.join(outputRoot, 'out');
@@ -81,6 +81,12 @@ test('reusable export accepts the registered Asset contract without an optional 
     assert.equal(asset.discovery.keywords.includes('quasar-design-marker'), true);
     assert.equal(asset.discovery.keywords.includes('nebula-logic-marker'), true);
     assert.equal(asset.discovery.keywords.includes('pulsar-architecture-marker'), true);
+
+    await write(path.join(assetDir, 'design.md'), '# Design\nworking-tree-only-change\n');
+    await assert.rejects(
+      () => exportReusableAssets(catalog, output, { assetId: 'minimal-no-readme', catalogCommit }),
+      (error) => error?.code === 'CATALOG_WORKTREE_DIRTY' && Array.isArray(error?.details?.entries)
+    );
   } finally {
     await fs.rm(catalog, { recursive: true, force: true });
     await fs.rm(outputRoot, { recursive: true, force: true });
