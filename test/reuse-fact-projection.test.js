@@ -42,16 +42,16 @@ test('projects only explicit failure statements and exact failure-bearing output
   assert.equal(result.contract.side_effects, 'No external side effects.');
 });
 
-test('replaces name-only purpose with interface-derived reuse condition', () => {
+test('replaces name-only purpose with concise interface-derived reuse condition', () => {
   const result = project({ meta: { name: 'Claim Extractor', purpose: 'Claim Extractor' }, structure: { contractInputs: ['run({items})'], contractOutputs: ["run -> {status:'PASS',claims}"] } });
-  assert.deepEqual(result.applicability.use_when, ["Use when the required call contract matches run({items}) and the caller can consume the recorded outputs run -> {status:'PASS',claims}."]);
-  assert.equal(result.derivation_fields, undefined);
-  assert.equal(result.derived_fields.some((entry) => entry.field === 'applicability.use_when' && entry.source.includes('meta.purpose is generic')), true);
+  assert.deepEqual(result.applicability.use_when, ['Use when the required call interface matches run({items}).']);
+  assert.equal(result.applicability.use_when[0].includes('recorded outputs'), false);
+  assert.equal(result.derived_fields.some((entry) => entry.field === 'applicability.use_when' && entry.source === 'ast-grep observed input interface because meta.purpose is generic'), true);
 });
 
 test('replaces generic single-responsibility skill purpose with interface-derived reuse condition', () => {
   const result = project({ meta: { name: 'Test Discovery', purpose: 'Test Discoveryを1責務の独立Skillとして提供する。' } });
-  assert.equal(result.applicability.use_when[0].startsWith('Use when the required call contract matches run({input}={})'), true);
+  assert.equal(result.applicability.use_when[0], 'Use when the required call interface matches run({input}={}).');
   assert.equal(result.applicability.use_when[0].includes('1責務の独立Skill'), false);
 });
 
