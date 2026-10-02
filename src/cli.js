@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import fs from 'node:fs/promises';
 import process from 'node:process';
 import {
   CatalogError,
@@ -11,6 +12,7 @@ import {
 } from './catalog.js';
 import { preflightDelivery, publishDelivery, verifyKbActive } from './kb-delivery.js';
 import { exportReusableAssets } from './reusable-asset-export.js';
+import { assessRepositoryAssetCandidate, materializeRepositoryAssetCandidate } from './repository-asset-candidate.js';
 
 function parseArgs(argv) {
   const positionals = [];
@@ -30,7 +32,7 @@ function parseArgs(argv) {
 }
 
 function help() {
-  console.log(`ModuleCatalog CLI\n\nCommands:\n  search --query <text> [--language <name>] [--runtime <name>] [--layer <layer>] [--tag <tag>] [--limit <n>] [--json]\n  show <asset-id> [--section meta|design|logic|architecture|evidence|manifest|code|tests|all] [--json]\n  validate [asset-id|path]\n  register <candidate-directory>\n  build-index\n  verify-index\n  export-reusable-assets [asset-id] --output <directory> [--catalog-commit <sha>] [--json]\n  preflight-kb-delivery <delivery-directory> [--json]\n  publish-kb-delivery <delivery-directory> --kb-root <directory> [--json]\n  verify-kb-active <delivery-directory> --kb-root <directory> [--json]\n\nGlobal:\n  --root <catalog-root>   Default: current directory`);
+  console.log(`ModuleCatalog CLI\n\nCommands:\n  search --query <text> [--language <name>] [--runtime <name>] [--layer <layer>] [--tag <tag>] [--limit <n>] [--json]\n  show <asset-id> [--section meta|design|logic|architecture|evidence|manifest|code|tests|all] [--json]\n  validate [asset-id|path]\n  register <candidate-directory>\n  build-index\n  verify-index\n  repository-candidate --repo <git-directory> --revision <sha> --spec <json-file> [--asset-root <path>] [--output <directory>] [--json]\n  export-reusable-assets [asset-id] --output <directory> [--catalog-commit <sha>] [--json]\n  preflight-kb-delivery <delivery-directory> [--json]\n  publish-kb-delivery <delivery-directory> --kb-root <directory> [--json]\n  verify-kb-active <delivery-directory> --kb-root <directory> [--json]\n\nGlobal:\n  --root <catalog-root>   Default: current directory`);
 }
 
 function output(value, json) {
@@ -48,6 +50,28 @@ function requireFlag(flags, command, key) {
   const value = flags[key];
   if (!value || value === true) throw new CatalogError(`${command} requires --${key} <directory>.`, 'MISSING_ARGUMENT');
   return value;
+}
+
+function requireValueFlag(flags, command, key, label = 'value') {
+  const value = flags[key];
+  if (!value || value === true) throw new CatalogError(`${command} requires --${key} <${label}>.`, 'MISSING_ARGUMENT');
+  return String(value);
+}
+
+async function readSpec(file) {
+  let text;
+  try {
+    text = await fs.readFile(file, 'utf8');
+  } catch (error) {
+    const failure = new CatalogError(`Candidate spec could not be read: ${file}`, 'ASSET_CANDIDATE_SPEC_UNREADABLE');
+    failure.details = { cause: error?.code ?? null };
+    throw failure;
+  }
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    throw new CatalogError(`Candidate spec is not valid JSON: ${file}: ${error.message}`, 'ASSET_CANDIDATE_SPEC_INVALID_JSON');
+  }
 }
 
 async function main() {
@@ -103,6 +127,23 @@ async function main() {
 
   if (command === 'verify-index') {
     output({ valid: true, ...await verifyIndex(root) }, flags.json);
+    return;
+  }
+
+  if (command === 'repository-candidate') {
+    const repoPath = requireValueFlag(flags, command, 'repo', 'git-directory');
+    const revision = requireValueFlag(flags, command, 'revision', 'sha');
+    const specPath = requireValueFlag(flags, command, 'spec', 'json-file');
+    const input = {
+      repoPath,
+      revision,
+      assetRoot: typeof flags['asset-root'] === 'string' ? flags['asset-root'] : '',
+      spec: await readSpec(specPath)
+    };
+    const result = typeof flags.output === 'string'
+      ? await materializeRepositoryAssetCandidate(root, input, flags.output)
+      : await assessRepositoryAssetCandidate(input);
+    output(result, flags.json);
     return;
   }
 
