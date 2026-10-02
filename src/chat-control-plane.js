@@ -26,6 +26,12 @@ function string(value, label, code) {
   return normalized;
 }
 
+function requestId(value, label, code) {
+  const normalized = string(value, label, code);
+  if (!REQUEST_ID_RE.test(normalized)) fail(`${label} format is invalid.`, code);
+  return normalized;
+}
+
 function exactCommit(value, label, code) {
   const normalized = string(value, label, code).toLowerCase();
   if (!COMMIT_RE.test(normalized)) fail(`${label} must be an exact 40-character Git commit.`, code);
@@ -57,14 +63,12 @@ function isoTimestamp(value, label, code) {
 export function validateFactoryRequest(input) {
   const value = object(input, 'Factory request', 'CHAT_FACTORY_REQUEST_INVALID');
   if (value.schema_version !== REQUEST_SCHEMA) fail('Factory request schema is unsupported.', 'CHAT_FACTORY_REQUEST_SCHEMA_INVALID');
-  const requestId = string(value.request_id, 'request_id', 'CHAT_FACTORY_REQUEST_INVALID');
-  if (!REQUEST_ID_RE.test(requestId)) fail('request_id format is invalid.', 'CHAT_FACTORY_REQUEST_INVALID');
   if (value.repository !== CATALOG_REPOSITORY) fail('Factory request repository is invalid.', 'CHAT_FACTORY_REQUEST_REPOSITORY_MISMATCH');
   if (value.scope !== 'full_snapshot') fail('Factory request scope must be full_snapshot.', 'CHAT_FACTORY_REQUEST_SCOPE_INVALID');
   if (value.requested_by !== 'gpt-chat') fail('Factory request requested_by must be gpt-chat.', 'CHAT_FACTORY_REQUEST_ACTOR_INVALID');
   return Object.freeze({
     schema_version: REQUEST_SCHEMA,
-    request_id: requestId,
+    request_id: requestId(value.request_id, 'request_id', 'CHAT_FACTORY_REQUEST_INVALID'),
     repository: CATALOG_REPOSITORY,
     catalog_commit: exactCommit(value.catalog_commit, 'catalog_commit', 'CHAT_FACTORY_REQUEST_INVALID'),
     scope: 'full_snapshot',
@@ -81,10 +85,11 @@ export function validateFactoryResult(input) {
   if (value.factory_status !== 'FACTORY_READY_FOR_GPT_REVIEW') fail('Factory result is not ready for GPT review.', 'CHAT_FACTORY_RESULT_NOT_READY');
   return Object.freeze({
     schema_version: RESULT_SCHEMA,
-    request_id: string(value.request_id, 'request_id', 'CHAT_FACTORY_RESULT_INVALID'),
+    request_id: requestId(value.request_id, 'request_id', 'CHAT_FACTORY_RESULT_INVALID'),
     repository: CATALOG_REPOSITORY,
     catalog_commit: exactCommit(value.catalog_commit, 'catalog_commit', 'CHAT_FACTORY_RESULT_INVALID'),
     manifest_sha256: sha256(value.manifest_sha256, 'manifest_sha256', 'CHAT_FACTORY_RESULT_INVALID'),
+    review_rule_version: string(value.review_rule_version, 'review_rule_version', 'CHAT_FACTORY_RESULT_INVALID'),
     asset_count: integer(value.asset_count, 'asset_count', 'CHAT_FACTORY_RESULT_INVALID'),
     knowledge_unit_count: integer(value.knowledge_unit_count, 'knowledge_unit_count', 'CHAT_FACTORY_RESULT_INVALID'),
     relationship_count: integer(value.relationship_count, 'relationship_count', 'CHAT_FACTORY_RESULT_INVALID'),
@@ -106,20 +111,22 @@ export function validateGptReview(input, factoryResult) {
   const decision = string(value.decision, 'decision', 'GPT_FINAL_REVIEW_INVALID');
   if (!DECISIONS.has(decision)) fail('GPT review decision is invalid.', 'GPT_FINAL_REVIEW_DECISION_INVALID');
   if (value.repository !== CATALOG_REPOSITORY) fail('GPT review repository is invalid.', 'GPT_FINAL_REVIEW_REPOSITORY_MISMATCH');
+  const findings = strings(value.findings, 'findings', 'GPT_FINAL_REVIEW_INVALID');
+  if (!findings.length) fail('GPT review must record at least one finding.', 'GPT_FINAL_REVIEW_FINDINGS_REQUIRED');
   const review = Object.freeze({
     schema_version: REVIEW_SCHEMA,
-    request_id: string(value.request_id, 'request_id', 'GPT_FINAL_REVIEW_INVALID'),
+    request_id: requestId(value.request_id, 'request_id', 'GPT_FINAL_REVIEW_INVALID'),
     repository: CATALOG_REPOSITORY,
     catalog_commit: exactCommit(value.catalog_commit, 'catalog_commit', 'GPT_FINAL_REVIEW_INVALID'),
     manifest_sha256: sha256(value.manifest_sha256, 'manifest_sha256', 'GPT_FINAL_REVIEW_INVALID'),
     review_rule_version: string(value.review_rule_version, 'review_rule_version', 'GPT_FINAL_REVIEW_INVALID'),
     decision,
-    findings: strings(value.findings, 'findings', 'GPT_FINAL_REVIEW_INVALID'),
+    findings,
     reviewed_by: string(value.reviewed_by, 'reviewed_by', 'GPT_FINAL_REVIEW_INVALID'),
     reviewed_at: isoTimestamp(value.reviewed_at, 'reviewed_at', 'GPT_FINAL_REVIEW_INVALID')
   });
   if (review.reviewed_by !== 'gpt-chat') fail('GPT review reviewed_by must be gpt-chat.', 'GPT_FINAL_REVIEW_ACTOR_INVALID');
-  if (review.request_id !== result.request_id || review.catalog_commit !== result.catalog_commit || review.manifest_sha256 !== result.manifest_sha256) {
+  if (review.request_id !== result.request_id || review.catalog_commit !== result.catalog_commit || review.manifest_sha256 !== result.manifest_sha256 || review.review_rule_version !== result.review_rule_version) {
     fail('GPT review identity does not match the Factory result.', 'GPT_FINAL_REVIEW_IDENTITY_MISMATCH');
   }
   return review;
