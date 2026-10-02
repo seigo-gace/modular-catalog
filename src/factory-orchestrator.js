@@ -1,5 +1,6 @@
 import { CatalogError } from './catalog.js';
 import { asteraEvidenceSearchBoundary } from './astera-qce-client.js';
+import { inspectRepositoryChanges } from './repository-intake.js';
 
 const FACTORY_RUN_SCHEMA = 'modulecatalog.factory-inspection.v1';
 
@@ -9,16 +10,20 @@ function requiredString(value, field) {
   return normalized;
 }
 
-function exactRevision(value) {
-  const revision = requiredString(value, 'revision');
+function exactRevision(value, field = 'revision') {
+  const revision = requiredString(value, field);
   if (!/^[a-f0-9]{40}$/i.test(revision)) {
-    throw new CatalogError('Factory revision must be an exact 40-character Git commit.', 'FACTORY_INPUT_INVALID');
+    throw new CatalogError(`${field} must be an exact 40-character Git commit.`, 'FACTORY_INPUT_INVALID');
   }
-  return revision;
+  return revision.toLowerCase();
 }
 
 function uniqueStrings(values) {
   return [...new Set((Array.isArray(values) ? values : []).map((value) => String(value ?? '').trim()).filter(Boolean))];
+}
+
+function changedPaths(intake) {
+  return uniqueStrings((Array.isArray(intake?.changes) ? intake.changes : []).flatMap((change) => [change?.old_path, change?.path]));
 }
 
 function logReference(log) {
@@ -54,9 +59,18 @@ export function deriveRuntimeSignals(logs) {
 }
 
 export async function runFactoryInspection(input = {}, adapters = {}) {
-  const repo = requiredString(input.repo, 'repo');
-  const revision = exactRevision(input.revision);
-  const paths = uniqueStrings(input.paths);
+  const requestedRepo = requiredString(input.repo, 'repo');
+  const requestedRevision = exactRevision(input.revision);
+  const previousRevision = input.previous_revision == null ? null : exactRevision(input.previous_revision, 'previous_revision');
+  const intake = await inspectRepositoryChanges({
+    repoPath: requestedRepo,
+    currentRevision: requestedRevision,
+    previousRevision
+  });
+  const repo = intake.repository;
+  const revision = intake.current_revision;
+  const explicitPaths = uniqueStrings(input.paths);
+  const paths = explicitPaths.length ? explicitPaths : changedPaths(intake);
   const projectId = input.project_id == null ? null : requiredString(input.project_id, 'project_id');
   const explicitSignals = Array.isArray(input.signals) ? input.signals : [];
   const evidenceRefs = uniqueStrings(input.evidence_refs);
@@ -117,6 +131,8 @@ export async function runFactoryInspection(input = {}, adapters = {}) {
     status: 'INSPECTION_COMPLETE',
     repo,
     revision,
+    previous_revision: intake.previous_revision,
+    repository_intake: intake,
     project_id: projectId,
     paths,
     tgserver: tgObservation,
