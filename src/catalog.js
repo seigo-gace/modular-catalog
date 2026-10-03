@@ -99,6 +99,14 @@ function isExplicitNonCodeAsset(meta) {
   return Array.isArray(types) && !types.includes('code');
 }
 
+function reusableAssetTypesForSearch(meta) {
+  const explicit = explicitReusableAssetTypes(meta);
+  if (explicit) return explicit;
+  if (typeof meta.assetKind === 'string' && meta.assetKind.trim()) return [meta.assetKind.trim()];
+  if (Array.isArray(meta.tags) && meta.tags.includes('skill')) return ['capability'];
+  return [];
+}
+
 export function validateMeta(meta) {
   if (!meta || typeof meta !== 'object' || Array.isArray(meta)) throw new CatalogError('meta.json must contain an object.', 'INVALID_META');
   if (meta.schemaVersion !== 1) throw new CatalogError('meta.schemaVersion must be 1.', 'INVALID_META');
@@ -316,7 +324,9 @@ export async function searchCatalog(rootDir, options = {}) {
   const queryText = normalizeText(options.query ?? '');
   const queryTokens = tokenize(queryText);
   const limit = Math.max(1, Math.min(Number(options.limit ?? 5), 50));
-  const poolLimit = Math.max(limit, Math.min(Number(options.pool ?? limit * 3), 100));
+  const profileFilter = Boolean(options.assetType || options.fiveVLevel);
+  const defaultPool = profileFilter ? index.entries.length : limit * 3;
+  const poolLimit = Math.max(limit, Math.min(Number(options.pool ?? defaultPool), Math.max(100, index.entries.length)));
 
   const stageOne = index.entries
     .filter((entry) => includesNormalized(entry.languages, options.language))
@@ -332,6 +342,10 @@ export async function searchCatalog(rootDir, options = {}) {
     const metaPath = path.join(root, 'assets', candidate.entry.id, 'meta.json');
     if (!await exists(metaPath)) continue;
     const meta = validateMeta(await readJson(metaPath));
+    const assetTypes = reusableAssetTypesForSearch(meta);
+    const fiveVLevel = meta.fiveV?.applicable === true && typeof meta.fiveV.level === 'string' ? meta.fiveV.level : null;
+    if (options.assetType && !includesNormalized(assetTypes, options.assetType)) continue;
+    if (options.fiveVLevel && !includesNormalized(fiveVLevel ? [fiveVLevel] : [], options.fiveVLevel)) continue;
     let score = candidate.score;
     if (options.dependency && includesNormalized(meta.dependencies, options.dependency)) score += 25;
     if (options.tag && includesNormalized(meta.tags, options.tag)) score += 25;
@@ -342,6 +356,9 @@ export async function searchCatalog(rootDir, options = {}) {
       version: meta.version,
       summary: meta.summary,
       responsibility: meta.responsibility,
+      assetKind: meta.assetKind ?? null,
+      reusableAssetTypes: assetTypes,
+      fiveV: meta.fiveV ?? null,
       layers: meta.layers,
       languages: meta.languages,
       runtimes: meta.runtimes,
@@ -421,6 +438,7 @@ export async function loadAssetSection(rootDir, assetId, section = 'meta') {
   const root = path.resolve(rootDir);
   const assetDir = path.join(root, 'assets', assetId);
   if (!await exists(assetDir)) throw new CatalogError(`Unknown asset: ${assetId}`, 'ASSET_NOT_FOUND');
+  const sourceTarget = await exists(path.join(assetDir, 'source')) ? 'source' : (await exists(path.join(assetDir, 'code')) ? 'code' : null);
   const map = {
     meta: ['meta.json'],
     design: ['design.md'],
@@ -429,9 +447,9 @@ export async function loadAssetSection(rootDir, assetId, section = 'meta') {
     evidence: ['evidence.json'],
     manifest: ['manifest.json'],
     tests: ['tests'],
-    code: [await exists(path.join(assetDir, 'source')) ? 'source' : 'code'],
-    source: [await exists(path.join(assetDir, 'source')) ? 'source' : 'code'],
-    all: ['meta.json', 'design.md', 'logic.md', 'architecture.md', 'evidence.json', 'manifest.json', await exists(path.join(assetDir, 'source')) ? 'source' : 'code', 'tests']
+    code: sourceTarget ? [sourceTarget] : [],
+    source: sourceTarget ? [sourceTarget] : [],
+    all: ['meta.json', 'design.md', 'logic.md', 'architecture.md', 'evidence.json', 'manifest.json', ...(sourceTarget ? [sourceTarget] : []), 'tests']
   };
   const targets = map[section];
   if (!targets) throw new CatalogError(`Unknown section: ${section}`, 'INVALID_SECTION');
