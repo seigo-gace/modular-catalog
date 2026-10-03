@@ -44,7 +44,22 @@ jobs:
         run: npm test
 
       - name: Audit reusable asset and 5V profile
-        run: npm run audit:reusable > "$RUNNER_TEMP/reusable-asset-audit.json"
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run audit:reusable > "$RUNNER_TEMP/reusable-asset-audit.json"
+          node --input-type=module - "$RUNNER_TEMP/reusable-asset-audit.json" <<'NODE'
+          import fs from 'node:fs';
+          const report = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+          console.log(`REUSABLE_ASSET_AUDIT_COUNT=${report.asset_count}`);
+          console.log(`PRIMARY_TYPE_COUNTS=${JSON.stringify(report.primary_type_counts)}`);
+          console.log(`REUSABLE_ASSET_TYPE_COUNTS=${JSON.stringify(report.reusable_asset_type_counts)}`);
+          console.log(`FIVE_V_STATUS_COUNTS=${JSON.stringify(report.five_v_status_counts)}`);
+          console.log(`FIVE_V_LEVEL_COUNTS=${JSON.stringify(report.five_v_level_counts)}`);
+          for (const asset of report.assets) {
+            console.log(`ASSET_PROFILE id=${asset.asset_id} primary=${asset.primary_type} types=${asset.asset_types.join(',') || 'NOT_RECORDED'} five_v_status=${asset.five_v_status} five_v_level=${asset.five_v_level ?? 'NOT_RECORDED'} legacy_layers=${asset.legacy_layers.join(',')}`);
+          }
+          NODE
 
       - name: Verify all registered assets
         shell: bash
