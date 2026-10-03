@@ -2,6 +2,7 @@ import { CatalogError } from './catalog.js';
 
 export const FIVE_V_LEVELS = Object.freeze(['Part', 'Feature', 'Component', 'System', 'Application System']);
 const FIVE_V_RANK = new Map(FIVE_V_LEVELS.map((level, index) => [level, index]));
+const VALIDATED_LEGACY_ASSET_TYPES = Object.freeze(['code', 'design', 'logic', 'architecture', 'test']);
 
 function uniqueStrings(values, field) {
   if (!Array.isArray(values) || values.some((value) => typeof value !== 'string' || !value.trim())) {
@@ -16,10 +17,17 @@ function normalizeAssetTypes(meta, classification) {
     if (explicit.length === 0) throw new CatalogError('meta.reusableAssetTypes must not be empty when provided.', 'INVALID_REUSABLE_ASSET_PROFILE');
     return { values: explicit, mode: 'canonical', source: 'meta.reusableAssetTypes' };
   }
-  if (classification.value !== 'unknown') {
-    return { values: [classification.value], mode: classification.mode, source: classification.source };
-  }
-  return { values: [], mode: 'not-recorded', source: 'no explicit reusable asset type' };
+
+  const derived = [];
+  if (classification.value !== 'unknown') derived.push(classification.value);
+  if (Array.isArray(meta.tags) && meta.tags.includes('skill')) derived.push('skill');
+  derived.push(...VALIDATED_LEGACY_ASSET_TYPES);
+
+  return {
+    values: [...new Set(derived)],
+    mode: 'deterministic-derived',
+    source: 'validated registered-asset contract: source/code + design.md + logic.md + architecture.md + normal/user tests; explicit meta tags/classification preserved'
+  };
 }
 
 function normalizeFiveV(meta, assetTypes, evidence) {
