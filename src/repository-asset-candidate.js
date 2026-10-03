@@ -34,9 +34,9 @@ function exactCommit(value, field) {
   return revision;
 }
 
-function stringArray(value, field) {
-  if (!Array.isArray(value) || value.length === 0) {
-    throw new CatalogError(`${field} must be a non-empty array.`, 'ASSET_CANDIDATE_SPEC_INVALID');
+function stringArray(value, field, { allowEmpty = false } = {}) {
+  if (!Array.isArray(value) || (!allowEmpty && value.length === 0)) {
+    throw new CatalogError(`${field} must be ${allowEmpty ? 'an' : 'a non-empty'} array.`, 'ASSET_CANDIDATE_SPEC_INVALID');
   }
   return value.map((item, index) => safeRelative(item, `${field}[${index}]`));
 }
@@ -56,12 +56,14 @@ function validateSpec(spec, revision) {
   if (!files || typeof files !== 'object' || Array.isArray(files)) {
     throw new CatalogError('Candidate spec files object is required.', 'ASSET_CANDIDATE_SPEC_INVALID');
   }
+  const explicitTypes = Array.isArray(declaration.reusableAssetTypes) ? declaration.reusableAssetTypes : null;
+  const explicitNonCode = explicitTypes != null && !explicitTypes.includes('code');
   const normalized = {
     design: safeRelative(files.design, 'files.design'),
     logic: safeRelative(files.logic, 'files.logic'),
     architecture: safeRelative(files.architecture, 'files.architecture'),
     evidence: safeRelative(files.evidence, 'files.evidence'),
-    source: stringArray(files.source, 'files.source'),
+    source: stringArray(files.source ?? [], 'files.source', { allowEmpty: explicitNonCode }),
     normal_tests: stringArray(files.normal_tests, 'files.normal_tests'),
     user_tests: stringArray(files.user_tests, 'files.user_tests')
   };
