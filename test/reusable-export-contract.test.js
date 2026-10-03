@@ -136,10 +136,12 @@ test('pure design export omits unrecorded logic architecture and code instead of
     const catalogCommit = initializeGit(catalog, 'pure design fixture');
     const result = await exportReusableAssets(catalog, output, { assetId: 'pure-design-asset', catalogCommit });
     assert.equal(result.assetCount, 1);
-    assert.equal(result.assets[0].knowledgeUnits, 4);
+    assert.equal(result.assets[0].knowledgeUnits, 5);
 
     const asset = JSON.parse(await fs.readFile(path.join(output, 'assets', 'pure-design-asset', 'asset.json'), 'utf8'));
     const units = (await fs.readFile(path.join(output, 'assets', 'pure-design-asset', 'knowledge-units.jsonl'), 'utf8')).trim().split('\n').map(JSON.parse);
+    const kinds = units.map((unit) => unit.knowledge_kind).sort();
+    assert.deepEqual(kinds, ['design', 'discovery', 'evidence', 'test_case', 'test_case']);
     assert.deepEqual(asset.reusability.asset_types, ['design']);
     assert.equal(asset.reusability.five_v.status, 'not_applicable');
     assert.deepEqual(asset.implementation.source_files, []);
