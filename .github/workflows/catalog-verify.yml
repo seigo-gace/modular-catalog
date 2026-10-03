@@ -43,6 +43,9 @@ jobs:
       - name: Core tests
         run: npm test
 
+      - name: Audit reusable asset and 5V profile
+        run: npm run audit:reusable > "$RUNNER_TEMP/reusable-asset-audit.json"
+
       - name: Verify all registered assets
         shell: bash
         run: |
