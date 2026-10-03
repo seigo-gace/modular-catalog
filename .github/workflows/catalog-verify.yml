@@ -47,7 +47,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npm run audit:reusable > "$RUNNER_TEMP/reusable-asset-audit.json"
+          node scripts/audit-reusable-asset-profile.mjs . > "$RUNNER_TEMP/reusable-asset-audit.json"
           node --input-type=module - "$RUNNER_TEMP/reusable-asset-audit.json" <<'NODE'
           import fs from 'node:fs';
           const report = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
