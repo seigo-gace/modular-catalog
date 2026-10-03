@@ -9,7 +9,7 @@ import { analyzeSourceFiles } from './structural-analyzer.js';
 
 const CATALOG_REPOSITORY = 'seigo-gace/modular-catalog';
 const BUNDLE_FORMAT = 'gace.reusable-asset.v1';
-const REQUIRED_SECTION_FILES = ['design.md', 'logic.md', 'architecture.md', 'evidence.json', 'manifest.json'];
+const SECTION_FILES = ['design.md', 'logic.md', 'architecture.md', 'evidence.json', 'manifest.json'];
 const GENERIC_EXPORT_NAMES = new Set(['run', 'main', 'execute', 'handler', 'default']);
 
 function canonicalJson(value) {
@@ -110,8 +110,10 @@ async function collectFiles(directory, prefix) {
 }
 
 async function collectSourceAndTests(assetDir) {
+  const sourceDir = await exists(path.join(assetDir, 'source')) ? 'source' : (await exists(path.join(assetDir, 'code')) ? 'code' : null);
   return {
-    source: await collectFiles(path.join(assetDir, 'source'), 'source'),
+    source: sourceDir ? await collectFiles(path.join(assetDir, sourceDir), sourceDir) : {},
+    sourceDir,
     tests: await collectFiles(path.join(assetDir, 'tests'), 'tests')
   };
 }
@@ -194,10 +196,13 @@ async function buildReusableAsset(rootDir, assetId, catalogCommit, allAssetIds) 
   const assetDir = path.join(rootDir, 'assets', assetId);
   const { meta, evidence, manifest } = await validateAssetDirectory(assetDir, { verifyManifest: true });
   const sections = {};
-  for (const file of REQUIRED_SECTION_FILES) sections[file] = await fs.readFile(path.join(assetDir, file), 'utf8');
+  for (const file of SECTION_FILES) {
+    const target = path.join(assetDir, file);
+    sections[file] = await exists(target) ? await fs.readFile(target, 'utf8') : null;
+  }
   const readmePath = path.join(assetDir, 'README.md');
   sections['README.md'] = await exists(readmePath) ? await fs.readFile(readmePath, 'utf8') : null;
-  const { source, tests } = await collectSourceAndTests(assetDir);
+  const { source, sourceDir, tests } = await collectSourceAndTests(assetDir);
   const classification = classifyAsset(meta);
   const reusability = buildReusableAssetProfile({ meta, classification, evidence });
   const keywords = tokenize([
@@ -216,9 +221,9 @@ async function buildReusableAsset(rootDir, assetId, catalogCommit, allAssetIds) 
   const knowledgeUnits = [
     makeKnowledgeUnit({ knowledgeId: assetId + '::overview', parentAssetId: assetId, kind: 'discovery', title: meta.name, content: makeOverview(meta), sourcePaths: ['meta.json'] }),
     ...(sections['README.md']?.trim() ? [makeKnowledgeUnit({ knowledgeId: assetId + '::readme', parentAssetId: assetId, kind: 'documentation', title: meta.name + ' README', content: sections['README.md'], sourcePaths: ['README.md'] })] : []),
-    makeKnowledgeUnit({ knowledgeId: assetId + '::design', parentAssetId: assetId, kind: 'design', title: meta.name + ' Design', content: sections['design.md'], sourcePaths: ['design.md'] }),
-    makeKnowledgeUnit({ knowledgeId: assetId + '::logic', parentAssetId: assetId, kind: 'logic', title: meta.name + ' Logic', content: sections['logic.md'], sourcePaths: ['logic.md'] }),
-    makeKnowledgeUnit({ knowledgeId: assetId + '::architecture', parentAssetId: assetId, kind: 'architecture', title: meta.name + ' Architecture', content: sections['architecture.md'], sourcePaths: ['architecture.md'] }),
+    ...(sections['design.md']?.trim() ? [makeKnowledgeUnit({ knowledgeId: assetId + '::design', parentAssetId: assetId, kind: 'design', title: meta.name + ' Design', content: sections['design.md'], sourcePaths: ['design.md'] })] : []),
+    ...(sections['logic.md']?.trim() ? [makeKnowledgeUnit({ knowledgeId: assetId + '::logic', parentAssetId: assetId, kind: 'logic', title: meta.name + ' Logic', content: sections['logic.md'], sourcePaths: ['logic.md'] })] : []),
+    ...(sections['architecture.md']?.trim() ? [makeKnowledgeUnit({ knowledgeId: assetId + '::architecture', parentAssetId: assetId, kind: 'architecture', title: meta.name + ' Architecture', content: sections['architecture.md'], sourcePaths: ['architecture.md'] })] : []),
     makeKnowledgeUnit({ knowledgeId: assetId + '::evidence', parentAssetId: assetId, kind: 'evidence', title: meta.name + ' Verification Evidence', content: sections['evidence.json'], sourcePaths: ['evidence.json'] }),
     ...sourcePaths.map((sourcePath) => makeKnowledgeUnit({ knowledgeId: assetId + '::code::' + sourcePath, parentAssetId: assetId, kind: 'code', title: meta.name + ' ' + sourcePath, content: source[sourcePath], sourcePaths: [sourcePath] })),
     ...testPaths.map((testPath) => makeKnowledgeUnit({ knowledgeId: assetId + '::test::' + testPath, parentAssetId: assetId, kind: 'test_case', title: meta.name + ' ' + testPath, content: tests[testPath], sourcePaths: [testPath] }))
@@ -246,14 +251,15 @@ async function buildReusableAsset(rootDir, assetId, catalogCommit, allAssetIds) 
     relationships.push({ schema_version: 1, relationship_id: assetId + '::five_v_composed_from::' + child, from: assetId, relation: 'five_v_composed_from', to: child, verified: true, derivation: { type: 'canonical-projection', derived_from: ['meta.json#/fiveV/composedFrom'] } });
   }
 
+  const recordedSectionNames = ['design.md', 'logic.md', 'architecture.md'].filter((file) => sections[file]?.trim());
   const derivedFields = [
     { field: 'identity.asset_kind', type: classification.mode, source: classification.source, verified: classification.mode === 'canonical' },
     ...reusability.derivation,
-    { field: 'discovery.keywords', type: 'deterministic-derived', source: 'meta + design + logic + architecture + reusable asset profile', verified: false },
+    { field: 'discovery.keywords', type: 'deterministic-derived', source: 'meta + recorded reusable documents + reusable asset profile', verified: false },
     { field: 'contract.mutation_authority', type: 'deterministic-derived', source: 'meta.constraints', verified: false },
     ...reuseFacts.derived_fields
   ];
-  if (structure.primarySymbol) derivedFields.push({ field: 'identity.symbol', type: 'deterministic-derived', source: 'ast-grep exact export set from source/', verified: false });
+  if (structure.primarySymbol) derivedFields.push({ field: 'identity.symbol', type: 'deterministic-derived', source: 'ast-grep exact export set from registered source/code files', verified: false });
   if (structure.semanticTerms.length) derivedFields.push({ field: 'discovery.semantic_terms', type: 'deterministic-derived', source: 'ast-grep exported symbols + function parameters + imports/requires', verified: false });
   if (structure.contractInputs.length) derivedFields.push({ field: 'contract.inputs', type: 'deterministic-derived', source: 'ast-grep exported function signatures', verified: false });
   if (structure.contractOutputs.length) derivedFields.push({ field: 'contract.outputs', type: 'deterministic-derived', source: 'ast-grep exact return expressions of exported functions', verified: false });
@@ -262,7 +268,10 @@ async function buildReusableAsset(rootDir, assetId, catalogCommit, allAssetIds) 
   const canonicalSources = [
     'meta.json',
     ...(sections['README.md']?.trim() ? ['README.md'] : []),
-    'design.md', 'logic.md', 'architecture.md', 'evidence.json', 'manifest.json', 'source/', 'tests/'
+    ...recordedSectionNames,
+    'evidence.json', 'manifest.json',
+    ...(sourceDir && sourcePaths.length ? [sourceDir + '/'] : []),
+    'tests/'
   ];
   const asset = {
     schema_version: 1,
