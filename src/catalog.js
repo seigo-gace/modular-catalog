@@ -3,7 +3,8 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 const LAYERS = new Set(['Part', 'Feature', 'Component', 'System', 'Application System']);
-const REQUIRED_DOCS = ['design.md', 'logic.md', 'architecture.md', 'evidence.json'];
+const LEGACY_REQUIRED_DOCS = ['design.md', 'logic.md', 'architecture.md', 'evidence.json'];
+const TYPE_DOCUMENTS = Object.freeze({ design: 'design.md', logic: 'logic.md', architecture: 'architecture.md' });
 const SECRET_PATTERNS = [
   /-----BEGIN (?:RSA |EC |OPENSSH |PGP )?PRIVATE KEY-----/i,
   /\bgh[pousr]_[A-Za-z0-9_]{20,}\b/,
@@ -92,6 +93,17 @@ function explicitReusableAssetTypes(meta) {
     throw new CatalogError('meta.reusableAssetTypes must be a non-empty string array when provided.', 'INVALID_META');
   }
   return [...new Set(meta.reusableAssetTypes.map((item) => item.trim()))];
+}
+
+function requiredDocsForMeta(meta) {
+  const explicit = explicitReusableAssetTypes(meta);
+  if (!explicit) return LEGACY_REQUIRED_DOCS;
+  const docs = ['evidence.json'];
+  for (const type of explicit) {
+    const file = TYPE_DOCUMENTS[type];
+    if (file && !docs.includes(file)) docs.push(file);
+  }
+  return docs;
 }
 
 function isExplicitNonCodeAsset(meta) {
@@ -186,7 +198,7 @@ export async function validateAssetDirectory(assetDir, { verifyManifest = false 
   if (!await exists(metaPath)) throw new CatalogError('meta.json is required.', 'MISSING_FILE');
   const meta = validateMeta(await readJson(metaPath));
 
-  for (const file of REQUIRED_DOCS) {
+  for (const file of requiredDocsForMeta(meta)) {
     const target = path.join(absolute, file);
     if (!await exists(target) || (await fs.stat(target)).size === 0) throw new CatalogError(`${file} is required and must not be empty.`, 'MISSING_FILE');
   }
@@ -266,7 +278,8 @@ export async function buildIndex(rootDir) {
       if (result.meta.id !== child.name) throw new CatalogError(`Asset directory name must equal meta.id: ${child.name}`, 'ID_PATH_MISMATCH');
       const documents = {};
       for (const section of ['design', 'logic', 'architecture']) {
-        documents[section] = await fs.readFile(path.join(assetDir, `${section}.md`), 'utf8');
+        const file = path.join(assetDir, `${section}.md`);
+        if (await exists(file)) documents[section] = await fs.readFile(file, 'utf8');
       }
       entries.push(compactEntry(result.meta, result.manifest, documents));
     }
@@ -459,6 +472,7 @@ export async function loadAssetSection(rootDir, assetId, section = 'meta') {
   for (const target of targets) {
     const full = path.join(assetDir, target);
     if (!(full === assetDir || full.startsWith(`${assetDir}${path.sep}`))) throw new CatalogError('Unsafe path.', 'UNSAFE_PATH');
+    if (!await exists(full)) continue;
     const stat = await fs.stat(full);
     if (stat.isFile()) output[target] = await fs.readFile(full, 'utf8');
     if (stat.isDirectory()) {
