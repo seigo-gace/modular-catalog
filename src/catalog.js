@@ -86,14 +86,33 @@ function assertStringArray(meta, field, allowEmpty = false) {
   }
 }
 
+function explicitReusableAssetTypes(meta) {
+  if (meta.reusableAssetTypes == null) return null;
+  if (!Array.isArray(meta.reusableAssetTypes) || meta.reusableAssetTypes.length === 0 || meta.reusableAssetTypes.some((item) => typeof item !== 'string' || !item.trim())) {
+    throw new CatalogError('meta.reusableAssetTypes must be a non-empty string array when provided.', 'INVALID_META');
+  }
+  return [...new Set(meta.reusableAssetTypes.map((item) => item.trim()))];
+}
+
+function isExplicitNonCodeAsset(meta) {
+  const types = explicitReusableAssetTypes(meta);
+  return Array.isArray(types) && !types.includes('code');
+}
+
 export function validateMeta(meta) {
   if (!meta || typeof meta !== 'object' || Array.isArray(meta)) throw new CatalogError('meta.json must contain an object.', 'INVALID_META');
   if (meta.schemaVersion !== 1) throw new CatalogError('meta.schemaVersion must be 1.', 'INVALID_META');
   assertSafeId(meta.id);
   for (const field of ['name', 'version', 'summary', 'purpose', 'responsibility']) assertString(meta, field);
-  for (const field of ['layers', 'languages', 'runtimes', 'tags']) assertStringArray(meta, field);
+  const nonCode = isExplicitNonCodeAsset(meta);
+  assertStringArray(meta, 'layers', nonCode);
+  assertStringArray(meta, 'languages', nonCode);
+  assertStringArray(meta, 'runtimes', nonCode);
+  assertStringArray(meta, 'tags');
   for (const field of ['dependencies', 'constraints']) assertStringArray(meta, field, true);
+  if (meta.assetKind != null && (typeof meta.assetKind !== 'string' || !meta.assetKind.trim())) throw new CatalogError('meta.assetKind must be a non-empty string when provided.', 'INVALID_META');
   if (meta.layers.some((layer) => !LAYERS.has(layer))) throw new CatalogError('meta.layers contains an invalid five-layer value.', 'INVALID_META');
+  if (meta.fiveV != null && (!meta.fiveV || typeof meta.fiveV !== 'object' || Array.isArray(meta.fiveV))) throw new CatalogError('meta.fiveV must be an object when provided.', 'INVALID_META');
   if (!meta.source || typeof meta.source.repository !== 'string' || !meta.source.repository.trim() || typeof meta.source.commit !== 'string' || !meta.source.commit.trim()) {
     throw new CatalogError('meta.source.repository and meta.source.commit are required.', 'INVALID_META');
   }
@@ -161,8 +180,18 @@ export async function validateAssetDirectory(assetDir, { verifyManifest = false 
     const target = path.join(absolute, file);
     if (!await exists(target) || (await fs.stat(target)).size === 0) throw new CatalogError(`${file} is required and must not be empty.`, 'MISSING_FILE');
   }
-  const sourceDirectory = await exists(path.join(absolute, 'source')) ? 'source' : 'code';
-  for (const directory of [sourceDirectory, 'tests/normal', 'tests/user']) {
+  const nonCode = isExplicitNonCodeAsset(meta);
+  const sourcePath = await exists(path.join(absolute, 'source')) ? path.join(absolute, 'source') : (await exists(path.join(absolute, 'code')) ? path.join(absolute, 'code') : null);
+  if (!nonCode) {
+    if (!sourcePath || !(await fs.stat(sourcePath)).isDirectory()) throw new CatalogError('source/ or code/ is required.', 'MISSING_DIRECTORY');
+    const sourceFiles = await listFiles(sourcePath);
+    if (sourceFiles.length === 0) throw new CatalogError('source/ or code/ must contain files.', 'EMPTY_DIRECTORY');
+  } else if (sourcePath) {
+    if (!(await fs.stat(sourcePath)).isDirectory()) throw new CatalogError('source/ or code/ must be a directory when present.', 'MISSING_DIRECTORY');
+    const sourceFiles = await listFiles(sourcePath);
+    if (sourceFiles.length === 0) throw new CatalogError('source/ or code/ must contain files when present.', 'EMPTY_DIRECTORY');
+  }
+  for (const directory of ['tests/normal', 'tests/user']) {
     const target = path.join(absolute, directory);
     if (!await exists(target) || !(await fs.stat(target)).isDirectory()) throw new CatalogError(`${directory}/ is required.`, 'MISSING_DIRECTORY');
     const files = await listFiles(target);
