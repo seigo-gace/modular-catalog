@@ -102,9 +102,11 @@ function isExplicitNonCodeAsset(meta) {
 function reusableAssetTypesForSearch(meta) {
   const explicit = explicitReusableAssetTypes(meta);
   if (explicit) return explicit;
-  if (typeof meta.assetKind === 'string' && meta.assetKind.trim()) return [meta.assetKind.trim()];
-  if (Array.isArray(meta.tags) && meta.tags.includes('skill')) return ['capability'];
-  return [];
+  const derived = [];
+  if (typeof meta.assetKind === 'string' && meta.assetKind.trim()) derived.push(meta.assetKind.trim());
+  if (Array.isArray(meta.tags) && meta.tags.includes('skill')) derived.push('capability', 'skill');
+  derived.push('code', 'design', 'logic', 'architecture', 'test');
+  return [...new Set(derived)];
 }
 
 export function validateMeta(meta) {
