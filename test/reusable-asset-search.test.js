@@ -26,15 +26,13 @@ async function buildCandidate(root) {
     tags: ['architecture', 'reusable'],
     dependencies: [],
     constraints: [],
-    reusableAssetTypes: ['architecture', 'design'],
+    reusableAssetTypes: ['architecture'],
     assetKind: 'architecture',
     fiveV: { applicable: false, verificationBasis: ['architecture.md', 'tests/normal/architecture-review.txt', 'tests/user/architecture-use.txt'] },
     source: { repository: 'example/architecture-repo', commit: '2222222222222222222222222222222222222222' },
     verifiedAt: '2026-10-03T00:00:00.000Z'
   };
   await write(path.join(candidate, 'meta.json'), JSON.stringify(meta, null, 2) + '\n');
-  await write(path.join(candidate, 'design.md'), '# Design\nArchitecture design rationale.\n');
-  await write(path.join(candidate, 'logic.md'), '# Logic\nArchitecture decision logic.\n');
   await write(path.join(candidate, 'architecture.md'), '# Architecture\nVerified architecture decision.\n');
   await write(path.join(candidate, 'evidence.json'), JSON.stringify({
     normal: { passed: true, commands: ['architecture-review'], expectedResults: ['PASS'] },
@@ -78,7 +76,7 @@ async function buildLegacyCandidate(root) {
   return candidate;
 }
 
-test('registers and searches a verified non-code reusable asset by reusable asset type', async () => {
+test('registers and searches a verified pure architecture asset without unrelated documents', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'modulecatalog-type-search-'));
   try {
     const candidate = await buildCandidate(root);
@@ -88,12 +86,13 @@ test('registers and searches a verified non-code reusable asset by reusable asse
     const architecture = await searchCatalog(root, { query: 'architecture decision', assetType: 'architecture', limit: 5 });
     assert.equal(architecture.length, 1);
     assert.equal(architecture[0].id, 'architecture-reuse-asset');
-    assert.deepEqual(architecture[0].reusableAssetTypes, ['architecture', 'design']);
+    assert.deepEqual(architecture[0].reusableAssetTypes, ['architecture']);
     assert.equal(architecture[0].fiveV.applicable, false);
 
+    const designOnly = await searchCatalog(root, { query: 'architecture decision', assetType: 'design', limit: 5 });
+    assert.deepEqual(designOnly, []);
     const codeOnly = await searchCatalog(root, { query: 'architecture decision', assetType: 'code', limit: 5 });
     assert.deepEqual(codeOnly, []);
-
     const fiveVPart = await searchCatalog(root, { query: 'architecture decision', fiveVLevel: 'Part', limit: 5 });
     assert.deepEqual(fiveVPart, []);
   } finally {
