@@ -21,8 +21,61 @@ jobs:
         with:
           node-version: 22
 
+      - name: Install dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund --package-lock=false
+
+      - name: Verify Windows transport syntax
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            'scripts/pull-modulecatalog-kb-delivery-windows.ps1',
+            [ref]$tokens,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+          Write-Host 'WINDOWS_KB_PULL_SCRIPT_PARSE=PASS'
+
       - name: Core tests
         run: npm test
+
+      - name: Audit reusable asset and 5V profile
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/audit-reusable-asset-profile.mjs . > "$RUNNER_TEMP/reusable-asset-audit.json"
+          node scripts/audit-reusable-asset-evidence.mjs . > "$RUNNER_TEMP/reusable-asset-evidence-audit.json"
+          node --input-type=module - "$RUNNER_TEMP/reusable-asset-audit.json" "$RUNNER_TEMP/reusable-asset-evidence-audit.json" <<'NODE'
+          import fs from 'node:fs';
+          const profile = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+          const evidence = JSON.parse(fs.readFileSync(process.argv[3], 'utf8'));
+          console.log(`REUSABLE_ASSET_AUDIT_COUNT=${profile.asset_count}`);
+          console.log(`PRIMARY_TYPE_COUNTS=${JSON.stringify(profile.primary_type_counts)}`);
+          console.log(`REUSABLE_ASSET_TYPE_COUNTS=${JSON.stringify(profile.reusable_asset_type_counts)}`);
+          console.log(`FIVE_V_STATUS_COUNTS=${JSON.stringify(profile.five_v_status_counts)}`);
+          console.log(`FIVE_V_LEVEL_COUNTS=${JSON.stringify(profile.five_v_level_counts)}`);
+          console.log(`EVIDENCE_TYPE_STATUS_COUNTS=${JSON.stringify(evidence.reusable_asset_type_status_counts)}`);
+          console.log(`EVIDENCE_FIVE_V_STATUS_COUNTS=${JSON.stringify(evidence.five_v_status_counts)}`);
+          console.log(`EVIDENCE_SOURCE_PRESENCE_COUNTS=${JSON.stringify(evidence.source_file_presence_counts)}`);
+          console.log(`EVIDENCE_VERIFICATION_COUNTS=${JSON.stringify(evidence.verification_counts)}`);
+          for (const asset of evidence.assets) {
+            console.log(`ASSET_EVIDENCE id=${asset.asset_id} asset_kind=${asset.canonical_asset_kind ?? 'NOT_RECORDED'} types=${asset.canonical_reusable_asset_types.join(',') || 'NOT_RECORDED'} type_status=${asset.reusable_asset_type_status} five_v_status=${asset.five_v_status} five_v_level=${asset.five_v_level ?? 'NOT_RECORDED'} source_files=${asset.source_file_count} normal_tests=${asset.normal_test_file_count} user_tests=${asset.user_test_file_count}`);
+          }
+          NODE
+
+      - name: Upload reusable asset audits
+        uses: actions/upload-artifact@v4
+        with:
+          name: reusable-asset-audits
+          path: |
+            ${{ runner.temp }}/reusable-asset-audit.json
+            ${{ runner.temp }}/reusable-asset-evidence-audit.json
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Verify all registered assets
         shell: bash
@@ -65,6 +118,9 @@ jobs:
               node --test "$file"
             )
           done
+
+      - name: Verify portable reuse outside Catalog tree
+        run: node scripts/verify-portable-reuse.mjs --root . --json-output "$RUNNER_TEMP/portable-reuse.json"
 
       - name: Confirm catalog index cardinality
         shell: bash
