@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { CatalogError, sha256, tokenize, validateAssetDirectory } from './catalog.js';
 import { assertReusableAssetSchema, createReusableAssetValidator } from './reusable-asset-schema.js';
+import { assertFiveVComposition, buildReusableAssetProfile } from './reusable-asset-profile.js';
 import { projectExplicitReuseFacts } from './reuse-fact-projection.js';
 import { analyzeSourceFiles } from './structural-analyzer.js';
 
@@ -198,9 +199,12 @@ async function buildReusableAsset(rootDir, assetId, catalogCommit, allAssetIds) 
   sections['README.md'] = await exists(readmePath) ? await fs.readFile(readmePath, 'utf8') : null;
   const { source, tests } = await collectSourceAndTests(assetDir);
   const classification = classifyAsset(meta);
+  const reusability = buildReusableAssetProfile({ meta, classification, evidence });
   const keywords = tokenize([
     meta.id, meta.name, meta.summary, meta.purpose, meta.responsibility,
     ...meta.layers, ...meta.languages, ...meta.runtimes, ...meta.tags, ...meta.dependencies, ...meta.constraints,
+    ...reusability.value.asset_types,
+    reusability.value.five_v.level,
     sections['design.md'], sections['logic.md'], sections['architecture.md']
   ].filter(Boolean).join(' '));
   const sourcePaths = Object.keys(source).sort();
@@ -238,10 +242,14 @@ async function buildReusableAsset(rootDir, assetId, catalogCommit, allAssetIds) 
     if (!allAssetIds.has(dependency)) continue;
     relationships.push({ schema_version: 1, relationship_id: assetId + '::depends_on::' + dependency, from: assetId, relation: 'depends_on', to: dependency, verified: true, derivation: { type: 'canonical-projection', derived_from: ['meta.json#/dependencies'] } });
   }
+  for (const child of reusability.value.five_v.composed_from) {
+    relationships.push({ schema_version: 1, relationship_id: assetId + '::five_v_composed_from::' + child, from: assetId, relation: 'five_v_composed_from', to: child, verified: true, derivation: { type: 'canonical-projection', derived_from: ['meta.json#/fiveV/composedFrom'] } });
+  }
 
   const derivedFields = [
     { field: 'identity.asset_kind', type: classification.mode, source: classification.source, verified: classification.mode === 'canonical' },
-    { field: 'discovery.keywords', type: 'deterministic-derived', source: 'meta + design + logic + architecture', verified: false },
+    ...reusability.derivation,
+    { field: 'discovery.keywords', type: 'deterministic-derived', source: 'meta + design + logic + architecture + reusable asset profile', verified: false },
     { field: 'contract.mutation_authority', type: 'deterministic-derived', source: 'meta.constraints', verified: false },
     ...reuseFacts.derived_fields
   ];
@@ -260,6 +268,7 @@ async function buildReusableAsset(rootDir, assetId, catalogCommit, allAssetIds) 
     schema_version: 1,
     identity: { asset_id: meta.id, name: meta.name, version: meta.version, asset_kind: classification.value, symbol: structure.primarySymbol },
     classification: { domains: [], layers: meta.layers, languages: meta.languages, runtimes: meta.runtimes, tags: meta.tags },
+    reusability: reusability.value,
     discovery: { summary: meta.summary, purpose: meta.purpose, responsibility: meta.responsibility, capabilities: [], keywords, semantic_terms: structure.semanticTerms },
     applicability: reuseFacts.applicability,
     contract: { status: reuseFacts.contract.status, inputs: structure.contractInputs, outputs: structure.contractOutputs, required_fields: [], optional_fields: [], error_behavior: reuseFacts.contract.error_behavior, side_effects: reuseFacts.contract.side_effects, mutation_authority: mutationAuthority(meta) },
@@ -269,10 +278,7 @@ async function buildReusableAsset(rootDir, assetId, catalogCommit, allAssetIds) 
     provenance: { origin: { repository: meta.source.repository, commit: meta.source.commit }, catalog: { repository: CATALOG_REPOSITORY, commit: catalogCommit, asset_path: 'assets/' + assetId, asset_id: assetId } },
     lifecycle: { status: 'verified', introduced_version: meta.version, deprecated_at: null, superseded_by: null },
     integrity: { asset_hash: manifest.assetHash, meta_hash: sha256(canonicalJson(meta)), manifest_algorithm: manifest.algorithm, files: manifest.files },
-    derivation: {
-      canonical_sources: canonicalSources,
-      derived_fields: derivedFields
-    }
+    derivation: { canonical_sources: canonicalSources, derived_fields: derivedFields }
   };
   return { asset, knowledgeUnits, relationships, cases, sourceCount: sourcePaths.length, testCount: testPaths.length, structuralAnalysis: analyses };
 }
@@ -320,10 +326,17 @@ export async function exportReusableAssets(rootDir, outputDir, { assetId = null,
   const allAssetIds = new Set(allCatalogAssetIds);
   await fs.rm(output, { recursive: true, force: true });
   await fs.mkdir(output, { recursive: true });
-  const exported = [];
+
+  const builtRecords = [];
   for (const id of assetIds) {
     const built = await buildReusableAsset(root, id, commit, allAssetIds);
     assertReusableAssetSchema(schemaValidator, built.asset, id);
+    builtRecords.push({ id, built });
+  }
+  assertFiveVComposition(builtRecords.map(({ built }) => built));
+
+  const exported = [];
+  for (const { id, built } of builtRecords) {
     const dir = path.join(output, 'assets', id);
     await fs.mkdir(dir, { recursive: true });
     await writeJson(path.join(dir, 'asset.json'), built.asset);
