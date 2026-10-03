@@ -33,7 +33,7 @@ function parseArgs(argv) {
 }
 
 function help() {
-  console.log(`ModuleCatalog CLI\n\nCommands:\n  search --query <text> [--language <name>] [--runtime <name>] [--layer <layer>] [--tag <tag>] [--limit <n>] [--json]\n  show <asset-id> [--section meta|design|logic|architecture|evidence|manifest|code|tests|all] [--json]\n  validate [asset-id|path]\n  register <candidate-directory>\n  build-index\n  verify-index\n  repository-candidate --repo <git-directory> --revision <sha> --spec <json-file> [--asset-root <path>] [--output <directory>] [--json]\n  export-reusable-assets [asset-id] --output <directory> [--catalog-commit <sha>] [--json]\n  prepare-kb-outbox --outbox <directory> [--json]\n  preflight-kb-delivery <delivery-directory> [--json]\n  publish-kb-delivery <delivery-directory> --kb-root <directory> [--json]\n  verify-kb-active <delivery-directory> --kb-root <directory> [--json]\n\nGlobal:\n  --root <catalog-root>   Default: current directory`);
+  console.log(`ModuleCatalog CLI\n\nCommands:\n  search --query <text> [--language <name>] [--runtime <name>] [--layer <layer>] [--asset-type <type>] [--five-v-level <level>] [--tag <tag>] [--limit <n>] [--json]\n  show <asset-id> [--section meta|design|logic|architecture|evidence|manifest|code|tests|all] [--json]\n  validate [asset-id|path]\n  register <candidate-directory>\n  build-index\n  verify-index\n  repository-candidate --repo <git-directory> --revision <sha> --spec <json-file> [--asset-root <path>] [--output <directory>] [--json]\n  export-reusable-assets [asset-id] --output <directory> [--catalog-commit <sha>] [--json]\n  prepare-kb-outbox --outbox <directory> [--json]\n  preflight-kb-delivery <delivery-directory> [--json]\n  publish-kb-delivery <delivery-directory> --kb-root <directory> [--json]\n  verify-kb-active <delivery-directory> --kb-root <directory> [--json]\n\nGlobal:\n  --root <catalog-root>   Default: current directory`);
 }
 
 function output(value, json) {
@@ -91,6 +91,8 @@ async function main() {
       language: flags.language,
       runtime: flags.runtime,
       layer: flags.layer,
+      assetType: flags['asset-type'],
+      fiveVLevel: flags['five-v-level'],
       tag: flags.tag,
       dependency: flags.dependency,
       constraint: flags.constraint,
