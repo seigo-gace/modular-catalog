@@ -29,9 +29,9 @@ function record(id, level, composedFrom = []) {
   };
 }
 
-test('legacy assets remain valid without inventing 5V data', () => {
-  const profile = buildReusableAssetProfile({ meta: {}, classification: classification(), evidence: evidence() });
-  assert.deepEqual(profile.value.asset_types, []);
+test('validated legacy assets derive observed reusable content types without inventing 5V data', () => {
+  const profile = buildReusableAssetProfile({ meta: { tags: [] }, classification: classification(), evidence: evidence() });
+  assert.deepEqual(profile.value.asset_types, ['code', 'design', 'logic', 'architecture', 'test']);
   assert.equal(profile.value.primary_type, 'unknown');
   assert.deepEqual(profile.value.five_v, {
     status: 'not_recorded',
@@ -40,7 +40,19 @@ test('legacy assets remain valid without inventing 5V data', () => {
     composed_from: [],
     verification_basis: []
   });
+  assert.equal(profile.derivation[0].type, 'deterministic-derived');
+  assert.equal(profile.derivation[0].verified, false);
   assert.equal(profile.derivation[1].type, 'not-recorded');
+});
+
+test('explicit skill tag is preserved as a deterministic reusable asset type', () => {
+  const profile = buildReusableAssetProfile({
+    meta: { tags: ['skill'] },
+    classification: classification('capability', 'deterministic-derived', 'meta.tags contains skill'),
+    evidence: evidence()
+  });
+  assert.deepEqual(profile.value.asset_types, ['capability', 'skill', 'code', 'design', 'logic', 'architecture', 'test']);
+  assert.equal(profile.value.five_v.status, 'not_recorded');
 });
 
 test('non-code reusable assets can be canonical without a 5V level', () => {
