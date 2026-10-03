@@ -48,18 +48,34 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/audit-reusable-asset-profile.mjs . > "$RUNNER_TEMP/reusable-asset-audit.json"
-          node --input-type=module - "$RUNNER_TEMP/reusable-asset-audit.json" <<'NODE'
+          node scripts/audit-reusable-asset-evidence.mjs . > "$RUNNER_TEMP/reusable-asset-evidence-audit.json"
+          node --input-type=module - "$RUNNER_TEMP/reusable-asset-audit.json" "$RUNNER_TEMP/reusable-asset-evidence-audit.json" <<'NODE'
           import fs from 'node:fs';
-          const report = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
-          console.log(`REUSABLE_ASSET_AUDIT_COUNT=${report.asset_count}`);
-          console.log(`PRIMARY_TYPE_COUNTS=${JSON.stringify(report.primary_type_counts)}`);
-          console.log(`REUSABLE_ASSET_TYPE_COUNTS=${JSON.stringify(report.reusable_asset_type_counts)}`);
-          console.log(`FIVE_V_STATUS_COUNTS=${JSON.stringify(report.five_v_status_counts)}`);
-          console.log(`FIVE_V_LEVEL_COUNTS=${JSON.stringify(report.five_v_level_counts)}`);
-          for (const asset of report.assets) {
-            console.log(`ASSET_PROFILE id=${asset.asset_id} primary=${asset.primary_type} types=${asset.asset_types.join(',') || 'NOT_RECORDED'} five_v_status=${asset.five_v_status} five_v_level=${asset.five_v_level ?? 'NOT_RECORDED'} legacy_layers=${asset.legacy_layers.join(',')}`);
+          const profile = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+          const evidence = JSON.parse(fs.readFileSync(process.argv[3], 'utf8'));
+          console.log(`REUSABLE_ASSET_AUDIT_COUNT=${profile.asset_count}`);
+          console.log(`PRIMARY_TYPE_COUNTS=${JSON.stringify(profile.primary_type_counts)}`);
+          console.log(`REUSABLE_ASSET_TYPE_COUNTS=${JSON.stringify(profile.reusable_asset_type_counts)}`);
+          console.log(`FIVE_V_STATUS_COUNTS=${JSON.stringify(profile.five_v_status_counts)}`);
+          console.log(`FIVE_V_LEVEL_COUNTS=${JSON.stringify(profile.five_v_level_counts)}`);
+          console.log(`EVIDENCE_TYPE_STATUS_COUNTS=${JSON.stringify(evidence.reusable_asset_type_status_counts)}`);
+          console.log(`EVIDENCE_FIVE_V_STATUS_COUNTS=${JSON.stringify(evidence.five_v_status_counts)}`);
+          console.log(`EVIDENCE_SOURCE_PRESENCE_COUNTS=${JSON.stringify(evidence.source_file_presence_counts)}`);
+          console.log(`EVIDENCE_VERIFICATION_COUNTS=${JSON.stringify(evidence.verification_counts)}`);
+          for (const asset of evidence.assets) {
+            console.log(`ASSET_EVIDENCE id=${asset.asset_id} asset_kind=${asset.canonical_asset_kind ?? 'NOT_RECORDED'} types=${asset.canonical_reusable_asset_types.join(',') || 'NOT_RECORDED'} type_status=${asset.reusable_asset_type_status} five_v_status=${asset.five_v_status} five_v_level=${asset.five_v_level ?? 'NOT_RECORDED'} source_files=${asset.source_file_count} normal_tests=${asset.normal_test_file_count} user_tests=${asset.user_test_file_count}`);
           }
           NODE
+
+      - name: Upload reusable asset audits
+        uses: actions/upload-artifact@v4
+        with:
+          name: reusable-asset-audits
+          path: |
+            ${{ runner.temp }}/reusable-asset-audit.json
+            ${{ runner.temp }}/reusable-asset-evidence-audit.json
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Verify all registered assets
         shell: bash
