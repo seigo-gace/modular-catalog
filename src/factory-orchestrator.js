@@ -1,6 +1,7 @@
 import { CatalogError } from './catalog.js';
 import { asteraEvidenceSearchBoundary } from './astera-qce-client.js';
 import { inspectRepositoryChanges } from './repository-intake.js';
+import { normalizeTgserverZeroArtifact } from './tgserver-client.js';
 
 const FACTORY_RUN_SCHEMA = 'modulecatalog.factory-inspection.v1';
 
@@ -71,22 +72,20 @@ export async function runFactoryInspection(input = {}, adapters = {}) {
   const revision = intake.current_revision;
   const explicitPaths = uniqueStrings(input.paths);
   const paths = explicitPaths.length ? explicitPaths : changedPaths(intake);
-  const projectId = input.project_id == null ? null : requiredString(input.project_id, 'project_id');
   const explicitSignals = Array.isArray(input.signals) ? input.signals : [];
   const evidenceRefs = uniqueStrings(input.evidence_refs);
   const testEvidence = Array.isArray(input.test_evidence) ? input.test_evidence : [];
 
-  let tgObservation = Object.freeze({ status: 'SKIPPED', hits: [], returned: 0 });
   if (adapters.tgserver) {
-    if (!projectId) throw new CatalogError('project_id is required when TGserver intake is enabled.', 'FACTORY_INPUT_INVALID');
-    const result = await adapters.tgserver.search({
-      query: input.tg_query ?? '',
-      project_id: projectId,
-      ...(input.tg_severity ? { severity: input.tg_severity } : {}),
-      ...(input.tg_from ? { from: input.tg_from } : {}),
-      ...(input.tg_to ? { to: input.tg_to } : {})
-    });
-    tgObservation = Object.freeze({ status: 'OBSERVED', ...result });
+    throw new CatalogError('Direct Project-to-TGserver access is disabled. Supply a sanitized TGserver ZERO central Reader artifact instead.', 'TGS_DIRECT_ACCESS_DISABLED');
+  }
+
+  let projectId = null;
+  let tgObservation = Object.freeze({ status: 'SKIPPED', hits: [], returned: 0 });
+  if (input.tgserver_zero) {
+    const artifact = normalizeTgserverZeroArtifact(input.tgserver_zero);
+    projectId = artifact.project_id;
+    tgObservation = Object.freeze({ status: 'OBSERVED', ...artifact });
   }
 
   const derivedSignals = deriveRuntimeSignals(tgObservation.hits);

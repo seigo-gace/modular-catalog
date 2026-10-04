@@ -6,6 +6,7 @@ New design authority: `docs/REUSABLE_KNOWLEDGE_FACTORY_V1.md`
 Repository candidate authority: `docs/REPOSITORY_ASSET_CANDIDATE_V1.md`
 Delivery authority: `docs/KB_DELIVERY_CONTRACT_V1.md`
 Cross-host transport authority: `docs/KB_PULL_TRANSPORT_V1.md`
+TGserver ZERO integration authority: `docs/TGSERVER_ZERO_INTEGRATION.md`
 
 ## 1. Why this delta exists
 
@@ -54,7 +55,7 @@ ModuleCatalog now owns the processing boundary from source evidence to KB delive
 - exact Git repository/revision intake;
 - explicit generic-repository Candidate assessment/materialization without source mutation;
 - preservation of the existing explicit Asset admission boundary (`register`) after Candidate validation;
-- TGserver HTTP log retrieval;
+- intake of sanitized TGserver ZERO central Reader evidence with exact repo/stream/project binding;
 - deterministic structural extraction;
 - Knowledge Unit / Case / Relationship / metadata construction;
 - source-vs-runtime consistency checks;
@@ -91,7 +92,7 @@ The same minimality decision applies to an internal analytical database and a se
 - existing AI Core Router API = Granite controller inference;
 - existing DebugAI MCP = debugging execution;
 - existing Astera APIs = optional evidence/evaluation only through supported caller contracts;
-- existing TGserver HTTP API = runtime log retrieval;
+- TGserver ZERO central Reader in `seigo-gace/TGserver` = authenticated legacy `/search` execution and sanitized runtime-evidence Artifact; ModuleCatalog does not call `/search` directly;
 - existing Windows OpenSSH client (`ssh.exe` / `scp.exe`) = cross-host delivery pull after live verification;
 - existing G-ACE KB inbox processor and Deep health script = consumer-owned activation/archive/runtime gate.
 
@@ -130,3 +131,34 @@ The pull transport keeps the same consumer contract: transfer occurs outside `re
 The Factory is developed on a branch based on the current reusable-asset export branch. No main merge, deploy, production switch, source repository mutation, Astera modification, AI Core modification, DebugAI modification, TGserver modification, or KB runtime modification is part of this design delta.
 
 Source implementation of the pull bridge is not runtime deployment. Real Server SSH availability, exact Server outbox, Master-PC pull, KB activation and Deep health remain separate runtime gates until executed on the intended systems.
+
+## 8. TGserver ZERO central Reader migration
+
+The earlier Factory v1 source contained a Project-local TGserver HTTP client that called legacy `/search` directly. That route is superseded by the Workspace-wide TGserver ZERO integration contract.
+
+Current boundary:
+
+```text
+ModuleCatalog Source/Test/Verify
+  -> owner-only GitHub Development Probe
+  -> GitHub Job Log + bounded Artifact
+  -> CHAT readback
+
+ModuleCatalog Runtime/Server logs
+  -> seigo-gace/TGserver central Reader
+  -> Cloudflare Access + legacy /search inside TGserver owner boundary
+  -> sanitized Artifact
+  -> CHAT readback / optional Factory evidence intake
+```
+
+Consequences:
+
+- ModuleCatalog does not hold Cloudflare Access or TGserver API secrets;
+- ModuleCatalog does not call TGserver `/search` directly;
+- `[DEV-PROBE]` Issue content cannot become arbitrary shell input;
+- Factory runtime evidence accepts only the sanitized ZERO Artifact and requires explicit expected repository and stream;
+- project ID comes from TGserver ZERO registry metadata and is never guessed or copied from another Project;
+- TGserver vNext is not used;
+- Source/Test/CI state and Runtime/TGserver state remain separate.
+
+At the referenced TGserver ZERO Current Authority (`seigo-gace/TGserver@9282f3540f9bf47cfad7e7814da8fd7145d44bba`), ModuleCatalog is `UNREGISTERED`. That blocks real ModuleCatalog TGserver ZERO runtime search, but it does not block Source/Test/Verify Development Probe adoption. Formal ZERO registry/producer onboarding is a separate TGserver-owned change and no existing P-number may be reused.

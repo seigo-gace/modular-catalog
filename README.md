@@ -7,6 +7,7 @@ It keeps verified Source / Design / Logic / Architecture / Contract / Test / Evi
 ## Current design authority
 
 - Factory v1: [`docs/REUSABLE_KNOWLEDGE_FACTORY_V1.md`](docs/REUSABLE_KNOWLEDGE_FACTORY_V1.md)
+- TGserver ZERO / CHAT evidence integration: [`docs/TGSERVER_ZERO_INTEGRATION.md`](docs/TGSERVER_ZERO_INTEGRATION.md)
 - GPT final review / periodic admission: [`docs/GPT_FINAL_REVIEW_AND_PERIODIC_ADMISSION_V1.md`](docs/GPT_FINAL_REVIEW_AND_PERIODIC_ADMISSION_V1.md)
 - Repository Candidate: [`docs/REPOSITORY_ASSET_CANDIDATE_V1.md`](docs/REPOSITORY_ASSET_CANDIDATE_V1.md)
 - KB delivery / ACTIVE readback contract: [`docs/KB_DELIVERY_CONTRACT_V1.md`](docs/KB_DELIVERY_CONTRACT_V1.md)
@@ -26,8 +27,10 @@ Factory evidence inputs are kept separate:
 ```text
 pinned Git repository / exact revision
 +
-TGserver logs through TGserver HTTP API
+sanitized TGserver ZERO central Reader Artifact produced by seigo-gace/TGserver
 ```
+
+ModuleCatalog does **not** call TGserver `/search` directly. Runtime/Server log lookup is owned by the TGserver ZERO central Reader, which performs the authenticated legacy `/search` request and publishes sanitized `tgserver-zero-search-meta.json` + `tgserver-zero-search-result.json` evidence for CHAT. Cloudflare Access and TGserver credentials are not copied into this repository. ModuleCatalog validates the Artifact generation, exact repository, explicit stream, and central-Reader-supplied registered project ID before using observations.
 
 Implemented optional adapters use established boundaries only:
 
@@ -98,8 +101,9 @@ Exporter provenance is fail-closed: an explicit `--catalog-commit` must equal th
 The diagnostic/verification coordination path is separately bounded:
 
 ```text
-exact repo + revision + optional TGserver observations
-  -> repository revision resolution before external calls
+exact repo + revision + optional sanitized TGserver ZERO observations
+  -> repository revision resolution before evidence processing
+  -> exact repo/stream/project binding from central Reader metadata
   -> explicit/deterministic failure signals
   -> Granite Debug Controller when a signal exists
   -> DebugAI MCP analyze/verify when selected
@@ -107,7 +111,17 @@ exact repo + revision + optional TGserver observations
   -> INSPECTION_COMPLETE
 ```
 
-`INSPECTION_COMPLETE`, `READY_FOR_ADMISSION`, Catalog registration, GPT approval, sealed transport state, and KB `COMPLETE` are distinct states.
+Direct Project-to-TGserver adapter injection fails closed with `TGS_DIRECT_ACCESS_DISABLED`. `INSPECTION_COMPLETE`, `READY_FOR_ADMISSION`, Catalog registration, GPT approval, sealed transport state, and KB `COMPLETE` are distinct states.
+
+## Development Probe / CHAT evidence readback
+
+`.github/workflows/dev-probe.yml` is the repository-owned development evidence route. It accepts no shell command from an Issue. The `[DEV-PROBE]` Issue is only a trigger, and the workflow executes the fixed repository commands `npm run check` and `npm run verify:portable` after `npm ci`.
+
+The workflow is owner-only, uses read-only repository/Issue permissions, and uploads bounded logs plus exact run metadata as `dev-probe-evidence-<run-id>`. CHAT can read the Actions Job Log and Artifact directly instead of requiring Master to copy terminal output.
+
+The feature branch also permits owner-authored same-repository Pull Request events so the probe itself can be verified before main merge. The Issue-triggered path becomes live only after this workflow exists on the repository default branch; this branch does not bypass the existing main-merge approval boundary.
+
+Current TGserver ZERO registry state for ModuleCatalog is `UNREGISTERED`. No P-number is guessed or reused. Runtime-log retrieval remains `NOT_EXECUTED` until a separate TGserver-owned registration/producer onboarding change supplies the formal repo/stream/project mapping. See [`docs/TGSERVER_ZERO_INTEGRATION.md`](docs/TGSERVER_ZERO_INTEGRATION.md).
 
 ## Five-level Module Architecture
 
@@ -242,7 +256,7 @@ npm run verify:portable
 npm run check
 ```
 
-Current automated regression covers existing Catalog behavior plus Reusable Asset schema/export determinism and exact-checkout/clean-worktree provenance, traceable reuse-fact projection, generic-purpose fallback to observed interfaces, five-level layer validation, optional-README export compatibility, exact-revision full/incremental/unchanged repository intake, exact-revision Repository Candidate assessment/materialization/CLI boundaries, KB delivery preflight/idempotency/ACTIVE authority, sealed Server outbox identity/idempotency/conflict behavior, Windows pull-transport source constraints including approved-manifest-hash binding and PowerShell parsing, TGserver adapter boundaries, structural analysis, Granite controller constraints, DebugAI MCP mapping, Astera QCE transport, portable reuse smoke, Chat Factory result evidence, GPT final-review identity, and mandatory machine admission gates.
+Current automated regression covers existing Catalog behavior plus Reusable Asset schema/export determinism and exact-checkout/clean-worktree provenance, traceable reuse-fact projection, generic-purpose fallback to observed interfaces, five-level layer validation, optional-README export compatibility, exact-revision full/incremental/unchanged repository intake, exact-revision Repository Candidate assessment/materialization/CLI boundaries, KB delivery preflight/idempotency/ACTIVE authority, sealed Server outbox identity/idempotency/conflict behavior, Windows pull-transport source constraints including approved-manifest-hash binding and PowerShell parsing, TGserver ZERO sanitized-Artifact intake and direct-access rejection, structural analysis, Granite controller constraints, DebugAI MCP mapping, Astera QCE transport, portable reuse smoke, Chat Factory result evidence, GPT final-review identity, and mandatory machine admission gates.
 
 Acceptance is based on expected output/state, regression, important failure cases, schema/integrity checks, and runtime/provider readback where relevant. Build or CI success alone is not a production/runtime PASS.
 

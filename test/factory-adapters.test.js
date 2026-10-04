@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createAsteraQceClient, asteraEvidenceSearchBoundary } from '../src/astera-qce-client.js';
-import { createTgserverClient } from '../src/tgserver-client.js';
+import { normalizeTgserverZeroArtifact } from '../src/tgserver-client.js';
 import { createDebugController, GRANITE_DEBUG_MODEL } from '../src/debug-controller.js';
 import { executeDebugDecision, mapDebugDecisionToMcp } from '../src/debugai-mcp-client.js';
 
@@ -14,49 +14,53 @@ function jsonResponse(value, status = 200) {
   });
 }
 
-test('TGserver adapter sends only the supported search contract and normalizes observed logs', async () => {
-  let captured = null;
-  const client = createTgserverClient({
-    baseUrl: 'http://127.0.0.1:3000',
-    maxHits: 2,
-    fetchImpl: async (url, options) => {
-      captured = { url, options, body: JSON.parse(options.body) };
-      return jsonResponse({
-        estimatedTotalHits: 4,
-        hits: [
-          { id: '1', project_id: 'P006', severity: 'error', message: 'first failure', timestamp: '2026-10-02T00:00:00Z', hash: 'h1' },
-          { id: '2', project_id: 'OTHER', severity: 'error', message: 'wrong project', timestamp: '2026-10-02T00:01:00Z', hash: 'h2' },
-          { id: '3', project_id: 'P006', severity: 'warn', message: 'wrong severity', timestamp: '2026-10-02T00:02:00Z', hash: 'h3' },
-          { id: '4', project_id: 'P006', severity: 'error', message: 'second matching failure', timestamp: '2026-10-02T00:03:00Z', hash: 'h4' }
-        ]
-      });
+test('TGserver ZERO artifact intake binds sanitized runtime evidence to explicit repo and stream', () => {
+  const result = normalizeTgserverZeroArtifact({
+    expected_repo: 'owner/source',
+    expected_stream: 'runtime',
+    meta: {
+      generation: 'TGserver ZERO',
+      repo: 'owner/source',
+      stream: 'runtime',
+      project_id: 'P006',
+      purpose: 'Factory runtime evidence'
+    },
+    result: {
+      estimatedTotalHits: 3,
+      hits: [
+        { id: '1', project_id: 'P006', severity: 'error', message: 'first failure', timestamp: '2026-10-02T00:00:00Z', hash: 'h1' },
+        { id: '2', project_id: 'P006', severity: 'info', message: 'second observation', timestamp: '2026-10-02T00:01:00Z', hash: 'h2' },
+        { id: '3', project_id: 'P006', severity: 'warn', message: 'third observation', timestamp: '2026-10-02T00:02:00Z', hash: 'h3' }
+      ]
     }
   });
 
-  const result = await client.search({
-    query: 'failure',
-    project_id: 'P006',
-    severity: 'error',
-    from: '2026-10-01T00:00:00Z',
-    to: '2026-10-03T00:00:00Z'
-  });
+  assert.equal(result.source, 'TGSERVER_ZERO_CENTRAL_READER_ARTIFACT');
+  assert.equal(result.repo, 'owner/source');
+  assert.equal(result.stream, 'runtime');
+  assert.equal(result.project_id, 'P006');
+  assert.equal(result.returned, 3);
+  assert.deepEqual(result.hits.map((hit) => hit.id), ['1', '2', '3']);
+  assert.equal(result.estimatedTotalHits, 3);
 
-  assert.equal(captured.url, 'http://127.0.0.1:3000/search');
-  assert.deepEqual(captured.body, {
-    query: 'failure',
-    project_id: 'P006',
-    severity: 'error',
-    from: '2026-10-01T00:00:00Z',
-    to: '2026-10-03T00:00:00Z'
-  });
-  assert.equal(result.returned, 2);
-  assert.deepEqual(result.hits.map((hit) => hit.id), ['1', '4']);
-  assert.equal(result.hits.every((hit) => hit.project_id === 'P006' && hit.severity === 'error'), true);
-  assert.equal(result.estimatedTotalHits, 4);
+  assert.throws(
+    () => normalizeTgserverZeroArtifact({
+      expected_repo: 'owner/source',
+      expected_stream: 'runtime',
+      meta: { generation: 'TGserver ZERO', repo: 'owner/source', stream: 'runtime', project_id: 'P006' },
+      result: { hits: [{ id: 'x', project_id: 'OTHER', severity: 'error', message: 'scope leak', timestamp: '2026-10-02T00:03:00Z' }] }
+    }),
+    (error) => error?.code === 'TGS_ZERO_ARTIFACT_INVALID'
+  );
 
-  await assert.rejects(
-    () => client.search({ project_id: 'P006', severity: 'fatal' }),
-    (error) => error?.code === 'TGS_INPUT_INVALID'
+  assert.throws(
+    () => normalizeTgserverZeroArtifact({
+      expected_repo: 'different/repo',
+      expected_stream: 'runtime',
+      meta: { generation: 'TGserver ZERO', repo: 'owner/source', stream: 'runtime', project_id: 'P006' },
+      result: { hits: [] }
+    }),
+    (error) => error?.code === 'TGS_ZERO_SCOPE_MISMATCH'
   );
 });
 

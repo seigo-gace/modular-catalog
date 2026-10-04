@@ -43,26 +43,8 @@ test('Factory inspection resolves the exact repository revision and stays mutati
   assert.deepEqual(result.mutation, { source_repository: false, kb_runtime: false });
 });
 
-test('repeated scoped TGserver failures create an explicit debug signal and route through controller then DebugAI', async () => {
+test('repeated scoped TGserver ZERO artifact failures create an explicit debug signal and route through controller then DebugAI', async () => {
   const calls = [];
-  const tgserver = {
-    async search(request) {
-      calls.push(['tgserver', request]);
-      return {
-        project_id: 'P006',
-        query: 'asset failure',
-        severity: 'error',
-        from: null,
-        to: null,
-        returned: 2,
-        estimatedTotalHits: 2,
-        hits: [
-          { id: '1', project_id: 'P006', severity: 'error', timestamp: '2026-10-02T00:00:00Z', message: 'same failure', hash: 'same-hash' },
-          { id: '2', project_id: 'P006', severity: 'error', timestamp: '2026-10-02T00:01:00Z', message: 'same failure', hash: 'same-hash' }
-        ]
-      };
-    }
-  };
   const debugController = {
     async decide(input) {
       calls.push(['controller', input]);
@@ -114,20 +96,44 @@ test('repeated scoped TGserver failures create an explicit debug signal and rout
     repo: TEST_REPO,
     revision: REVISION,
     paths: ['src/index.js'],
-    project_id: 'P006',
-    tg_query: 'asset failure',
-    tg_severity: 'error',
+    tgserver_zero: {
+      expected_repo: 'owner/source',
+      expected_stream: 'runtime',
+      meta: {
+        generation: 'TGserver ZERO',
+        repo: 'owner/source',
+        stream: 'runtime',
+        project_id: 'P006',
+        purpose: 'Factory runtime evidence'
+      },
+      result: {
+        estimatedTotalHits: 2,
+        hits: [
+          { id: '1', project_id: 'P006', severity: 'error', timestamp: '2026-10-02T00:00:00Z', message: 'same failure', hash: 'same-hash' },
+          { id: '2', project_id: 'P006', severity: 'error', timestamp: '2026-10-02T00:01:00Z', message: 'same failure', hash: 'same-hash' }
+        ]
+      }
+    },
     qce_request: qceRequest
-  }, { tgserver, debugController, debugAi, qce });
+  }, { debugController, debugAi, qce });
 
+  assert.equal(result.project_id, 'P006');
   assert.equal(result.tgserver.status, 'OBSERVED');
+  assert.equal(result.tgserver.source, 'TGSERVER_ZERO_CENTRAL_READER_ARTIFACT');
   assert.equal(result.signals.length, 1);
   assert.equal(result.signals[0].type, 'REPEATED_ERROR_LOG');
   assert.equal(result.debug.status, 'COMPLETED');
   assert.equal(result.debug.execution.tool, 'debugai_analyze');
   assert.equal(result.qce.status, 'EVALUATED');
   assert.equal(result.qce.result.status, 'REVISION_REQUIRED');
-  assert.deepEqual(calls.map(([name]) => name), ['tgserver', 'controller', 'debugai', 'qce']);
+  assert.deepEqual(calls.map(([name]) => name), ['controller', 'debugai', 'qce']);
+});
+
+test('Factory rejects direct Project-to-TGserver adapters', async () => {
+  await assert.rejects(
+    () => runFactoryInspection({ repo: TEST_REPO, revision: REVISION }, { tgserver: { async search() { return { hits: [] }; } } }),
+    (error) => error?.code === 'TGS_DIRECT_ACCESS_DISABLED'
+  );
 });
 
 test('Factory does not silently ignore actionable signals when the Debug Controller is unavailable', async () => {
@@ -141,19 +147,20 @@ test('Factory does not silently ignore actionable signals when the Debug Control
   );
 });
 
-test('Factory rejects an unresolved exact revision before optional external adapters run', async () => {
-  let called = false;
+test('Factory rejects an unresolved exact revision before optional runtime evidence is processed', async () => {
   await assert.rejects(
     () => runFactoryInspection({
       repo: TEST_REPO,
       revision: 'f'.repeat(40),
-      project_id: 'P006'
-    }, {
-      tgserver: { async search() { called = true; return { hits: [], returned: 0 }; } }
+      tgserver_zero: {
+        expected_repo: 'owner/source',
+        expected_stream: 'runtime',
+        meta: { generation: 'invalid', repo: 'owner/source', stream: 'runtime', project_id: 'P006' },
+        result: { hits: [] }
+      }
     }),
     (error) => error?.code === 'REPOSITORY_REVISION_UNRESOLVED'
   );
-  assert.equal(called, false);
 });
 
 test('runtime signal derivation requires repetition and never promotes a single warning', () => {
