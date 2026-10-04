@@ -28,15 +28,15 @@ ModuleCatalog does not call TGserver `/search` directly and does not store Cloud
 
 Workflow: `.github/workflows/dev-probe.yml`
 
-The workflow reuses the repository's existing canonical verification only:
+The workflow reuses the repository's existing Catalog Verify dependency-install route and canonical verification only:
 
 ```text
-npm ci
+npm install --ignore-scripts --no-audit --no-fund --package-lock=false
 npm run check
 npm run verify:portable
 ```
 
-`npm run check` already includes the repository's normal/user/reusable tests and `npm run verify`; the probe does not introduce another test framework.
+The repository intentionally has no dependency lock file in this branch, so the Development Probe does not enable `setup-node` npm caching and does not use `npm ci`. `npm run check` already includes the repository's normal/user/reusable tests and `npm run verify`; the probe does not introduce another test framework.
 
 Trigger boundaries:
 
@@ -54,7 +54,7 @@ Artifact contents are bounded to:
 - `check.log` — canonical `npm run check` output;
 - `portable.log` — canonical portable-reuse verification output.
 
-No secret value is intentionally written to the artifact.
+`meta.json` is created before Node setup so an early environment/setup failure can still leave bounded diagnostic evidence for CHAT. No secret value is intentionally written to the artifact.
 
 ## TGserver ZERO runtime evidence
 

@@ -115,7 +115,7 @@ Direct Project-to-TGserver adapter injection fails closed with `TGS_DIRECT_ACCES
 
 ## Development Probe / CHAT evidence readback
 
-`.github/workflows/dev-probe.yml` is the repository-owned development evidence route. It accepts no shell command from an Issue. The `[DEV-PROBE]` Issue is only a trigger, and the workflow executes the fixed repository commands `npm run check` and `npm run verify:portable` after `npm ci`.
+`.github/workflows/dev-probe.yml` is the repository-owned development evidence route. It accepts no shell command from an Issue. The `[DEV-PROBE]` Issue is only a trigger, and the workflow executes the fixed repository commands `npm run check` and `npm run verify:portable` after the same dependency-install command used by the existing Catalog Verify workflow: `npm install --ignore-scripts --no-audit --no-fund --package-lock=false`.
 
 The workflow is owner-only, uses read-only repository/Issue permissions, and uploads bounded logs plus exact run metadata as `dev-probe-evidence-<run-id>`. CHAT can read the Actions Job Log and Artifact directly instead of requiring Master to copy terminal output.
 
