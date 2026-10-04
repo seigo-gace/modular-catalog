@@ -46,11 +46,13 @@ Trigger boundaries:
 
 Issue title/body are never converted into shell commands. The commands executed by the workflow are fixed in repository source. The workflow has only `contents: read` and `issues: read` permissions and has no deploy/restart/recreate/secret/provider mutation path.
 
+For Pull Request events, the workflow explicitly checks out `pull_request.head.sha` rather than GitHub's synthetic merge ref. The Artifact `sha` field is populated from `git rev-parse HEAD`, while `event_sha` retains the GitHub event SHA separately. This keeps Source evidence bound to the exact Project revision under test.
+
 Artifact: `dev-probe-evidence-<run-id>`
 
 Artifact contents are bounded to:
 
-- `meta.json` — repository, exact GitHub SHA, event, run ID;
+- `meta.json` — repository, exact checked-out Source SHA, event SHA, event, run ID;
 - `check.log` — canonical `npm run check` output;
 - `portable.log` — canonical portable-reuse verification output.
 

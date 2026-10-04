@@ -29,10 +29,15 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
       - name: Prepare evidence directory
+        shell: bash
         run: |
+          set -euo pipefail
           mkdir -p "$RUNNER_TEMP/dev-probe"
-          printf '{"repository":"%s","sha":"%s","event":"%s","run_id":"%s"}\n' "$GITHUB_REPOSITORY" "$GITHUB_SHA" "$GITHUB_EVENT_NAME" "$GITHUB_RUN_ID" > "$RUNNER_TEMP/dev-probe/meta.json"
+          source_sha="$(git rev-parse HEAD)"
+          printf '{"repository":"%s","sha":"%s","event_sha":"%s","event":"%s","run_id":"%s"}\n' "$GITHUB_REPOSITORY" "$source_sha" "$GITHUB_SHA" "$GITHUB_EVENT_NAME" "$GITHUB_RUN_ID" > "$RUNNER_TEMP/dev-probe/meta.json"
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
