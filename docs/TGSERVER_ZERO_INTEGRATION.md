@@ -54,7 +54,7 @@ Artifact contents are bounded to:
 - `check.log` — canonical `npm run check` output;
 - `portable.log` — canonical portable-reuse verification output.
 
-`meta.json` is created before Node setup so an early environment/setup failure can still leave bounded diagnostic evidence for CHAT. No secret value is intentionally written to the artifact.
+The evidence directory is created under `${RUNNER_TEMP}` rather than the checked-out repository, because ModuleCatalog's revision-bound export correctly refuses a dirty Working Tree. This also keeps the Artifact path non-hidden. `meta.json` is created before Node setup so an early environment/setup failure can still leave bounded diagnostic evidence for CHAT. No secret value is intentionally written to the artifact.
 
 ## TGserver ZERO runtime evidence
 
