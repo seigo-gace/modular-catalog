@@ -14,6 +14,7 @@ import { preflightDelivery, publishDelivery, verifyKbActive } from './kb-deliver
 import { prepareKbOutbox } from './kb-outbox.js';
 import { exportReusableAssets } from './reusable-asset-export.js';
 import { assessRepositoryAssetCandidate, materializeRepositoryAssetCandidate } from './repository-asset-candidate.js';
+import { normalizeModuleCatalogCommand, normalizeModuleCatalogErrorCode, sendModuleCatalogRuntimeLog } from './tgserver-zero-producer.js';
 
 function parseArgs(argv) {
   const positionals = [];
@@ -194,7 +195,22 @@ async function main() {
   throw new CatalogError(`Unknown command: ${command}`, 'UNKNOWN_COMMAND');
 }
 
-main().catch((error) => {
+const runtimeStartedAt = Date.now();
+const runtimeCommand = normalizeModuleCatalogCommand(process.argv[2]);
+
+main().then(async () => {
+  await sendModuleCatalogRuntimeLog({
+    status: 'completed',
+    command: runtimeCommand,
+    durationMs: Date.now() - runtimeStartedAt
+  });
+}).catch(async (error) => {
+  await sendModuleCatalogRuntimeLog({
+    status: 'failed',
+    command: runtimeCommand,
+    durationMs: Date.now() - runtimeStartedAt,
+    errorCode: normalizeModuleCatalogErrorCode(error instanceof CatalogError ? error.code : 'UNEXPECTED_ERROR')
+  });
   if (error instanceof CatalogError) {
     console.error(JSON.stringify({ ok: false, code: error.code, error: error.message, details: error.details ?? null }));
     process.exitCode = 1;
