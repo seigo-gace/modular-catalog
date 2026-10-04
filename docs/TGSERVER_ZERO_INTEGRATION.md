@@ -7,7 +7,7 @@ vNext: `FALSE`
 ## Current TGserver authority boundary
 
 - Existing central Reader base on `seigo-gace/TGserver` main: `9282f3540f9bf47cfad7e7814da8fd7145d44bba`.
-- Current ZERO source candidate: TGserver Draft PR #19, head `50105591dc7a25d68fb2a4e9e8099ab312657b08`.
+- Current ZERO source candidate: TGserver Draft PR #19, observed head `610de9627bd065ff51ad1faf6f09cccb8e0498d1`.
 - PR #19 contains the P012 registry mapping and is OPEN / DRAFT / UNMERGED. Its source changes are not treated as Production Runtime until separately approved and deployed.
 - Live Telegram provisioning is separate runtime evidence; P012 severity topics are already present in G002 from the verified 65/65 topic provision result.
 
@@ -120,11 +120,20 @@ Current split state:
 TGZERO_PROJECT_ID=P012
 TGZERO_REGISTRY_SOURCE=PASS_ON_TGSERVER_PR19_UNMERGED
 TGZERO_TOPIC_PROVISIONED=PASS
-TGZERO_PRODUCER_SOURCE=IMPLEMENTED_ON_PROJECT_BRANCH
+TGZERO_PRODUCER_SOURCE=PASS
+TGZERO_PRODUCER_CI=PASS
 TGZERO_PRODUCER_RUNTIME=NOT_VERIFIED
 TGZERO_TELEGRAM_RAW=NOT_VERIFIED
 TGZERO_SEARCH=NOT_EXECUTED
 ```
+
+Producer Source/CI evidence before this documentation-only synchronization:
+
+- Development Probe #5 / run `37202603388`: SUCCESS
+- Catalog Verify #180 / run `37202603391`: SUCCESS
+- exact producer code head for those runs: `89a3b45d98f04415574e2a88555cd59efc823b1e`
+
+This documentation update itself requires exact-head CI readback before the new documentation commit is considered CI-verified.
 
 Do not promote Source registration or Topic existence into runtime producer PASS. Real producer verification requires the Project Source to reach the target runtime, an actual P012 event to be accepted, Telegram raw persistence to be evidenced, and central Reader retrieval to return the same evidence after the TGserver Reader/registry source is deployed.
 
