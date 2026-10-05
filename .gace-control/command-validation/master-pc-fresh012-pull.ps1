@@ -1,30 +1,28 @@
 Set-Location 'F:\G-ACE-KB\repo'
 $project='Catalog'
-$tmp=Join-Path $env:TEMP 'gace-fresh012-pull.ps1'
-$expectedBlob='b9c2988e1ce78e3e63374522b2fe1757ecf4fd2e'
-$pullRc=97
+$commit='68e7d643d0e6931e646fd8895d189fb4e1ee337d'
+$processing=Join-Path 'F:\G-ACE-KB\data\knowledge-inbox\modulecatalog\processing' $commit
+$receipt=Join-Path 'F:\G-ACE-KB\data\knowledge-intake\modulecatalog\receipts' ($commit+'.json')
+$current='F:\G-ACE-KB\data\knowledge-records\modulecatalog-reusable-active.json'
+$journal='F:\G-ACE-KB\data\knowledge-intake\modulecatalog\activation-transaction.json'
+$stdout=$null
+$stderr=$null
+if(Test-Path $processing){ $stdout=Get-ChildItem $processing -Filter 'kb-receiver-*.stdout.log' -File -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1; $stderr=Get-ChildItem $processing -Filter 'kb-receiver-*.stderr.log' -File -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1 }
+$procs=@(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -match 'receive-modulecatalog-kbdata-windows|activate-modulecatalog-accepted-windows|mcp-vector-search' })
 Write-Output '========== GACE_RESULT_BEGIN =========='
 Write-Output "PROJECT=$project"
 Write-Output "PWD=$(Get-Location)"
-Write-Output 'ACTION=FRESH012_MASTER_PC_OFFICIAL_PULL'
-Remove-Item $tmp -Force -ErrorAction SilentlyContinue
-& scp.exe -q -o BatchMode=yes -o ConnectTimeout=15 'contabo:/home/admin1/projects/Catalog/modular-catalog/scripts/pull-modulecatalog-kb-delivery-windows.ps1' $tmp
-$copyRc=$LASTEXITCODE
-$blob='MISSING'
-if($copyRc -eq 0 -and (Test-Path $tmp)){ $blob=(& git hash-object $tmp).Trim() }
-Write-Output "SCRIPT_COPY_EXIT=$copyRc"
-Write-Output "SCRIPT_BLOB=$blob"
-if($copyRc -eq 0 -and $blob -eq $expectedBlob){
-  & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $tmp -ServerHost 'contabo' -RemoteOutboxRoot '/home/admin1/logs/modulecatalog/outbox' -CatalogCommit '68e7d643d0e6931e646fd8895d189fb4e1ee337d' -ExpectedManifestSha256 '40ea766fd8c1d8c638fe41e76b480964f104d4b5cc4a408b2c6442e2ed6dc801' -Root 'F:\G-ACE-KB' -ConnectTimeoutSec 15
-  $pullRc=$LASTEXITCODE
-}
-$verify='FAIL'
-$error='OFFICIAL_PULL_NOT_RUN_OR_FAILED'
-if($copyRc -eq 0 -and $blob -eq $expectedBlob -and $pullRc -eq 0){ $verify='FRESH012_KB_PULL_HELPER_PASS'; $error='NONE' }
-Remove-Item $tmp -Force -ErrorAction SilentlyContinue
-Write-Output "PULL_EXIT=$pullRc"
-Write-Output "VERIFY=$verify"
-Write-Output "EXIT_CODE=$pullRc"
-Write-Output "ERROR=$error"
+Write-Output 'ACTION=FRESH012_MASTER_PC_READ_ONLY_STALL_DIAGNOSTIC'
+Write-Output "PROCESSING_EXISTS=$(Test-Path $processing)"
+Write-Output "RECEIPT_EXISTS=$(Test-Path $receipt)"
+Write-Output "CURRENT_EXISTS=$(Test-Path $current)"
+Write-Output "JOURNAL_EXISTS=$(Test-Path $journal)"
+Write-Output "PROCESS_COUNT=$($procs.Count)"
+foreach($p in $procs){ Write-Output "PROCESS=$($p.ProcessId)|$($p.Name)|$($p.CommandLine)" }
+if($stdout){ Write-Output "STDOUT_FILE=$($stdout.FullName)"; Write-Output "STDOUT_LASTWRITE=$($stdout.LastWriteTime.ToString('o'))"; Write-Output '----- RECEIVER_STDOUT_TAIL_BEGIN -----'; Get-Content $stdout.FullName -Tail 40; Write-Output '----- RECEIVER_STDOUT_TAIL_END -----' } else { Write-Output 'STDOUT_FILE=NONE' }
+if($stderr){ Write-Output "STDERR_FILE=$($stderr.FullName)"; Write-Output "STDERR_LASTWRITE=$($stderr.LastWriteTime.ToString('o'))"; Write-Output '----- RECEIVER_STDERR_TAIL_BEGIN -----'; Get-Content $stderr.FullName -Tail 40; Write-Output '----- RECEIVER_STDERR_TAIL_END -----' } else { Write-Output 'STDERR_FILE=NONE' }
+Write-Output 'VERIFY=READ_ONLY_STALL_EVIDENCE_COLLECTED'
+Write-Output 'EXIT_CODE=0'
+Write-Output 'ERROR=NONE'
 Write-Output "PROJECT_END=$project"
 Write-Output '========== GACE_RESULT_END =========='
