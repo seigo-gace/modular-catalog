@@ -58,6 +58,8 @@ test('runtime worker checks freshness before accepting an already-sealed outbox'
 test('Master-PC pull checks Contabo current source branch and HEAD before reading or transferring outbox data', async () => {
   const script = await fs.readFile(path.join(root, 'scripts', 'pull-modulecatalog-kb-delivery-windows.ps1'), 'utf8');
   assert.match(script, /\$FinalizationBranch = 'feat\/reusable-knowledge-factory-v1-20261002'/);
+  assert.match(script, /\$RemoteCatalogRepo = '\/home\/admin1\/projects\/Catalog\/modular-catalog'/);
+  assert.doesNotMatch(script, /\$RemoteCatalogRepo = '\/home\/admin1\/projects\/modular-catalog'/);
   assert.match(script, /git -C \$RemoteCatalogRepo rev-parse HEAD/);
   assert.match(script, /git -C \$RemoteCatalogRepo branch --show-current/);
   assert.match(script, /MODULECATALOG_REMOTE_SOURCE_BRANCH_MISMATCH/);
