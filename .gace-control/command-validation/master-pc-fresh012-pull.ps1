@@ -1,8 +1,8 @@
 Set-Location 'F:\G-ACE-KB\repo'
 $project='Catalog'
 $branch='feat/reusable-asset-kb-schema-20261001'
-$beforeExpected='55f0520b316099e8c4c85fdf02a1a5eb13800b99'
-$target='68d0007c8297f01bd82c2bbb68ae55ec2185e5ea'
+$beforeExpected='68d0007c8297f01bd82c2bbb68ae55ec2185e5ea'
+$target='93230420430ecbf6f7a5c0303b01ca637da45775'
 $freshCommit='68e7d643d0e6931e646fd8895d189fb4e1ee337d'
 $manifestExpected='40ea766fd8c1d8c638fe41e76b480964f104d4b5cc4a408b2c6442e2ed6dc801'
 $gaceRc=0
