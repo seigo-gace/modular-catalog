@@ -93,6 +93,8 @@ optional SSH port
 
 `ExpectedManifestSha256` is not discovered from the remote Server. It comes from the exact GPT-approved admission identity. The Master PC therefore independently enforces the same immutable `catalog commit + manifest SHA-256` that the Runtime Admission Worker used before sealing.
 
+The Server freshness readback uses the existing integrated Catalog source checkout at `/home/admin1/projects/Catalog/modular-catalog`. The pull transport must not create or fall back to a separate `/home/admin1/projects/modular-catalog` Project/clone.
+
 The script uses only the existing Windows `ssh.exe` / `scp.exe` client surface. It uses `BatchMode=yes`, keeps normal host-key verification, and never enables or configures an inbound service.
 
 The pull flow is:
