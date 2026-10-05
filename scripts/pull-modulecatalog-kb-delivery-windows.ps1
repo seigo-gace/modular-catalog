@@ -27,7 +27,7 @@ $CatalogCommit = $CatalogCommit.ToLowerInvariant()
 $ExpectedManifestSha256 = $ExpectedManifestSha256.ToLowerInvariant()
 $RemoteOutboxRoot = $RemoteOutboxRoot.TrimEnd('/')
 $FinalizationBranch = 'feat/reusable-knowledge-factory-v1-20261002'
-$RemoteCatalogRepo = '/home/admin1/projects/modular-catalog'
+$RemoteCatalogRepo = '/home/admin1/projects/Catalog/modular-catalog'
 
 if (($RemoteOutboxRoot -split '/') -contains '..' -or ($RemoteOutboxRoot -split '/') -contains '.') {
     throw "MODULECATALOG_REMOTE_OUTBOX_PATH_UNSAFE=$RemoteOutboxRoot"
