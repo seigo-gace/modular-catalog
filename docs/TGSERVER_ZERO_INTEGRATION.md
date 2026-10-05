@@ -1,9 +1,15 @@
 # TGserver ZERO Integration — ModuleCatalog
 
 Status: Current integration authority for development evidence and runtime-log retrieval
-TGserver ZERO authority: `seigo-gace/TGserver@9282f3540f9bf47cfad7e7814da8fd7145d44bba`
 Generation: `TGserver ZERO`
 vNext: `FALSE`
+
+## Current TGserver authority boundary
+
+- Existing central Reader base on `seigo-gace/TGserver` main: `9282f3540f9bf47cfad7e7814da8fd7145d44bba`.
+- Current ZERO source candidate: TGserver Draft PR #19, observed head `610de9627bd065ff51ad1faf6f09cccb8e0498d1`.
+- PR #19 contains the P012 registry mapping and is OPEN / DRAFT / UNMERGED. Its source changes are not treated as Production Runtime until separately approved and deployed.
+- Live Telegram provisioning is separate runtime evidence; P012 severity topics are already present in G002 from the verified 65/65 topic provision result.
 
 ## Purpose
 
@@ -16,13 +22,15 @@ Source / Test / Verify evidence
   -> CHAT readback
 
 Runtime / Server log evidence
+  -> ModuleCatalog P012 producer
+  -> TGserver ZERO /ingest/bulk
+  -> Telegram durable raw log + rebuildable search index
   -> TGserver ZERO central Reader in seigo-gace/TGserver
-  -> legacy /search behind Cloudflare Access
   -> sanitized Artifact
   -> CHAT readback
 ```
 
-ModuleCatalog does not call TGserver `/search` directly and does not store Cloudflare Access or TGserver credentials.
+ModuleCatalog does not call TGserver `/search` directly and does not store Cloudflare Access or a per-producer TGserver log secret.
 
 ## Development Probe
 
@@ -58,7 +66,32 @@ Artifact contents are bounded to:
 
 The evidence directory is created under `${RUNNER_TEMP}` rather than the checked-out repository, because ModuleCatalog's revision-bound export correctly refuses a dirty Working Tree. This also keeps the Artifact path non-hidden. `meta.json` is created before Node setup so an early environment/setup failure can still leave bounded diagnostic evidence for CHAT. No secret value is intentionally written to the artifact.
 
-## TGserver ZERO runtime evidence
+## P012 runtime producer
+
+Source: `src/tgserver-zero-producer.js`, wired from `src/cli.js`.
+
+Contract:
+
+- fixed ZERO project identity: `P012`;
+- canonical endpoint: `POST /ingest/bulk` with `logs[]`;
+- severity: CLI completion=`info`, CLI failure=`error`;
+- message contains only fixed event name, allowlisted command name, bounded duration, and bounded internal error code;
+- arbitrary exception text, asset content, prompts, KB payload, filesystem content, credentials, and Secret values are not forwarded;
+- no per-producer TGserver log secret/header is introduced;
+- receipt count must match and every result must be `accepted` or `duplicate`;
+- configured timeout is bounded to 10 seconds, default 1.5 seconds;
+- transport/receipt failure returns fail-open status and does not change the ModuleCatalog command result.
+
+Configuration example: `.env.tgserver-zero.example`.
+
+```text
+TGSERVER_LOG_URL=http://127.0.0.1:3000
+TGSERVER_LOG_TIMEOUT_MS=1500
+```
+
+This Source contract alone does not prove the deployed server has the variables configured or that Telegram raw storage succeeded.
+
+## TGserver ZERO runtime evidence intake
 
 TGserver ZERO central Reader remains owned by `seigo-gace/TGserver`.
 
@@ -77,21 +110,32 @@ The local Factory helper validates:
 - registered `P<number>` project ID supplied by the central Reader metadata;
 - observed hit project IDs match that metadata.
 
-The Project ID is never inferred or hard-coded by ModuleCatalog.
+Direct Project-to-TGserver search adapter injection is rejected with `TGS_DIRECT_ACCESS_DISABLED`.
 
-Direct Project-to-TGserver adapter injection is rejected with `TGS_DIRECT_ACCESS_DISABLED`.
+## Current registration / verification state
 
-## Current registration state
-
-At the TGserver ZERO authority revision listed above, ModuleCatalog is not present in the ZERO project registry.
+Current split state:
 
 ```text
-TGZERO_PROJECT_REGISTERED=UNREGISTERED
-TGZERO_PRODUCER=NOT_VERIFIED
+TGZERO_PROJECT_ID=P012
+TGZERO_REGISTRY_SOURCE=PASS_ON_TGSERVER_PR19_UNMERGED
+TGZERO_TOPIC_PROVISIONED=PASS
+TGZERO_PRODUCER_SOURCE=PASS
+TGZERO_PRODUCER_CI=PASS
+TGZERO_PRODUCER_RUNTIME=NOT_VERIFIED
+TGZERO_TELEGRAM_RAW=NOT_VERIFIED
 TGZERO_SEARCH=NOT_EXECUTED
 ```
 
-No existing P-number is reused. Formal registry/producer onboarding belongs to a separate TGserver-owned change. Until that is completed, ModuleCatalog runtime-log evidence must remain unavailable rather than guessed.
+Producer Source/CI evidence before this documentation-only synchronization:
+
+- Development Probe #5 / run `37202603388`: SUCCESS
+- Catalog Verify #180 / run `37202603391`: SUCCESS
+- exact producer code head for those runs: `89a3b45d98f04415574e2a88555cd59efc823b1e`
+
+This documentation update itself requires exact-head CI readback before the new documentation commit is considered CI-verified.
+
+Do not promote Source registration or Topic existence into runtime producer PASS. Real producer verification requires the Project Source to reach the target runtime, an actual P012 event to be accepted, Telegram raw persistence to be evidenced, and central Reader retrieval to return the same evidence after the TGserver Reader/registry source is deployed.
 
 ## CHAT operating procedure
 
@@ -102,19 +146,22 @@ For Source/Test/Verify evidence:
 3. read the matching `dev-probe-evidence-<run-id>` Artifact;
 4. keep Source/Test/CI status separate from Runtime status.
 
-For Runtime/Server logs after formal TGserver ZERO registration:
+For Runtime/Server logs after approved Source deployment:
 
-1. use `seigo-gace/TGserver` central Reader only;
-2. request the exact registered repository + explicit stream;
-3. read `tgserver-zero-search-meta.json` first to bind repo/stream/project_id;
-4. read `tgserver-zero-search-result.json` as sanitized runtime evidence;
-5. never copy Cloudflare Access/TGserver secrets into ModuleCatalog.
+1. emit only through the P012 runtime producer;
+2. use `seigo-gace/TGserver` central Reader for retrieval;
+3. request the exact registered repository + explicit stream;
+4. read `tgserver-zero-search-meta.json` first to bind repo/stream/project_id;
+5. read `tgserver-zero-search-result.json` as sanitized runtime evidence;
+6. never copy Cloudflare Access/TGserver secrets into ModuleCatalog.
 
 ## State boundary
 
 ```text
 Source implemented != CI PASS
 CI PASS != Runtime log producer verified
+Topic provisioned != Telegram raw log verified
+Runtime send PASS != Central Reader search PASS
 Runtime search PASS != Source/Test PASS
 ```
 
