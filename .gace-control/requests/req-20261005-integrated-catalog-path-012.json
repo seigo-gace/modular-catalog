@@ -1,0 +1,10 @@
+{
+  "schema_version": "modulecatalog.chat-factory-request.v1",
+  "request_id": "req-20261005-integrated-catalog-path-012",
+  "repository": "seigo-gace/modular-catalog",
+  "catalog_commit": "68e7d643d0e6931e646fd8895d189fb4e1ee337d",
+  "scope": "full_snapshot",
+  "review_rule_version": "gpt-final-review-v2",
+  "requested_by": "gpt-chat",
+  "purpose": "Regenerate the final reusable-data snapshot from the current ModuleCatalog finalization HEAD after correcting the Master-PC pull freshness check to use the existing integrated Catalog Server repository at /home/admin1/projects/Catalog/modular-catalog. Fresh011 remains sealed historical evidence only because the finalization Source advanced. Preserve the existing 80-asset v1 contract, exact provenance, Universal Reusable Asset boundaries, Code-only 5V boundary, machine admission gates, portable reuse verification, and the existing Catalog-to-KB transport/consumer boundaries. Do not create a separate Server Project or clone, and exclude TGserver ZERO producer/onboarding work because it is handled separately."
+}
