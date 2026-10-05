@@ -1,0 +1,34 @@
+name: Control Master Command Parse
+
+on:
+  push:
+    branches:
+      - control/modulecatalog-chat-orchestration-v1
+    paths:
+      - '.gace-control/command-validation/*.ps1'
+
+permissions:
+  contents: read
+
+jobs:
+  parse:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse exact Master command
+        shell: powershell
+        run: |
+          $path = '.gace-control/command-validation/master-pc-fresh012-pull.ps1'
+          if (-not (Test-Path $path)) { throw "COMMAND_FILE_MISSING=$path" }
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $path), [ref]$tokens, [ref]$errors) | Out-Null
+          if ($errors.Count -ne 0) {
+            $errors | ForEach-Object { Write-Host $_.Message }
+            throw "POWERSHELL_PARSE_ERRORS=$($errors.Count)"
+          }
+          $text = Get-Content $path -Raw
+          $lineCount = @($text -split "`r?`n").Count
+          if ($lineCount -gt 66) { throw "COMMAND_LINES_EXCEEDED=$lineCount" }
+          if ($text.Length -gt 6072) { throw "COMMAND_CHARS_EXCEEDED=$($text.Length)" }
+          Write-Host "GACE_MASTER_COMMAND_PARSE=PASS LINES=$lineCount CHARS=$($text.Length) ERRORS=0"
