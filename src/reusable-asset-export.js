@@ -2,10 +2,15 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { CatalogError, sha256, tokenize, validateAssetDirectory } from './catalog.js';
+import { assertReusableAssetSchema, createReusableAssetValidator } from './reusable-asset-schema.js';
+import { assertFiveVComposition, buildReusableAssetProfile } from './reusable-asset-profile.js';
+import { projectExplicitReuseFacts } from './reuse-fact-projection.js';
+import { analyzeSourceFiles } from './structural-analyzer.js';
 
 const CATALOG_REPOSITORY = 'seigo-gace/modular-catalog';
 const BUNDLE_FORMAT = 'gace.reusable-asset.v1';
-const SECTION_FILES = ['README.md', 'design.md', 'logic.md', 'architecture.md', 'evidence.json', 'manifest.json'];
+const SECTION_FILES = ['design.md', 'logic.md', 'architecture.md', 'evidence.json', 'manifest.json'];
+const GENERIC_EXPORT_NAMES = new Set(['run', 'main', 'execute', 'handler', 'default']);
 
 function canonicalJson(value) {
   if (Array.isArray(value)) return '[' + value.map(canonicalJson).join(',') + ']';
@@ -15,10 +20,38 @@ function canonicalJson(value) {
 
 async function exists(target) { try { await fs.access(target); return true; } catch { return false; } }
 
+function assertCatalogWorktreeClean(rootDir) {
+  let status;
+  try {
+    status = execFileSync('git', ['status', '--porcelain=v1', '--untracked-files=all'], { cwd: rootDir, encoding: 'utf8' });
+  } catch {
+    throw new CatalogError('Catalog working tree status could not be resolved.', 'CATALOG_WORKTREE_STATUS_UNAVAILABLE');
+  }
+  const entries = status.split(/\r?\n/).map((line) => line.trimEnd()).filter(Boolean);
+  if (entries.length) {
+    const error = new CatalogError('Catalog working tree must be clean before a revision-bound export.', 'CATALOG_WORKTREE_DIRTY');
+    error.details = { entries: entries.slice(0, 20), truncated: entries.length > 20 };
+    throw error;
+  }
+}
+
 function getCatalogCommit(rootDir, explicitCommit) {
-  if (explicitCommit) return explicitCommit;
-  try { return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: rootDir, encoding: 'utf8' }).trim(); }
-  catch { throw new CatalogError('Catalog commit could not be resolved. Pass --catalog-commit or run inside a Git checkout.', 'MISSING_CATALOG_COMMIT'); }
+  let head;
+  try {
+    head = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: rootDir, encoding: 'utf8' }).trim();
+  } catch {
+    throw new CatalogError('Catalog commit could not be resolved from the checkout.', 'MISSING_CATALOG_COMMIT');
+  }
+  if (!/^[a-f0-9]{40}$/i.test(head)) throw new CatalogError(`Resolved Catalog HEAD is invalid: ${head}`, 'INVALID_CATALOG_COMMIT');
+  if (explicitCommit != null) {
+    const requested = String(explicitCommit).trim();
+    if (!/^[a-f0-9]{40}$/i.test(requested)) throw new CatalogError(`Invalid --catalog-commit: ${requested}`, 'INVALID_CATALOG_COMMIT');
+    if (requested.toLowerCase() !== head.toLowerCase()) {
+      throw new CatalogError(`Requested Catalog commit ${requested} does not match checked-out HEAD ${head}.`, 'CATALOG_REVISION_MISMATCH');
+    }
+  }
+  assertCatalogWorktreeClean(rootDir);
+  return head;
 }
 
 function classifyAsset(meta) {
@@ -77,10 +110,67 @@ async function collectFiles(directory, prefix) {
 }
 
 async function collectSourceAndTests(assetDir) {
+  const sourceDir = await exists(path.join(assetDir, 'source')) ? 'source' : (await exists(path.join(assetDir, 'code')) ? 'code' : null);
   return {
-    source: await collectFiles(path.join(assetDir, 'source'), 'source'),
+    source: sourceDir ? await collectFiles(path.join(assetDir, sourceDir), sourceDir) : {},
+    sourceDir,
     tests: await collectFiles(path.join(assetDir, 'tests'), 'tests')
   };
+}
+
+function uniqueSorted(values) {
+  return [...new Set(values.filter((value) => typeof value === 'string' && value.trim()).map((value) => value.trim()))].sort((a, b) => a.localeCompare(b));
+}
+
+function structuralProjection(analyses) {
+  const facts = [];
+  const knownUnverified = [];
+  for (const result of analyses) {
+    if (result.status === 'PARSE_ERROR') {
+      knownUnverified.push(`STRUCTURAL_PARSE_ERROR:${result.source_path}`);
+      continue;
+    }
+    if (result.status === 'UNSUPPORTED_LANGUAGE') {
+      knownUnverified.push(`STRUCTURAL_UNSUPPORTED_LANGUAGE:${result.source_path}`);
+      continue;
+    }
+    if (result.status !== 'ANALYZED') continue;
+    for (const fact of result.facts) facts.push({ ...fact, source_path: result.source_path });
+  }
+
+  const exportedNames = uniqueSorted(facts.filter((fact) => fact.kind === 'export').map((fact) => fact.name));
+  const functionFacts = facts.filter((fact) => fact.kind === 'function' && fact.name);
+  const functionByName = new Map();
+  for (const fact of functionFacts) {
+    if (!functionByName.has(fact.name)) functionByName.set(fact.name, fact);
+  }
+
+  const contractInputs = [];
+  const contractOutputs = [];
+  for (const name of exportedNames) {
+    const fn = functionByName.get(name);
+    if (!fn) continue;
+    if (fn.parameters) contractInputs.push(`${name}${fn.parameters}`);
+    for (const expression of Array.isArray(fn.returns) ? fn.returns : []) contractOutputs.push(`${name} -> ${expression}`);
+  }
+
+  const requires = uniqueSorted(facts.filter((fact) => fact.kind === 'import' || fact.kind === 'require').map((fact) => fact.source));
+  const semanticTerms = uniqueSorted(tokenize([
+    ...exportedNames,
+    ...functionFacts.map((fact) => fact.parameters ?? ''),
+    ...requires
+  ].join(' ')).filter((term) => !GENERIC_EXPORT_NAMES.has(String(term).toLowerCase())));
+
+  return Object.freeze({
+    primarySymbol: exportedNames.length === 1 ? exportedNames[0] : null,
+    exportedNames,
+    semanticTerms,
+    contractInputs: uniqueSorted(contractInputs),
+    contractOutputs: uniqueSorted(contractOutputs),
+    requires,
+    knownUnverified: uniqueSorted(knownUnverified),
+    analyzedSourcePaths: analyses.filter((item) => item.status === 'ANALYZED').map((item) => item.source_path).sort()
+  });
 }
 
 function normalizeCase({ assetId, caseType, sourcePath, content, evidence }) {
@@ -106,19 +196,34 @@ async function buildReusableAsset(rootDir, assetId, catalogCommit, allAssetIds) 
   const assetDir = path.join(rootDir, 'assets', assetId);
   const { meta, evidence, manifest } = await validateAssetDirectory(assetDir, { verifyManifest: true });
   const sections = {};
-  for (const file of SECTION_FILES) sections[file] = await fs.readFile(path.join(assetDir, file), 'utf8');
-  const { source, tests } = await collectSourceAndTests(assetDir);
+  for (const file of SECTION_FILES) {
+    const target = path.join(assetDir, file);
+    sections[file] = await exists(target) ? await fs.readFile(target, 'utf8') : null;
+  }
+  const readmePath = path.join(assetDir, 'README.md');
+  sections['README.md'] = await exists(readmePath) ? await fs.readFile(readmePath, 'utf8') : null;
+  const { source, sourceDir, tests } = await collectSourceAndTests(assetDir);
   const classification = classifyAsset(meta);
-  const keywords = tokenize([meta.id, meta.name, meta.summary, meta.purpose, meta.responsibility, ...meta.layers, ...meta.languages, ...meta.runtimes, ...meta.tags, ...meta.dependencies, ...meta.constraints, sections.design, sections.logic, sections.architecture].join(' '));
+  const reusability = buildReusableAssetProfile({ meta, classification, evidence });
+  const keywords = tokenize([
+    meta.id, meta.name, meta.summary, meta.purpose, meta.responsibility,
+    ...meta.layers, ...meta.languages, ...meta.runtimes, ...meta.tags, ...meta.dependencies, ...meta.constraints,
+    ...reusability.value.asset_types,
+    reusability.value.five_v.level,
+    sections['design.md'], sections['logic.md'], sections['architecture.md']
+  ].filter(Boolean).join(' '));
   const sourcePaths = Object.keys(source).sort();
   const testPaths = Object.keys(tests).sort();
+  const analyses = await analyzeSourceFiles(sourcePaths.map((sourcePath) => ({ sourcePath, content: source[sourcePath] })));
+  const structure = structuralProjection(analyses);
+  const reuseFacts = projectExplicitReuseFacts({ meta, sections, structure, evidence });
 
   const knowledgeUnits = [
     makeKnowledgeUnit({ knowledgeId: assetId + '::overview', parentAssetId: assetId, kind: 'discovery', title: meta.name, content: makeOverview(meta), sourcePaths: ['meta.json'] }),
-    makeKnowledgeUnit({ knowledgeId: assetId + '::readme', parentAssetId: assetId, kind: 'documentation', title: meta.name + ' README', content: sections['README.md'], sourcePaths: ['README.md'] }),
-    makeKnowledgeUnit({ knowledgeId: assetId + '::design', parentAssetId: assetId, kind: 'design', title: meta.name + ' Design', content: sections['design.md'], sourcePaths: ['design.md'] }),
-    makeKnowledgeUnit({ knowledgeId: assetId + '::logic', parentAssetId: assetId, kind: 'logic', title: meta.name + ' Logic', content: sections['logic.md'], sourcePaths: ['logic.md'] }),
-    makeKnowledgeUnit({ knowledgeId: assetId + '::architecture', parentAssetId: assetId, kind: 'architecture', title: meta.name + ' Architecture', content: sections['architecture.md'], sourcePaths: ['architecture.md'] }),
+    ...(sections['README.md']?.trim() ? [makeKnowledgeUnit({ knowledgeId: assetId + '::readme', parentAssetId: assetId, kind: 'documentation', title: meta.name + ' README', content: sections['README.md'], sourcePaths: ['README.md'] })] : []),
+    ...(sections['design.md']?.trim() ? [makeKnowledgeUnit({ knowledgeId: assetId + '::design', parentAssetId: assetId, kind: 'design', title: meta.name + ' Design', content: sections['design.md'], sourcePaths: ['design.md'] })] : []),
+    ...(sections['logic.md']?.trim() ? [makeKnowledgeUnit({ knowledgeId: assetId + '::logic', parentAssetId: assetId, kind: 'logic', title: meta.name + ' Logic', content: sections['logic.md'], sourcePaths: ['logic.md'] })] : []),
+    ...(sections['architecture.md']?.trim() ? [makeKnowledgeUnit({ knowledgeId: assetId + '::architecture', parentAssetId: assetId, kind: 'architecture', title: meta.name + ' Architecture', content: sections['architecture.md'], sourcePaths: ['architecture.md'] })] : []),
     makeKnowledgeUnit({ knowledgeId: assetId + '::evidence', parentAssetId: assetId, kind: 'evidence', title: meta.name + ' Verification Evidence', content: sections['evidence.json'], sourcePaths: ['evidence.json'] }),
     ...sourcePaths.map((sourcePath) => makeKnowledgeUnit({ knowledgeId: assetId + '::code::' + sourcePath, parentAssetId: assetId, kind: 'code', title: meta.name + ' ' + sourcePath, content: source[sourcePath], sourcePaths: [sourcePath] })),
     ...testPaths.map((testPath) => makeKnowledgeUnit({ knowledgeId: assetId + '::test::' + testPath, parentAssetId: assetId, kind: 'test_case', title: meta.name + ' ' + testPath, content: tests[testPath], sourcePaths: [testPath] }))
@@ -142,30 +247,49 @@ async function buildReusableAsset(rootDir, assetId, catalogCommit, allAssetIds) 
     if (!allAssetIds.has(dependency)) continue;
     relationships.push({ schema_version: 1, relationship_id: assetId + '::depends_on::' + dependency, from: assetId, relation: 'depends_on', to: dependency, verified: true, derivation: { type: 'canonical-projection', derived_from: ['meta.json#/dependencies'] } });
   }
+  for (const child of reusability.value.five_v.composed_from) {
+    relationships.push({ schema_version: 1, relationship_id: assetId + '::five_v_composed_from::' + child, from: assetId, relation: 'five_v_composed_from', to: child, verified: true, derivation: { type: 'canonical-projection', derived_from: ['meta.json#/fiveV/composedFrom'] } });
+  }
 
+  const recordedSectionNames = ['design.md', 'logic.md', 'architecture.md'].filter((file) => sections[file]?.trim());
+  const derivedFields = [
+    { field: 'identity.asset_kind', type: classification.mode, source: classification.source, verified: classification.mode === 'canonical' },
+    ...reusability.derivation,
+    { field: 'discovery.keywords', type: 'deterministic-derived', source: 'meta + recorded reusable documents + reusable asset profile', verified: false },
+    { field: 'contract.mutation_authority', type: 'deterministic-derived', source: 'meta.constraints', verified: false },
+    ...reuseFacts.derived_fields
+  ];
+  if (structure.primarySymbol) derivedFields.push({ field: 'identity.symbol', type: 'deterministic-derived', source: 'ast-grep exact export set from registered source/code files', verified: false });
+  if (structure.semanticTerms.length) derivedFields.push({ field: 'discovery.semantic_terms', type: 'deterministic-derived', source: 'ast-grep exported symbols + function parameters + imports/requires', verified: false });
+  if (structure.contractInputs.length) derivedFields.push({ field: 'contract.inputs', type: 'deterministic-derived', source: 'ast-grep exported function signatures', verified: false });
+  if (structure.contractOutputs.length) derivedFields.push({ field: 'contract.outputs', type: 'deterministic-derived', source: 'ast-grep exact return expressions of exported functions', verified: false });
+  if (structure.requires.length) derivedFields.push({ field: 'composition.requires', type: 'deterministic-derived', source: 'ast-grep exact import/require sources', verified: false });
+
+  const canonicalSources = [
+    'meta.json',
+    ...(sections['README.md']?.trim() ? ['README.md'] : []),
+    ...recordedSectionNames,
+    'evidence.json', 'manifest.json',
+    ...(sourceDir && sourcePaths.length ? [sourceDir + '/'] : []),
+    'tests/'
+  ];
   const asset = {
     schema_version: 1,
-    identity: { asset_id: meta.id, name: meta.name, version: meta.version, asset_kind: classification.value, symbol: null },
+    identity: { asset_id: meta.id, name: meta.name, version: meta.version, asset_kind: classification.value, symbol: structure.primarySymbol },
     classification: { domains: [], layers: meta.layers, languages: meta.languages, runtimes: meta.runtimes, tags: meta.tags },
-    discovery: { summary: meta.summary, purpose: meta.purpose, responsibility: meta.responsibility, capabilities: [], keywords, semantic_terms: [] },
-    applicability: { use_when: [], do_not_use_when: [], preconditions: [], required_context: [], failure_conditions: [] },
-    contract: { status: 'unknown', inputs: [], outputs: [], required_fields: [], optional_fields: [], error_behavior: null, side_effects: null, mutation_authority: mutationAuthority(meta) },
-    composition: { depends_on: meta.dependencies, requires: [], recommended_before: [], recommended_after: [], complements: [], alternative_to: [], conflicts_with: [], supersedes: [] },
+    reusability: reusability.value,
+    discovery: { summary: meta.summary, purpose: meta.purpose, responsibility: meta.responsibility, capabilities: [], keywords, semantic_terms: structure.semanticTerms },
+    applicability: reuseFacts.applicability,
+    contract: { status: reuseFacts.contract.status, inputs: structure.contractInputs, outputs: structure.contractOutputs, required_fields: [], optional_fields: [], error_behavior: reuseFacts.contract.error_behavior, side_effects: reuseFacts.contract.side_effects, mutation_authority: mutationAuthority(meta) },
+    composition: { depends_on: meta.dependencies, requires: structure.requires, recommended_before: [], recommended_after: [], complements: [], alternative_to: [], conflicts_with: [], supersedes: [] },
     implementation: { languages: meta.languages, runtimes: meta.runtimes, entrypoints: sourcePaths, source_files: sourcePaths, dependencies: meta.dependencies },
-    verification: { status: evidence.normal.passed === true && evidence.user.passed === true ? 'verified' : 'unknown', normal_test: evidence.normal, user_test: evidence.user, verified_at: meta.verifiedAt, validation_boundary: 'Only the checks explicitly recorded in evidence.json are represented as verified.', known_unverified: [] },
+    verification: { status: evidence.normal.passed === true && evidence.user.passed === true ? 'verified' : 'unknown', normal_test: evidence.normal, user_test: evidence.user, verified_at: meta.verifiedAt, validation_boundary: 'Only the checks explicitly recorded in evidence.json are represented as verified.', known_unverified: structure.knownUnverified },
     provenance: { origin: { repository: meta.source.repository, commit: meta.source.commit }, catalog: { repository: CATALOG_REPOSITORY, commit: catalogCommit, asset_path: 'assets/' + assetId, asset_id: assetId } },
     lifecycle: { status: 'verified', introduced_version: meta.version, deprecated_at: null, superseded_by: null },
     integrity: { asset_hash: manifest.assetHash, meta_hash: sha256(canonicalJson(meta)), manifest_algorithm: manifest.algorithm, files: manifest.files },
-    derivation: {
-      canonical_sources: ['meta.json', 'README.md', 'design.md', 'logic.md', 'architecture.md', 'evidence.json', 'manifest.json', 'source/', 'tests/'],
-      derived_fields: [
-        { field: 'identity.asset_kind', type: classification.mode, source: classification.source, verified: classification.mode === 'canonical' },
-        { field: 'discovery.keywords', type: 'deterministic-derived', source: 'meta + design + logic + architecture', verified: false },
-        { field: 'contract.mutation_authority', type: 'deterministic-derived', source: 'meta.constraints', verified: false }
-      ]
-    }
+    derivation: { canonical_sources: canonicalSources, derived_fields: derivedFields }
   };
-  return { asset, knowledgeUnits, relationships, cases, sourceCount: sourcePaths.length, testCount: testPaths.length };
+  return { asset, knowledgeUnits, relationships, cases, sourceCount: sourcePaths.length, testCount: testPaths.length, structuralAnalysis: analyses };
 }
 
 async function writeJson(file, value) { await fs.writeFile(file, JSON.stringify(value, null, 2) + '\n', 'utf8'); }
@@ -195,6 +319,7 @@ export async function exportReusableAssets(rootDir, outputDir, { assetId = null,
   const output = path.resolve(outputDir);
   assertOutsideRoot(root, output);
   const commit = getCatalogCommit(root, catalogCommit);
+  const schemaValidator = await createReusableAssetValidator(root);
   const assetsRoot = path.join(root, 'assets');
   if (!await exists(assetsRoot)) throw new CatalogError('assets/ directory is required.', 'MISSING_ASSETS');
   const allCatalogAssetIds = (await fs.readdir(assetsRoot, { withFileTypes: true })).filter((entry) => entry.isDirectory() && !entry.name.startsWith('.')).map((entry) => entry.name).sort();
@@ -210,9 +335,17 @@ export async function exportReusableAssets(rootDir, outputDir, { assetId = null,
   const allAssetIds = new Set(allCatalogAssetIds);
   await fs.rm(output, { recursive: true, force: true });
   await fs.mkdir(output, { recursive: true });
-  const exported = [];
+
+  const builtRecords = [];
   for (const id of assetIds) {
     const built = await buildReusableAsset(root, id, commit, allAssetIds);
+    assertReusableAssetSchema(schemaValidator, built.asset, id);
+    builtRecords.push({ id, built });
+  }
+  assertFiveVComposition(builtRecords.map(({ built }) => built));
+
+  const exported = [];
+  for (const { id, built } of builtRecords) {
     const dir = path.join(output, 'assets', id);
     await fs.mkdir(dir, { recursive: true });
     await writeJson(path.join(dir, 'asset.json'), built.asset);
