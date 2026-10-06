@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('claim-extractor normal',()=>{assert.deepEqual(s.run({items:[{type:'claim',text:' A '},{type:'note',text:'B'}]}).claims.map(x=>x.text),['A']);});

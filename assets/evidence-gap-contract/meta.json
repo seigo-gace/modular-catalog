@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "evidence-gap-contract",
+  "name": "Evidence Gap Contract",
+  "version": "1.0.0",
+  "summary": "Classify evidence gaps without converting not-found or failed search into evidence of absence.",
+  "purpose": "Classify evidence gaps without converting not-found or failed search into evidence of absence.",
+  "responsibility": "Classify evidence gaps without converting not-found or failed search into evidence of absence.",
+  "layers": [
+    "Part"
+  ],
+  "languages": [
+    "JavaScript"
+  ],
+  "runtimes": [
+    "Node.js 22+"
+  ],
+  "tags": [
+    "gace",
+    "skill",
+    "minimal-module"
+  ],
+  "dependencies": [],
+  "constraints": [
+    "single responsibility",
+    "fail closed where input is insufficient",
+    "no direct mutation authority"
+  ],
+  "source": {
+    "repository": "local-lab://chatgpt/individual-skill-modules",
+    "commit": "local-verified-2026-09-30"
+  },
+  "verifiedAt": "2026-09-30T00:00:00+09:00"
+}

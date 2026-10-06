@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "integration-design",
+  "name": "Integration Design",
+  "version": "0.1.0",
+  "summary": "Producer/Consumer間のContract、transport、failure policyを明示したIntegration planを構成する。",
+  "purpose": "Producer/Consumer間のContract、transport、failure policyを明示したIntegration planを構成する。",
+  "responsibility": "Producer/Consumer間のContract、transport、failure policyを明示したIntegration planを構成する。",
+  "layers": ["Component"],
+  "languages": ["JavaScript"],
+  "runtimes": ["Node.js 22+"],
+  "tags": ["g-ace","skill","integration-design"],
+  "dependencies": [],
+  "constraints": ["pure deterministic","fail-closed where required","no external mutation authority"],
+  "source": {"repository":"local-lab://chatgpt/individual-skill-modules","commit":"local-verified-2026-09-29"},
+  "verifiedAt": "2026-09-29T23:39:00+09:00"
+}

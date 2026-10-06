@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('fail-closed-blocking-issue-contract user scenario',()=>{assert.equal(s.run({blocking:['provider-readback-missing']}).status,'BLOCKED');});

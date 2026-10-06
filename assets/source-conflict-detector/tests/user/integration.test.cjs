@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source'); test('same value is not conflict',()=>a.equal(s.detectSourceConflicts({claims:[{key:'k',value:1,source_id:'a'},{key:'k',value:1,source_id:'b'}]}).has_conflict,false));

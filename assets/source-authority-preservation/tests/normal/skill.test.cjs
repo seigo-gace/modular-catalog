@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('source-authority-preservation normal',()=>{assert.equal(s.run({claims:[{source_type:'readme',value:1},{source_type:'notion_spec',value:2}]}).selected.value,2);});

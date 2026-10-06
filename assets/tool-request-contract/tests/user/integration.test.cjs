@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('tool-request-contract user scenario',()=>{assert.equal(s.run({tool:'write',args:{p:'x'},reason:'fix',authority_ref:'A',mutation:true}).reason,'APPROVAL_REQUIRED');});

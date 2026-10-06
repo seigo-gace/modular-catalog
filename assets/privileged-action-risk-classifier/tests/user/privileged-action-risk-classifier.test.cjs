@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {run}=require('../../source/index.js'); const r=run({action:{flags:['read_only']},policy:{high_risk_flags:['delete'],medium_risk_flags:['external_send']}}); assert.equal(r.risk,'LOW');

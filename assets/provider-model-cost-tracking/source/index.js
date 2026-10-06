@@ -1,0 +1,2 @@
+"use strict";
+function run(i={}){const prices=i.prices||{}, rows=[]; let total=0, unknown=[]; for(const u of i.usage||[]){const key=u.provider+':'+u.model, p=prices[key]; if(!p){unknown.push(key);continue;} const c=((u.inputTokens||0)/1000)*p.inputPer1k+((u.outputTokens||0)/1000)*p.outputPer1k+(u.requests||0)*(p.perRequest||0); total+=c;rows.push({key,cost:Number(c.toFixed(8))});} return{status:unknown.length?'PARTIAL':'PASS',total:Number(total.toFixed(8)),rows,unknown:[...new Set(unknown)].sort()};} module.exports={run};

@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('task-capability-graph-binding user scenario',()=>{const r=s.run({tasks:[{id:'deploy',requires:['provider-readback']}],capabilities:[]});assert.equal(r.status,'BLOCKED');assert.deepEqual(r.missing[0].capabilities,['provider-readback']);});

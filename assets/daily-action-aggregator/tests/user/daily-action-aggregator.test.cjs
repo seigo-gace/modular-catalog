@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {run}=require('../../source/index.js'); const r=run({now_at:'2026-09-30T00:00:00Z',items:[{id:'done',requires_action:true,status:'DONE'},{id:'todo',requires_action:true,status:'OPEN'}]}); assert.deepEqual(r.actions.map(x=>x.id),['todo']);

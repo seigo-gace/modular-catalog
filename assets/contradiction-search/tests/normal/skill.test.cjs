@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source');test('contradiction',()=>a.equal(s.run({claims:[{id:'1',subject:'x',predicate:'enabled',value:true},{id:'2',subject:'x',predicate:'enabled',value:false}]}).status,'CONTRADICTION'));

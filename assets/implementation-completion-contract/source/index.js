@@ -1,0 +1,2 @@
+"use strict";
+function run(i={}){const required=i.required||[]; const ev=i.evidence||{}; const missing=[],failed=[]; for(const k of required){const v=ev[k]; if(v===undefined||v===null||v.status==='NOT_EXECUTED'||v.status==='UNKNOWN')missing.push(k); else if(v.status!=='PASS')failed.push(k);} return{status:failed.length?'FAIL':missing.length?'INCOMPLETE':'PASS',missing,failed};} module.exports={run};

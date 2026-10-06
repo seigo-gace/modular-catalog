@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('requirement-trace user scenario',()=>{assert.equal(s.run({requirements:[{id:'R-login'},{id:'R-credit'}],artifacts:[{requirement_ids:['R-login']},{requirement_ids:['R-credit']}]}).status,'PASS');});

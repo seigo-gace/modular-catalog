@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {run}=require('../../source/index.js'); const r=run({records:[{id:'x',decision_required:true},{id:'y'}]}); assert.deepEqual(r.decisions,[{id:'x',reasons:['EXPLICIT_DECISION_REQUIRED']}]);

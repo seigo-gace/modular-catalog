@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {run}=require('../../source/index.js'); const r=run({limits:{max_calls:2},usage:{calls:3},quality_floor:90,requested_quality:90}); assert.equal(r.status,'DENY'); assert.deepEqual(r.exceeded,['calls']);

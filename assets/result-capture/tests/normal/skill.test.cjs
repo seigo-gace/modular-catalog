@@ -1,0 +1,1 @@
+const t=require('node:test'),a=require('node:assert/strict'),s=require('../../source');t('captures result',()=>a.equal(s.run({task_id:'t',tool:'node',exit_code:0,started_at:'1',ended_at:'2'}).result.success,true));

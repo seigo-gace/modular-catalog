@@ -1,0 +1,2 @@
+"use strict";
+function run(i={}){const miss=[]; for(const k of ['module','inputs','outputs','stateOwner']) if(i[k]==null||i[k]===''||(Array.isArray(i[k])&&i[k].length===0)) miss.push(k); if(miss.length)return{status:'BLOCKED',missing:miss}; const deps=[...new Set(i.dependencies||[])].sort(); return{status:'READY',contract:{module:i.module,inputs:i.inputs,outputs:i.outputs,dependencies:deps,stateOwner:i.stateOwner,sideEffects:[...new Set(i.sideEffects||[])].sort()}};} module.exports={run};

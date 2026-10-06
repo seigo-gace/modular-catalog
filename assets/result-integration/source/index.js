@@ -1,0 +1,2 @@
+"use strict";
+function run({results=[]}={}){if(!Array.isArray(results))return{status:'BLOCKED',claims:[],conflicts:[]};const by=new Map(),conflicts=[];for(const r of results){if(!r?.worker_id||!Array.isArray(r.claims))continue;for(const c of r.claims){if(!c?.id)continue;const item={...c,worker_id:r.worker_id};if(!by.has(c.id))by.set(c.id,item);else if(JSON.stringify(by.get(c.id).value)!==JSON.stringify(c.value))conflicts.push({claim_id:c.id,a:by.get(c.id),b:item});}}return{status:conflicts.length?'CONFLICT':'PASS',claims:[...by.values()],conflicts};}module.exports={run};

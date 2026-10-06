@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('tool-request-contract normal',()=>{assert.equal(s.run({tool:'read',args:{p:'x'},reason:'inspect',authority_ref:'A'}).status,'PASS');});

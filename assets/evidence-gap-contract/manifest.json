@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "sha256",
+  "assetHash": "0e2ca3de46fa3fc72a9962616a618d6f23d2c0ddfaa9341d77e68f11179c5bff",
+  "files": [
+    {
+      "path": "architecture.md",
+      "size": 101,
+      "sha256": "5c1ca5f8e241c2426e9abc6517ad86c92964d7329841cd371b8f77e7c449b7b2"
+    },
+    {
+      "path": "design.md",
+      "size": 182,
+      "sha256": "c9d7d77b39e91db60342d6f1b3e1ad58b1611ae090639470502026a3b9031cd7"
+    },
+    {
+      "path": "evidence.json",
+      "size": 403,
+      "sha256": "456ba1e86007ecacbcb12262fc9ea88ca494ce43e3cd3de9716826b93bb927b9"
+    },
+    {
+      "path": "logic.md",
+      "size": 114,
+      "sha256": "f5a981263338f627fe665ba350f7619afc1de40d7ce1c5c1f007b28b280bc00c"
+    },
+    {
+      "path": "meta.json",
+      "size": 955,
+      "sha256": "43fc1c45f404f35d538ff9a42a2acc39e7b79a16ed8e997e33f5c750b39a57f1"
+    },
+    {
+      "path": "README.md",
+      "size": 120,
+      "sha256": "a9e6e5eadfb0bd6cc1fe14f78b70966da19914b201fd46259947f72098b615da"
+    },
+    {
+      "path": "source/index.js",
+      "size": 699,
+      "sha256": "f1cd0c58ad414cc3525ef0b5e28b2c32e1010f78afa7933e57cd7e8caa2036ab"
+    },
+    {
+      "path": "tests/normal/evidence-gap-contract.test.cjs",
+      "size": 258,
+      "sha256": "c6334e678eeb5895e36f36cb2c7d68f37f2f06d6e5b66f73789c156b1bdebc13"
+    },
+    {
+      "path": "tests/user/evidence-gap-contract.test.cjs",
+      "size": 191,
+      "sha256": "c18e24348dc9bca16578ca10d9c0cdca32e29176ea5d52c2142306b00330354c"
+    }
+  ]
+}

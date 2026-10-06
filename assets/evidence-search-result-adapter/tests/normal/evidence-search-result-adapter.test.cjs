@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {run}=require('../../source/index.js'); const r=run({claim_id:'c',results:[{source_id:'s',url:'https://x',status:'FOUND'}]}); assert.equal(r.records[0].claim_id,'c');

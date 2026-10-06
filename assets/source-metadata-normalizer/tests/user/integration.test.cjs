@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source'); test('invalid date fails closed',()=>{const r=s.normalizeSourceMetadata({source_id:'s1',url:'https://x',authority_level:'primary',published_at:'not-a-date'});a.deepEqual(r,{status:'BLOCKED',reason:'INVALID_PUBLISHED_AT'});});

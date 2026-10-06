@@ -1,0 +1,11 @@
+{
+  "schemaVersion":1,"id":"cost-budget","name":"Cost Budget","version":"0.1.0",
+  "summary":"予算上限と予約済み/実使用Costから追加実行可否をFail-Closed判定する。",
+  "purpose":"予算上限と予約済み/実使用Costから追加実行可否をFail-Closed判定する。",
+  "responsibility":"予算上限と予約済み/実使用Costから追加実行可否をFail-Closed判定する。",
+  "layers":["Component"],"languages":["JavaScript"],"runtimes":["Node.js 22+"],
+  "tags":["g-ace","skill","cost-budget"],"dependencies":[],
+  "constraints":["pure deterministic","fail-closed where required","no external mutation authority"],
+  "source":{"repository":"local-lab://chatgpt/individual-skill-modules","commit":"local-verified-2026-09-29"},
+  "verifiedAt":"2026-09-29T23:39:00+09:00"
+}

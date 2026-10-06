@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {run}=require('../../source/index.js'); const r=run({records:[{id:'a',risk:'CRITICAL',requires_human_decision:true,blocking:true}]}); assert.deepEqual(r.decisions[0].reasons,['BLOCKING','HIGH_RISK_HUMAN_DECISION']);

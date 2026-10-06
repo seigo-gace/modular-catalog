@@ -3,7 +3,8 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 const LAYERS = new Set(['Part', 'Feature', 'Component', 'System', 'Application System']);
-const REQUIRED_DOCS = ['design.md', 'logic.md', 'architecture.md', 'evidence.json'];
+const LEGACY_REQUIRED_DOCS = ['design.md', 'logic.md', 'architecture.md', 'evidence.json'];
+const TYPE_DOCUMENTS = Object.freeze({ design: 'design.md', logic: 'logic.md', architecture: 'architecture.md' });
 const SECRET_PATTERNS = [
   /-----BEGIN (?:RSA |EC |OPENSSH |PGP )?PRIVATE KEY-----/i,
   /\bgh[pousr]_[A-Za-z0-9_]{20,}\b/,
@@ -86,14 +87,54 @@ function assertStringArray(meta, field, allowEmpty = false) {
   }
 }
 
+function explicitReusableAssetTypes(meta) {
+  if (meta.reusableAssetTypes == null) return null;
+  if (!Array.isArray(meta.reusableAssetTypes) || meta.reusableAssetTypes.length === 0 || meta.reusableAssetTypes.some((item) => typeof item !== 'string' || !item.trim())) {
+    throw new CatalogError('meta.reusableAssetTypes must be a non-empty string array when provided.', 'INVALID_META');
+  }
+  return [...new Set(meta.reusableAssetTypes.map((item) => item.trim()))];
+}
+
+function requiredDocsForMeta(meta) {
+  const explicit = explicitReusableAssetTypes(meta);
+  if (!explicit) return LEGACY_REQUIRED_DOCS;
+  const docs = ['evidence.json'];
+  for (const type of explicit) {
+    const file = TYPE_DOCUMENTS[type];
+    if (file && !docs.includes(file)) docs.push(file);
+  }
+  return docs;
+}
+
+function isExplicitNonCodeAsset(meta) {
+  const types = explicitReusableAssetTypes(meta);
+  return Array.isArray(types) && !types.includes('code');
+}
+
+function reusableAssetTypesForSearch(meta) {
+  const explicit = explicitReusableAssetTypes(meta);
+  if (explicit) return explicit;
+  const derived = [];
+  if (typeof meta.assetKind === 'string' && meta.assetKind.trim()) derived.push(meta.assetKind.trim());
+  if (Array.isArray(meta.tags) && meta.tags.includes('skill')) derived.push('capability', 'skill');
+  derived.push('code', 'design', 'logic', 'architecture', 'test');
+  return [...new Set(derived)];
+}
+
 export function validateMeta(meta) {
   if (!meta || typeof meta !== 'object' || Array.isArray(meta)) throw new CatalogError('meta.json must contain an object.', 'INVALID_META');
   if (meta.schemaVersion !== 1) throw new CatalogError('meta.schemaVersion must be 1.', 'INVALID_META');
   assertSafeId(meta.id);
   for (const field of ['name', 'version', 'summary', 'purpose', 'responsibility']) assertString(meta, field);
-  for (const field of ['layers', 'languages', 'runtimes', 'tags']) assertStringArray(meta, field);
+  const nonCode = isExplicitNonCodeAsset(meta);
+  assertStringArray(meta, 'layers', nonCode);
+  assertStringArray(meta, 'languages', nonCode);
+  assertStringArray(meta, 'runtimes', nonCode);
+  assertStringArray(meta, 'tags');
   for (const field of ['dependencies', 'constraints']) assertStringArray(meta, field, true);
+  if (meta.assetKind != null && (typeof meta.assetKind !== 'string' || !meta.assetKind.trim())) throw new CatalogError('meta.assetKind must be a non-empty string when provided.', 'INVALID_META');
   if (meta.layers.some((layer) => !LAYERS.has(layer))) throw new CatalogError('meta.layers contains an invalid five-layer value.', 'INVALID_META');
+  if (meta.fiveV != null && (!meta.fiveV || typeof meta.fiveV !== 'object' || Array.isArray(meta.fiveV))) throw new CatalogError('meta.fiveV must be an object when provided.', 'INVALID_META');
   if (!meta.source || typeof meta.source.repository !== 'string' || !meta.source.repository.trim() || typeof meta.source.commit !== 'string' || !meta.source.commit.trim()) {
     throw new CatalogError('meta.source.repository and meta.source.commit are required.', 'INVALID_META');
   }
@@ -157,12 +198,22 @@ export async function validateAssetDirectory(assetDir, { verifyManifest = false 
   if (!await exists(metaPath)) throw new CatalogError('meta.json is required.', 'MISSING_FILE');
   const meta = validateMeta(await readJson(metaPath));
 
-  for (const file of REQUIRED_DOCS) {
+  for (const file of requiredDocsForMeta(meta)) {
     const target = path.join(absolute, file);
     if (!await exists(target) || (await fs.stat(target)).size === 0) throw new CatalogError(`${file} is required and must not be empty.`, 'MISSING_FILE');
   }
-  const sourceDirectory = await exists(path.join(absolute, 'source')) ? 'source' : 'code';
-  for (const directory of [sourceDirectory, 'tests/normal', 'tests/user']) {
+  const nonCode = isExplicitNonCodeAsset(meta);
+  const sourcePath = await exists(path.join(absolute, 'source')) ? path.join(absolute, 'source') : (await exists(path.join(absolute, 'code')) ? path.join(absolute, 'code') : null);
+  if (!nonCode) {
+    if (!sourcePath || !(await fs.stat(sourcePath)).isDirectory()) throw new CatalogError('source/ or code/ is required.', 'MISSING_DIRECTORY');
+    const sourceFiles = await listFiles(sourcePath);
+    if (sourceFiles.length === 0) throw new CatalogError('source/ or code/ must contain files.', 'EMPTY_DIRECTORY');
+  } else if (sourcePath) {
+    if (!(await fs.stat(sourcePath)).isDirectory()) throw new CatalogError('source/ or code/ must be a directory when present.', 'MISSING_DIRECTORY');
+    const sourceFiles = await listFiles(sourcePath);
+    if (sourceFiles.length === 0) throw new CatalogError('source/ or code/ must contain files when present.', 'EMPTY_DIRECTORY');
+  }
+  for (const directory of ['tests/normal', 'tests/user']) {
     const target = path.join(absolute, directory);
     if (!await exists(target) || !(await fs.stat(target)).isDirectory()) throw new CatalogError(`${directory}/ is required.`, 'MISSING_DIRECTORY');
     const files = await listFiles(target);
@@ -227,7 +278,8 @@ export async function buildIndex(rootDir) {
       if (result.meta.id !== child.name) throw new CatalogError(`Asset directory name must equal meta.id: ${child.name}`, 'ID_PATH_MISMATCH');
       const documents = {};
       for (const section of ['design', 'logic', 'architecture']) {
-        documents[section] = await fs.readFile(path.join(assetDir, `${section}.md`), 'utf8');
+        const file = path.join(assetDir, `${section}.md`);
+        if (await exists(file)) documents[section] = await fs.readFile(file, 'utf8');
       }
       entries.push(compactEntry(result.meta, result.manifest, documents));
     }
@@ -287,7 +339,9 @@ export async function searchCatalog(rootDir, options = {}) {
   const queryText = normalizeText(options.query ?? '');
   const queryTokens = tokenize(queryText);
   const limit = Math.max(1, Math.min(Number(options.limit ?? 5), 50));
-  const poolLimit = Math.max(limit, Math.min(Number(options.pool ?? limit * 3), 100));
+  const profileFilter = Boolean(options.assetType || options.fiveVLevel);
+  const defaultPool = profileFilter ? index.entries.length : limit * 3;
+  const poolLimit = Math.max(limit, Math.min(Number(options.pool ?? defaultPool), Math.max(100, index.entries.length)));
 
   const stageOne = index.entries
     .filter((entry) => includesNormalized(entry.languages, options.language))
@@ -303,6 +357,10 @@ export async function searchCatalog(rootDir, options = {}) {
     const metaPath = path.join(root, 'assets', candidate.entry.id, 'meta.json');
     if (!await exists(metaPath)) continue;
     const meta = validateMeta(await readJson(metaPath));
+    const assetTypes = reusableAssetTypesForSearch(meta);
+    const fiveVLevel = meta.fiveV?.applicable === true && typeof meta.fiveV.level === 'string' ? meta.fiveV.level : null;
+    if (options.assetType && !includesNormalized(assetTypes, options.assetType)) continue;
+    if (options.fiveVLevel && !includesNormalized(fiveVLevel ? [fiveVLevel] : [], options.fiveVLevel)) continue;
     let score = candidate.score;
     if (options.dependency && includesNormalized(meta.dependencies, options.dependency)) score += 25;
     if (options.tag && includesNormalized(meta.tags, options.tag)) score += 25;
@@ -313,6 +371,9 @@ export async function searchCatalog(rootDir, options = {}) {
       version: meta.version,
       summary: meta.summary,
       responsibility: meta.responsibility,
+      assetKind: meta.assetKind ?? null,
+      reusableAssetTypes: assetTypes,
+      fiveV: meta.fiveV ?? null,
       layers: meta.layers,
       languages: meta.languages,
       runtimes: meta.runtimes,
@@ -392,6 +453,7 @@ export async function loadAssetSection(rootDir, assetId, section = 'meta') {
   const root = path.resolve(rootDir);
   const assetDir = path.join(root, 'assets', assetId);
   if (!await exists(assetDir)) throw new CatalogError(`Unknown asset: ${assetId}`, 'ASSET_NOT_FOUND');
+  const sourceTarget = await exists(path.join(assetDir, 'source')) ? 'source' : (await exists(path.join(assetDir, 'code')) ? 'code' : null);
   const map = {
     meta: ['meta.json'],
     design: ['design.md'],
@@ -400,9 +462,9 @@ export async function loadAssetSection(rootDir, assetId, section = 'meta') {
     evidence: ['evidence.json'],
     manifest: ['manifest.json'],
     tests: ['tests'],
-    code: [await exists(path.join(assetDir, 'source')) ? 'source' : 'code'],
-    source: [await exists(path.join(assetDir, 'source')) ? 'source' : 'code'],
-    all: ['meta.json', 'design.md', 'logic.md', 'architecture.md', 'evidence.json', 'manifest.json', await exists(path.join(assetDir, 'source')) ? 'source' : 'code', 'tests']
+    code: sourceTarget ? [sourceTarget] : [],
+    source: sourceTarget ? [sourceTarget] : [],
+    all: ['meta.json', 'design.md', 'logic.md', 'architecture.md', 'evidence.json', 'manifest.json', ...(sourceTarget ? [sourceTarget] : []), 'tests']
   };
   const targets = map[section];
   if (!targets) throw new CatalogError(`Unknown section: ${section}`, 'INVALID_SECTION');
@@ -410,6 +472,7 @@ export async function loadAssetSection(rootDir, assetId, section = 'meta') {
   for (const target of targets) {
     const full = path.join(assetDir, target);
     if (!(full === assetDir || full.startsWith(`${assetDir}${path.sep}`))) throw new CatalogError('Unsafe path.', 'UNSAFE_PATH');
+    if (!await exists(full)) continue;
     const stat = await fs.stat(full);
     if (stat.isFile()) output[target] = await fs.readFile(full, 'utf8');
     if (stat.isDirectory()) {

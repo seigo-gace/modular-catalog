@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source'); test('future source blocks',()=>a.equal(s.evaluateFreshness({published_at:'2026-10-01',as_of:'2026-09-10',max_age_days:30}).status,'BLOCKED'));

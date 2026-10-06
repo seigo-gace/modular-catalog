@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {run}=require('../../source/index.js'); assert.equal(run({now_at:'2026-09-30T00:00:00Z',due_at:'2026-09-30T01:00:00Z',policy:{critical_hours:2,warning_hours:8}}).risk,'CRITICAL');

@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('secret-protected-resource-guard normal',()=>{assert.equal(s.run({text:'token=abc'}).status,'REJECT');assert.equal(s.run({text:'token = abc'}).status,'REJECT');assert.equal(s.run({text:'safe text'}).status,'PASS');});

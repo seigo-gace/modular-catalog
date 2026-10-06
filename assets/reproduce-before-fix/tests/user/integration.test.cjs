@@ -1,0 +1,1 @@
+const t=require('node:test'),a=require('node:assert/strict'),s=require('../../source');t('does not repair unreproduced bug',()=>a.equal(s.run({baseline:{expected_failure:'E'},observed:{failure:'OTHER'}}).status,'BLOCKED'));

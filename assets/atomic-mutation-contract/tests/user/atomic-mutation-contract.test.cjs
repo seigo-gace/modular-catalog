@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {run}=require('../../source/index.js'); assert.equal(run({target:'cfg',expected_before:{on:false},after:{on:true},rollback:'restore',approval_ref:'ticket-1'}).mutation.target,'cfg');

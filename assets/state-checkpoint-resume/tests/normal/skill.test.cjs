@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('state-checkpoint-resume normal',()=>{assert.equal(s.run({run_id:'r',role_execution_id:'re',attempt_id:'a',generation:1,completed_units:['u1'],next_unit:'u2'}).status,'PASS');});

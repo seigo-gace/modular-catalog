@@ -1,0 +1,1 @@
+const assert=require('node:assert/strict'); const {run}=require('../../source/index.js'); const r=run({now_at:'2026-09-30T00:00:00Z',items:[{id:'a',requires_action:true,due_at:'2026-09-29T00:00:00Z',priority:'LOW'},{id:'b',requires_action:true,priority:'HIGH'}]}); assert.equal(r.actions[0].id,'a');

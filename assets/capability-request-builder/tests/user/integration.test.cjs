@@ -1,0 +1,1 @@
+"use strict";const test=require('node:test');const assert=require('node:assert/strict');const s=require('../../source');test('capability-request-builder user scenario',()=>{assert.equal(s.run({task_id:'repair',needed:[],reason:'missing'}).status,'BLOCKED');});

@@ -1,0 +1,1 @@
+const t=require('node:test'),a=require('node:assert/strict'),s=require('../../source');t('needs repeated signature',()=>a.equal(s.run({attempts:[{executed:true,failed:true,signature:'E'},{executed:true,failed:true,signature:'E'}]}).status,'PASS'));

@@ -1,0 +1,4 @@
+{
+  "normal": {"passed": true,"commands":["node --test tests/normal/code-localization.test.cjs"],"expectedResults":["Recorded test result: passed=true."]},
+  "user": {"passed": true,"commands":["node --test tests/user/code-localization.test.cjs"],"expectedResults":["Recorded test result: passed=true."]}
+}

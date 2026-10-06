@@ -1,0 +1,1 @@
+const test=require('node:test'),a=require('node:assert/strict'),s=require('../../source');test('flags unknown node',()=>{const r=s.run({nodes:['api'],edges:[{from:'api',to:'db'}]});a.equal(r.status,'PARTIAL');a.equal(r.invalid_edges.length,1);});
